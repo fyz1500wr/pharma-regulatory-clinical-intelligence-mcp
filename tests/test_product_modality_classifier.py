@@ -26,3 +26,11 @@ def test_small_molecule_still_matches():
 def test_monoclonal_antibody_still_matches():
     out = classify_product_modality("monoclonal antibody study")
     assert "antibody" in out["product_modality"]
+
+def test_mab_suffix_still_matches_antibody_drug_names():
+    out = classify_product_modality("pembrolizumab study")
+    assert "antibody" in out["product_modality"]
+
+    out = classify_product_modality("trastuzumab combination therapy")
+    assert "antibody" in out["product_modality"]
+\n
