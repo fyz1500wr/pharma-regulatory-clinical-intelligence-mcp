@@ -2,7 +2,7 @@
 
 This repository is for building a **Pharmaceutical Regulatory and Clinical Intelligence System** in GitHub/Codex, with final execution through Claude using MCP tools.
 
-The system is intended to track regulatory updates and clinical trial developments from official or high-reliability public sources, normalize the data, classify it by biologic product type and indication, and make the results available for Claude-based analysis and reporting.
+The system is intended to track regulatory updates and clinical trial developments from official or high-reliability public sources, normalize the data, classify it by product modality and indication, and make the results available for Claude-based analysis and reporting.
 
 ---
 
@@ -33,7 +33,9 @@ Included in MVP v1:
 1. FDA regulatory and open data sources
 2. TFDA regulatory and open data sources
 3. ClinicalTrials.gov API v2
-4. Basic biologic product type classification
+
+Product modality coverage includes small molecules, peptides, oligonucleotide/RNA-based products, antibodies, ADCs, vaccines, cell therapies, gene therapies, radiopharmaceuticals, combination products, and other therapeutic modalities.
+4. Basic product modality classification
 5. Basic indication and company tracking
 6. Basic regulatory update digest
 7. Basic source health check
@@ -55,7 +57,7 @@ This repository is designed to:
 
 - Track regulatory updates from FDA, EMA, TFDA, NMPA, and PMDA
 - Record publication dates, update dates, official URLs, and attachment links
-- Classify regulatory updates by biologic product type and regulatory topic
+- Classify regulatory updates by product modality and regulatory topic
 - Track clinical trials by indication, sponsor/company, phase, status, and results availability
 - Use official APIs, RSS feeds, open data portals, and official source pages where available
 - Detect source failures, webpage structure changes, and parser issues
@@ -91,7 +93,7 @@ Additional core documents to be created next:
 
 ```text
 docs/source_priority_matrix.md
-docs/biologics_taxonomy.md
+docs/product_modality_taxonomy.md
 docs/mcp_tool_contract.md
 docs/data_dictionary.md
 workflows/regulatory_clinical_intelligence_workflow.md
@@ -108,7 +110,7 @@ Recommended setup order:
 1. Finalize `PROJECT_INSTRUCTION.md`
 2. Create this thin `README.md`
 3. Create `docs/source_priority_matrix.md`
-4. Create `docs/biologics_taxonomy.md`
+4. Create `docs/product_modality_taxonomy.md`
 5. Create `docs/mcp_tool_contract.md`
 6. Create `docs/data_dictionary.md`
 7. Create `workflows/regulatory_clinical_intelligence_workflow.md`
