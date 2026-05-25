@@ -34,13 +34,13 @@ Included in MVP v1:
 2. TFDA regulatory and open data sources
 3. ClinicalTrials.gov API v2
 
-Product modality coverage includes small molecules, peptides, oligonucleotide/RNA-based products, antibodies, ADCs, vaccines, cell therapies, gene therapies, radiopharmaceuticals, combination products, and other therapeutic modalities.
 4. Basic product modality classification
 5. Basic indication and company tracking
 6. Basic regulatory update digest
 7. Basic source health check
 8. Basic MCP tools for regulatory and clinical trial search
 
+Product modality coverage includes small molecules, peptides, oligonucleotide/RNA-based products, antibodies, ADCs, vaccines, cell therapies, gene therapies, radiopharmaceuticals, combination products, and other therapeutic modalities.
 The initial build target is:
 
 ```text
