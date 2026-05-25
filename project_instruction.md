@@ -4,13 +4,15 @@
 
 This repository is designed to build a **Pharmaceutical Regulatory and Clinical Intelligence System** that can be developed in GitHub/Codex and later executed through Claude using MCP tools.
 
-The system tracks regulatory updates and clinical trial developments from official or high-reliability public sources, normalizes the data, classifies it by biologic product type and indication, and makes the results available for Claude-based analysis and reporting.
+The system tracks regulatory updates and clinical trial developments from official or high-reliability public sources, normalizes the data, classifies it by product modality, indication, regulatory topic, and development impact, and makes the results available for Claude-based analysis and reporting.
+
+Product modality includes small molecule drugs, peptide drugs, oligonucleotide and RNA-based therapeutics, biologics, antibody-based products, ADCs, vaccines, cell therapies, gene therapies, radiopharmaceuticals, and combination products.
 
 The primary use cases are:
 
 1. Track regulatory laws, guidelines, notices, Q&A documents, and industry guidance from FDA, EMA, TFDA, NMPA, and PMDA.
 2. Capture the publication date, update date, source agency, official URL, document status, and attachment links for each regulatory update.
-3. Search and classify updates by biologic product type, regulatory topic, and development impact.
+3. Search and classify updates by product modality, regulatory topic, and development impact.
 4. Track clinical trials by indication, sponsor/company, product type, phase, recruitment status, country, trial update date, and results availability.
 5. Detect source failure, API schema changes, HTML structure changes, missing attachments, and webpage redesigns.
 6. Expose standardized tools through MCP so Claude can query, summarize, compare, and generate reports without directly scraping raw websites.
@@ -101,7 +103,7 @@ Regulatory Intelligence includes:
 - Clinical development guidance
 - eCTD and submission-related updates
 - Labeling and post-approval requirements
-- Biologic-specific regulatory updates
+- Product modality-specific regulatory updates
 
 ### 3.2 Clinical Trial Intelligence
 
@@ -238,17 +240,17 @@ Claude reports must not confuse retrieval date with publication date.
 
 ---
 
-## 7. Biologic Product Type Scope
+## 7. Product Modality Scope
 
-The system must support biologic product type classification.
+The system must support product modality classification.
 
 The detailed taxonomy is maintained in:
 
 ```text
-docs/biologics_taxonomy.md
+docs/product_modality_taxonomy.md
 ```
 
-At the project instruction level, the supported top-level biologic categories are:
+At the project instruction level, the supported top-level product modality categories are:
 
 - Monoclonal antibody
 - Bispecific antibody
@@ -292,7 +294,7 @@ The system should allow users to search by:
 - Sponsor or company
 - Collaborator
 - Intervention name
-- Biologic product type
+- Product modality
 - Trial phase
 - Trial status
 - Country or region
@@ -401,7 +403,7 @@ Included in MVP v1:
 1. FDA regulatory and open data sources
 2. TFDA regulatory and open data sources
 3. ClinicalTrials.gov API v2
-4. Basic biologic product type classification
+4. Basic product modality classification
 5. Basic indication and company tracking
 6. Basic regulatory update digest
 7. Basic source health check
@@ -422,7 +424,7 @@ Included in v2:
 1. EMA RSS connector
 2. EMA medicine data downloader
 3. EMA scientific guideline parser
-4. Improved biologic taxonomy
+4. Improved product modality taxonomy
 5. Improved regulatory topic classification
 6. Regulatory impact matrix enhancement
 7. Better report templates for cross-agency comparison
@@ -497,7 +499,7 @@ For later phases, the system may automatically create a GitHub Issue for source 
 The system should support the following output types:
 
 1. Regulatory update digest
-2. Biologic-specific regulatory update report
+2. Product modality-specific regulatory update report
 3. Cross-agency comparison table
 4. Regulatory impact matrix
 5. Indication-based clinical trial tracker
@@ -548,7 +550,7 @@ To prevent the project from becoming too large or disorganized, all contributors
 3. Do not expand beyond the current implementation phase unless explicitly requested.
 4. Do not add new agencies, registries, or data sources without updating the source priority matrix.
 5. Do not add new MCP tools without updating the MCP tool contract.
-6. Do not add new biologic product categories without updating the biologics taxonomy.
+6. Do not add new biologic product categories without updating the product modality taxonomy.
 7. Do not change output formats without updating the relevant template or workflow document.
 8. Do not create duplicate instructions in multiple files.
 9. Do not add speculative features that are not required for regulatory or clinical intelligence.
@@ -566,7 +568,7 @@ PROJECT_INSTRUCTION.md
 CLAUDE.md
 AGENTS.md
 docs/source_priority_matrix.md
-docs/biologics_taxonomy.md
+docs/product_modality_taxonomy.md
 docs/mcp_tool_contract.md
 docs/data_dictionary.md
 workflows/regulatory_clinical_intelligence_workflow.md
@@ -582,7 +584,7 @@ The recommended development order is:
 
 1. Finalize `PROJECT_INSTRUCTION.md`
 2. Create `docs/source_priority_matrix.md`
-3. Create `docs/biologics_taxonomy.md`
+3. Create `docs/product_modality_taxonomy.md`
 4. Create `docs/mcp_tool_contract.md`
 5. Create `docs/data_dictionary.md`
 6. Create `workflows/regulatory_clinical_intelligence_workflow.md`
@@ -608,11 +610,10 @@ MVP v1 should produce:
 1. A working regulatory update ingestion pipeline for FDA and TFDA
 2. A working ClinicalTrials.gov API connector
 3. A normalized data format
-4. A simple biologic type classifier
+4. A simple product modality classifier
 5. A simple indication/company search capability
 6. A basic source health check
 7. A basic MCP server exposing query tools
 8. A Claude-generated regulatory or clinical intelligence report based on MCP results
 
 Only after MVP v1 works end to end should EMA, NMPA, PMDA, and advanced monitoring be added.
-
