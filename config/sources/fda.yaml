@@ -1,0 +1,7 @@
+source_id: FDA_openFDA
+agency_or_registry: FDA
+source_type: API
+base_url: https://api.fda.gov
+phase: MVP_v1
+active: true
+notes: MVP v1 active source. Official API prioritized.

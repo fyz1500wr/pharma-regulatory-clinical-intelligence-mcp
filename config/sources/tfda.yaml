@@ -1,0 +1,7 @@
+source_id: TFDA_DataAction
+agency_or_registry: TFDA
+source_type: API
+endpoint_url: https://data.fda.gov.tw
+phase: MVP_v1
+active: true
+notes: MVP v1 active source. Official TFDA/data.gov.tw endpoints only.
