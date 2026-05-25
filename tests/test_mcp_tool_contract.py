@@ -42,6 +42,30 @@ def test_mcp_search_clinical_trials_by_indication_with_fake_client(monkeypatch):
     assert result["query_metadata"]["registries_searched"] == ["ClinicalTrials.gov"]
 
 
+def test_mcp_search_clinical_trials_empty_results(monkeypatch):
+    class FakeClient:
+        def search_studies(self, **kwargs):
+            return {"studies": []}
+
+    monkeypatch.setattr("src.mcp_server.tools_clinical_trials.ClinicalTrialsGovClient", lambda: FakeClient())
+    result = search_clinical_trials_by_indication("NSCLC")
+    assert result["trials"] == []
+    assert result["no_result_reason"] == "NO_MATCHING_RECORDS"
+
+
+def test_trimmed_indication(monkeypatch):
+    seen = {}
+
+    class FakeClient:
+        def search_studies(self, **kwargs):
+            seen.update(kwargs)
+            return {"studies": []}
+
+    monkeypatch.setattr("src.mcp_server.tools_clinical_trials.ClinicalTrialsGovClient", lambda: FakeClient())
+    search_clinical_trials_by_indication("  NSCLC  ")
+    assert seen["indication"] == "NSCLC"
+
+
 def test_product_modality_still_uses_product_modality(monkeypatch):
     class FakeClient:
         def search_studies(self, **kwargs):

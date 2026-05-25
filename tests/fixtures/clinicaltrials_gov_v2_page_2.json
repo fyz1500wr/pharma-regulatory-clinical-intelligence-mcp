@@ -1,0 +1,15 @@
+{
+  "studies": [
+    {
+      "protocolSection": {
+        "identificationModule": {"nctId": "NCT10000002", "briefTitle": "Page 2 Trial"},
+        "statusModule": {"overallStatus": "COMPLETED", "hasResults": true, "lastUpdateSubmitDateStruct": {"date": "2025-02-01"}},
+        "conditionsModule": {"conditions": ["Breast Cancer"]},
+        "sponsorCollaboratorsModule": {"leadSponsor": {"name": "Bravo"}},
+        "designModule": {"phases": ["PHASE3"]},
+        "armsInterventionsModule": {"interventions": [{"name": "monoclonal antibody"}]},
+        "descriptionModule": {"briefSummary": "antibody study"}
+      }
+    }
+  ]
+}
