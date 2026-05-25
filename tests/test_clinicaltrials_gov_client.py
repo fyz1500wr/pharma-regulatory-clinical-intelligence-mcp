@@ -98,3 +98,25 @@ def test_normalize_clinicaltrials_record_handles_null_protocol_section():
     assert isinstance(rec.known_limitations, list)
     assert "product_modality" in rec_dict
     assert "biologic_type" not in rec_dict
+
+
+def test_normalize_handles_non_dict_sponsor_and_date_structs():
+    raw = {
+        "protocolSection": {
+            "identificationModule": {"nctId": "NCT00009999", "briefTitle": "Robustness Trial"},
+            "sponsorCollaboratorsModule": {"leadSponsor": "NotADict"},
+            "statusModule": {
+                "startDateStruct": "2026-01-01",
+                "primaryCompletionDateStruct": ["2026-06-01"],
+                "lastUpdateSubmitDateStruct": None,
+            },
+        }
+    }
+
+    rec = normalize_clinicaltrials_record(raw, retrieved_at="2026-01-01T00:00:00Z")
+
+    assert rec.registry == "ClinicalTrials.gov"
+    assert rec.sponsor == ""
+    assert rec.start_date is None
+    assert rec.primary_completion_date is None
+    assert rec.last_update_date is None
