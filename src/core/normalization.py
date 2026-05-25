@@ -1,3 +1,4 @@
+from src.classifiers.product_modality_classifier import classify_product_modality
 from src.core.models import ClinicalTrialRecord, RegulatoryUpdate
 
 
@@ -24,14 +25,72 @@ def normalize_tfda_record(raw: dict, *, retrieved_at: str) -> RegulatoryUpdate:
 
 
 def normalize_clinicaltrials_record(raw: dict, *, retrieved_at: str) -> ClinicalTrialRecord:
-    # TODO: map ClinicalTrials.gov API v2 study fields.
+    protocol = raw.get("protocolSection", {}) if isinstance(raw, dict) else {}
+    identification = protocol.get("identificationModule", {})
+    status_module = protocol.get("statusModule", {})
+    conditions_module = protocol.get("conditionsModule", {})
+    sponsor_module = protocol.get("sponsorCollaboratorsModule", {})
+    design_module = protocol.get("designModule", {})
+    contacts_module = protocol.get("contactsLocationsModule", {})
+    arms_module = protocol.get("armsInterventionsModule", {})
+    outcomes_module = protocol.get("outcomesModule", {})
+    description_module = protocol.get("descriptionModule", {})
+
+    nct_id = identification.get("nctId") or raw.get("nctId") or raw.get("trial_id", "")
+    official_url = f"https://clinicaltrials.gov/study/{nct_id}" if nct_id else raw.get("official_url", "")
+
+    interventions = [
+        intervention.get("name", "")
+        for intervention in arms_module.get("interventions", [])
+        if isinstance(intervention, dict) and intervention.get("name")
+    ]
+    indications = conditions_module.get("conditions", []) or raw.get("indications", [])
+    brief_summary = description_module.get("briefSummary", "")
+    title = identification.get("briefTitle") or raw.get("title", "")
+    sponsor = sponsor_module.get("leadSponsor", {}).get("name") or raw.get("sponsor", "")
+    collaborators = [
+        collaborator.get("name", "")
+        for collaborator in sponsor_module.get("collaborators", [])
+        if isinstance(collaborator, dict) and collaborator.get("name")
+    ]
+    phase_list = design_module.get("phases", [])
+    phase = phase_list[0] if phase_list else raw.get("phase", "unknown")
+    status = status_module.get("overallStatus") or raw.get("status", "unknown")
+    countries = [
+        location.get("country", "")
+        for location in contacts_module.get("locations", [])
+        if isinstance(location, dict) and location.get("country")
+    ]
+    primary_outcomes = [
+        outcome.get("measure", "")
+        for outcome in outcomes_module.get("primaryOutcomes", [])
+        if isinstance(outcome, dict) and outcome.get("measure")
+    ]
+
+    modality_text = " ".join(interventions + [title, brief_summary])
+    modality = classify_product_modality(modality_text).get("product_modality", ["unknown"])
+
+    known_limitations = raw.get("known_limitations", [])
+    if not brief_summary:
+        known_limitations.append("ClinicalTrials.gov briefSummary missing from API response.")
+
     return ClinicalTrialRecord(
-        trial_id=raw.get("trial_id", ""), registry="ClinicalTrials.gov", official_url=raw.get("official_url", ""),
-        title=raw.get("title", ""), sponsor=raw.get("sponsor", ""), retrieved_at=retrieved_at,
-        indications=raw.get("indications", []), intervention_names=raw.get("intervention_names", []),
-        product_modality=raw.get("product_modality", []), phase=raw.get("phase", "unknown"),
-        status=raw.get("status", "unknown"), countries=raw.get("countries", []),
-        start_date=raw.get("start_date"), primary_completion_date=raw.get("primary_completion_date"),
-        last_update_date=raw.get("last_update_date"), results_available=raw.get("results_available"),
-        primary_outcomes=raw.get("primary_outcomes", []), known_limitations=raw.get("known_limitations", ["MVP v1 placeholder mapping"]),
+        trial_id=nct_id,
+        registry="ClinicalTrials.gov",
+        official_url=official_url,
+        title=title,
+        sponsor=sponsor,
+        retrieved_at=retrieved_at,
+        indications=indications,
+        intervention_names=interventions,
+        product_modality=modality,
+        phase=phase,
+        status=status,
+        countries=countries,
+        start_date=(status_module.get("startDateStruct", {}) or {}).get("date") or raw.get("start_date"),
+        primary_completion_date=(status_module.get("primaryCompletionDateStruct", {}) or {}).get("date") or raw.get("primary_completion_date"),
+        last_update_date=(status_module.get("lastUpdateSubmitDateStruct", {}) or {}).get("date") or raw.get("last_update_date"),
+        results_available=(status_module.get("hasResults") if "hasResults" in status_module else raw.get("results_available")),
+        primary_outcomes=primary_outcomes,
+        known_limitations=known_limitations,
     )
