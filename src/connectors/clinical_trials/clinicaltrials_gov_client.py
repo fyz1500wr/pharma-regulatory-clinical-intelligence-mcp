@@ -89,6 +89,14 @@ class ClinicalTrialsGovClient:
                 suggested_next_action="Validate upstream response format before processing.",
             )
 
+        if not isinstance(payload, dict):
+            return build_error(
+                ErrorCode.INTERNAL_ERROR,
+                "ClinicalTrials.gov response JSON was not an object",
+                details=f"payload_type={type(payload).__name__}",
+                suggested_next_action="Validate upstream response format before processing.",
+            )
+
         return payload
 
     def iter_studies(
@@ -103,8 +111,9 @@ class ClinicalTrialsGovClient:
     ) -> list[dict]:
         studies: list[dict] = []
         page_token: str | None = None
+        safe_max_pages = max(0, int(max_pages or 0))
 
-        for _ in range(max_pages):
+        for _ in range(safe_max_pages):
             result = self.search_studies(
                 indication=indication,
                 page_size=page_size,
@@ -113,12 +122,12 @@ class ClinicalTrialsGovClient:
                 status=status,
                 page_token=page_token,
             )
-            if "error" in result:
+            if not isinstance(result, dict) or "error" in result:
                 break
             page_studies = result.get("studies", [])
             if not isinstance(page_studies, list):
                 break
-            studies.extend(page_studies)
+            studies.extend([study for study in page_studies if isinstance(study, dict)])
             page_token = result.get("nextPageToken")
             if not page_token:
                 break
