@@ -1,0 +1,52 @@
+{
+  "studies": [
+    {
+      "protocolSection": {
+        "identificationModule": {
+          "nctId": "NCT10000001",
+          "briefTitle": "A Multi-Country Study of Small Molecule Inhibitor in NSCLC"
+        },
+        "statusModule": {
+          "overallStatus": "RECRUITING",
+          "hasResults": false,
+          "startDateStruct": {"date": "2025-01-15"},
+          "primaryCompletionDateStruct": {"date": "2027-06"},
+          "lastUpdateSubmitDateStruct": {"date": "2026-05-01"}
+        },
+        "conditionsModule": {
+          "conditions": ["Non-Small Cell Lung Cancer", "NSCLC"]
+        },
+        "sponsorCollaboratorsModule": {
+          "leadSponsor": {"name": "Acme Pharma"},
+          "collaborators": [{"name": "Global Oncology Network"}]
+        },
+        "designModule": {
+          "phases": ["PHASE2"]
+        },
+        "contactsLocationsModule": {
+          "locations": [
+            {"country": "United States"},
+            {"country": "Taiwan"},
+            {"country": "Japan"}
+          ]
+        },
+        "armsInterventionsModule": {
+          "interventions": [
+            {"name": "small molecule inhibitor ABC-123"},
+            {"name": "pembrolizumab"}
+          ]
+        },
+        "outcomesModule": {
+          "primaryOutcomes": [
+            {"measure": "Objective Response Rate"},
+            {"measure": "Progression-Free Survival"}
+          ]
+        },
+        "descriptionModule": {
+          "briefSummary": "This study evaluates a small molecule inhibitor in participants with NSCLC."
+        }
+      }
+    }
+  ],
+  "nextPageToken": "PAGE_2"
+}
