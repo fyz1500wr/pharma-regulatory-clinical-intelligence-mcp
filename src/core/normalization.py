@@ -58,7 +58,7 @@ def normalize_clinicaltrials_record(raw: dict, *, retrieved_at: str) -> Clinical
     indications = _as_list(conditions_module.get("conditions", [])) or _as_list(raw.get("indications", []))
     brief_summary = description_module.get("briefSummary", "")
     title = identification.get("briefTitle") or raw.get("title", "")
-    sponsor = sponsor_module.get("leadSponsor", {}).get("name") or raw.get("sponsor", "")
+    sponsor = _as_dict(sponsor_module.get("leadSponsor", {})).get("name") or raw.get("sponsor", "")
     collaborators = [
         collaborator.get("name", "")
         for collaborator in _as_list(sponsor_module.get("collaborators", []))
@@ -98,9 +98,9 @@ def normalize_clinicaltrials_record(raw: dict, *, retrieved_at: str) -> Clinical
         phase=phase,
         status=status,
         countries=countries,
-        start_date=(status_module.get("startDateStruct", {}) or {}).get("date") or raw.get("start_date"),
-        primary_completion_date=(status_module.get("primaryCompletionDateStruct", {}) or {}).get("date") or raw.get("primary_completion_date"),
-        last_update_date=(status_module.get("lastUpdateSubmitDateStruct", {}) or {}).get("date") or raw.get("last_update_date"),
+        start_date=_as_dict(status_module.get("startDateStruct", {})).get("date") or raw.get("start_date"),
+        primary_completion_date=_as_dict(status_module.get("primaryCompletionDateStruct", {})).get("date") or raw.get("primary_completion_date"),
+        last_update_date=_as_dict(status_module.get("lastUpdateSubmitDateStruct", {})).get("date") or raw.get("last_update_date"),
         results_available=(status_module.get("hasResults") if "hasResults" in status_module else raw.get("results_available")),
         primary_outcomes=primary_outcomes,
         known_limitations=known_limitations,
