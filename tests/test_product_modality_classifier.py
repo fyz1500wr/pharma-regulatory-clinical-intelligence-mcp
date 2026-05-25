@@ -33,4 +33,3 @@ def test_mab_suffix_still_matches_antibody_drug_names():
 
     out = classify_product_modality("trastuzumab combination therapy")
     assert "antibody" in out["product_modality"]
-\n
