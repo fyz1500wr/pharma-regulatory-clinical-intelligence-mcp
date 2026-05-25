@@ -61,3 +61,29 @@ def test_search_clinical_trials_by_indication_rejects_non_string_indication():
         result = search_clinical_trials_by_indication(bad_input)
         assert "error" in result
         assert result["error"]["code"] == "INVALID_PARAMETER"
+
+
+def test_mcp_search_clinical_trials_by_indication_handles_empty_results(monkeypatch):
+    class FakeClient:
+        def search_studies(self, **kwargs):
+            return {"studies": []}
+
+    monkeypatch.setattr("src.mcp_server.tools_clinical_trials.ClinicalTrialsGovClient", lambda: FakeClient())
+    result = search_clinical_trials_by_indication("rare disease")
+    assert result["trials"] == []
+    assert result["no_result_reason"] == "NO_MATCHING_RECORDS"
+    assert result["query_metadata"]["indication"] == "rare disease"
+
+
+def test_mcp_search_clinical_trials_by_indication_trims_indication(monkeypatch):
+    captured = {}
+
+    class FakeClient:
+        def search_studies(self, **kwargs):
+            captured.update(kwargs)
+            return {"studies": []}
+
+    monkeypatch.setattr("src.mcp_server.tools_clinical_trials.ClinicalTrialsGovClient", lambda: FakeClient())
+    result = search_clinical_trials_by_indication("  NSCLC  ")
+    assert captured["indication"] == "NSCLC"
+    assert result["query_metadata"]["indication"] == "NSCLC"
