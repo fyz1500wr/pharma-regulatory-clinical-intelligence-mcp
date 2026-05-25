@@ -1,4 +1,5 @@
 from src.mcp_server.server import TOOL_REGISTRY
+from src.mcp_server.tools_clinical_trials import search_clinical_trials_by_indication
 from src.mcp_server.tools_regulatory import compare_regulatory_updates
 
 
@@ -15,3 +16,41 @@ def test_compare_regulatory_updates_structured_error():
     result = compare_regulatory_updates()
     assert "error" in result
     assert result["error"]["code"] == "DATA_NOT_INGESTED"
+
+
+def test_mcp_search_clinical_trials_by_indication_with_fake_client(monkeypatch):
+    class FakeClient:
+        def search_studies(self, **kwargs):
+            return {
+                "studies": [
+                    {
+                        "protocolSection": {
+                            "identificationModule": {"nctId": "NCT123", "briefTitle": "Study"},
+                            "sponsorCollaboratorsModule": {"leadSponsor": {"name": "Acme Pharma"}},
+                            "statusModule": {"overallStatus": "RECRUITING", "hasResults": True},
+                            "designModule": {"phases": ["PHASE2"]},
+                            "armsInterventionsModule": {"interventions": [{"name": "small molecule inhibitor"}]},
+                            "conditionsModule": {"conditions": ["NSCLC"]},
+                        }
+                    }
+                ]
+            }
+
+    monkeypatch.setattr("src.mcp_server.tools_clinical_trials.ClinicalTrialsGovClient", lambda: FakeClient())
+    result = search_clinical_trials_by_indication("NSCLC")
+    assert result["trials"]
+    assert result["query_metadata"]["registries_searched"] == ["ClinicalTrials.gov"]
+
+
+def test_product_modality_still_uses_product_modality(monkeypatch):
+    class FakeClient:
+        def search_studies(self, **kwargs):
+            return {
+                "studies": [{"protocolSection": {"identificationModule": {"nctId": "NCT456", "briefTitle": "Study"}}}]
+            }
+
+    monkeypatch.setattr("src.mcp_server.tools_clinical_trials.ClinicalTrialsGovClient", lambda: FakeClient())
+    result = search_clinical_trials_by_indication("oncology")
+    trial = result["trials"][0]
+    assert "product_modality" in trial
+    assert "biologic_type" not in trial
