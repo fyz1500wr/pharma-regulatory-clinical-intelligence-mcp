@@ -119,7 +119,7 @@ Clinical Trial Intelligence includes:
 - Results posted or updated
 - Indication-specific trial landscape
 - Company-specific clinical pipeline tracking
-- Biologic modality and intervention classification
+- Product modality and intervention classification
 
 ---
 
@@ -252,18 +252,24 @@ docs/product_modality_taxonomy.md
 
 At the project instruction level, the supported top-level product modality categories are:
 
-- Monoclonal antibody
-- Bispecific antibody
+- Small molecule
+- Peptide
+- Oligonucleotide
+- mRNA / RNA-based product
+- Antibody
 - Antibody-drug conjugate
+- Recombinant protein
 - Biosimilar
 - Vaccine
 - Cell therapy
 - Gene therapy
-- Recombinant protein
 - Plasma-derived product
-- Nucleic acid drug
-- Microbiome or live biotherapeutic product
-- Other biologic or advanced therapy product
+- Microbiome / live biotherapeutic product
+- Radiopharmaceutical
+- Combination product
+- Other modality
+- Unknown
+- Requires manual review
 
 Classification must be conservative.
 
@@ -550,7 +556,7 @@ To prevent the project from becoming too large or disorganized, all contributors
 3. Do not expand beyond the current implementation phase unless explicitly requested.
 4. Do not add new agencies, registries, or data sources without updating the source priority matrix.
 5. Do not add new MCP tools without updating the MCP tool contract.
-6. Do not add new biologic product categories without updating the product modality taxonomy.
+6. Do not add new product modality categories without updating the product modality taxonomy.
 7. Do not change output formats without updating the relevant template or workflow document.
 8. Do not create duplicate instructions in multiple files.
 9. Do not add speculative features that are not required for regulatory or clinical intelligence.
