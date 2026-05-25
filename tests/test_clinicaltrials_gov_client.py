@@ -11,7 +11,7 @@ FIXTURE_DIR = Path(__file__).parent / "fixtures"
 class FakeResponse:
     def __init__(self, status_code=200, payload=None, json_error=False):
         self.status_code = status_code
-        self._payload = payload or {}
+        self._payload = {} if payload is None else payload
         self._json_error = json_error
 
     def json(self):
@@ -74,7 +74,7 @@ def test_search_studies_handles_bad_json(monkeypatch):
 
 
 def test_search_studies_rejects_non_object_payload(monkeypatch):
-    fake_requests = types.SimpleNamespace(get=lambda *args, **kwargs: FakeResponse(status_code=200, payload=[]), RequestException=Exception)
+    fake_requests = types.SimpleNamespace(get=lambda *args, **kwargs: FakeResponse(status_code=200, payload=["not-object"]), RequestException=Exception)
     monkeypatch.setitem(__import__("sys").modules, "requests", fake_requests)
     client = ClinicalTrialsGovClient()
     result = client.search_studies(indication="NSCLC")
