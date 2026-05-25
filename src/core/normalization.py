@@ -2,6 +2,14 @@ from src.classifiers.product_modality_classifier import classify_product_modalit
 from src.core.models import ClinicalTrialRecord, RegulatoryUpdate
 
 
+def _as_dict(value) -> dict:
+    return value if isinstance(value, dict) else {}
+
+
+def _as_list(value) -> list:
+    return value if isinstance(value, list) else []
+
+
 def normalize_fda_record(raw: dict, *, retrieved_at: str) -> RegulatoryUpdate:
     # TODO: map official openFDA/FDA update schema fields.
     return RegulatoryUpdate(
@@ -25,67 +33,58 @@ def normalize_tfda_record(raw: dict, *, retrieved_at: str) -> RegulatoryUpdate:
 
 
 def normalize_clinicaltrials_record(raw: dict, *, retrieved_at: str) -> ClinicalTrialRecord:
-    protocol = raw.get("protocolSection", {}) if isinstance(raw, dict) else {}
-    if not isinstance(protocol, dict):
-        protocol = {}
+    raw = _as_dict(raw)
+    protocol = _as_dict(raw.get("protocolSection", {}))
 
-    identification = protocol.get("identificationModule", {})
-    status_module = protocol.get("statusModule", {})
-    conditions_module = protocol.get("conditionsModule", {})
-    sponsor_module = protocol.get("sponsorCollaboratorsModule", {})
-    design_module = protocol.get("designModule", {})
-    contacts_module = protocol.get("contactsLocationsModule", {})
-    arms_module = protocol.get("armsInterventionsModule", {})
-    outcomes_module = protocol.get("outcomesModule", {})
-    description_module = protocol.get("descriptionModule", {})
-
-    identification = identification if isinstance(identification, dict) else {}
-    status_module = status_module if isinstance(status_module, dict) else {}
-    conditions_module = conditions_module if isinstance(conditions_module, dict) else {}
-    sponsor_module = sponsor_module if isinstance(sponsor_module, dict) else {}
-    design_module = design_module if isinstance(design_module, dict) else {}
-    contacts_module = contacts_module if isinstance(contacts_module, dict) else {}
-    arms_module = arms_module if isinstance(arms_module, dict) else {}
-    outcomes_module = outcomes_module if isinstance(outcomes_module, dict) else {}
-    description_module = description_module if isinstance(description_module, dict) else {}
+    identification = _as_dict(protocol.get("identificationModule", {}))
+    status_module = _as_dict(protocol.get("statusModule", {}))
+    conditions_module = _as_dict(protocol.get("conditionsModule", {}))
+    sponsor_module = _as_dict(protocol.get("sponsorCollaboratorsModule", {}))
+    design_module = _as_dict(protocol.get("designModule", {}))
+    contacts_module = _as_dict(protocol.get("contactsLocationsModule", {}))
+    arms_module = _as_dict(protocol.get("armsInterventionsModule", {}))
+    outcomes_module = _as_dict(protocol.get("outcomesModule", {}))
+    description_module = _as_dict(protocol.get("descriptionModule", {}))
 
     nct_id = identification.get("nctId") or raw.get("nctId") or raw.get("trial_id", "")
     official_url = f"https://clinicaltrials.gov/study/{nct_id}" if nct_id else raw.get("official_url", "")
 
     interventions = [
         intervention.get("name", "")
-        for intervention in arms_module.get("interventions", [])
+        for intervention in _as_list(arms_module.get("interventions", []))
         if isinstance(intervention, dict) and intervention.get("name")
     ]
-    indications = conditions_module.get("conditions", []) or raw.get("indications", [])
+    indications = _as_list(conditions_module.get("conditions", [])) or _as_list(raw.get("indications", []))
     brief_summary = description_module.get("briefSummary", "")
     title = identification.get("briefTitle") or raw.get("title", "")
-    sponsor = sponsor_module.get("leadSponsor", {}).get("name") or raw.get("sponsor", "")
+    sponsor = _as_dict(sponsor_module.get("leadSponsor", {})).get("name") or raw.get("sponsor", "")
     collaborators = [
         collaborator.get("name", "")
-        for collaborator in sponsor_module.get("collaborators", [])
+        for collaborator in _as_list(sponsor_module.get("collaborators", []))
         if isinstance(collaborator, dict) and collaborator.get("name")
     ]
-    phase_list = design_module.get("phases", [])
+    phase_list = _as_list(design_module.get("phases", []))
     phase = phase_list[0] if phase_list else raw.get("phase", "unknown")
     status = status_module.get("overallStatus") or raw.get("status", "unknown")
     countries = [
         location.get("country", "")
-        for location in contacts_module.get("locations", [])
+        for location in _as_list(contacts_module.get("locations", []))
         if isinstance(location, dict) and location.get("country")
     ]
     primary_outcomes = [
         outcome.get("measure", "")
-        for outcome in outcomes_module.get("primaryOutcomes", [])
+        for outcome in _as_list(outcomes_module.get("primaryOutcomes", []))
         if isinstance(outcome, dict) and outcome.get("measure")
     ]
 
     modality_text = " ".join(interventions + [title, brief_summary])
     modality = classify_product_modality(modality_text).get("product_modality", ["unknown"])
 
-    known_limitations = raw.get("known_limitations", [])
+    known_limitations = list(_as_list(raw.get("known_limitations", [])))
     if not brief_summary:
         known_limitations.append("ClinicalTrials.gov briefSummary missing from API response.")
+    if collaborators:
+        known_limitations.append("ClinicalTrials.gov collaborators parsed but ClinicalTrialRecord has no collaborators field in MVP v1.")
 
     return ClinicalTrialRecord(
         trial_id=nct_id,
@@ -99,10 +98,10 @@ def normalize_clinicaltrials_record(raw: dict, *, retrieved_at: str) -> Clinical
         product_modality=modality,
         phase=phase,
         status=status,
-        countries=countries,
-        start_date=(status_module.get("startDateStruct", {}) or {}).get("date") or raw.get("start_date"),
-        primary_completion_date=(status_module.get("primaryCompletionDateStruct", {}) or {}).get("date") or raw.get("primary_completion_date"),
-        last_update_date=(status_module.get("lastUpdateSubmitDateStruct", {}) or {}).get("date") or raw.get("last_update_date"),
+        countries=sorted(set(countries)),
+        start_date=_as_dict(status_module.get("startDateStruct", {})).get("date") or raw.get("start_date"),
+        primary_completion_date=_as_dict(status_module.get("primaryCompletionDateStruct", {})).get("date") or raw.get("primary_completion_date"),
+        last_update_date=_as_dict(status_module.get("lastUpdateSubmitDateStruct", {})).get("date") or raw.get("last_update_date"),
         results_available=(status_module.get("hasResults") if "hasResults" in status_module else raw.get("results_available")),
         primary_outcomes=primary_outcomes,
         known_limitations=known_limitations,
