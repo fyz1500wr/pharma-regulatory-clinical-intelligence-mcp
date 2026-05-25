@@ -26,6 +26,9 @@ def normalize_tfda_record(raw: dict, *, retrieved_at: str) -> RegulatoryUpdate:
 
 def normalize_clinicaltrials_record(raw: dict, *, retrieved_at: str) -> ClinicalTrialRecord:
     protocol = raw.get("protocolSection", {}) if isinstance(raw, dict) else {}
+    if not isinstance(protocol, dict):
+        protocol = {}
+
     identification = protocol.get("identificationModule", {})
     status_module = protocol.get("statusModule", {})
     conditions_module = protocol.get("conditionsModule", {})
@@ -35,6 +38,16 @@ def normalize_clinicaltrials_record(raw: dict, *, retrieved_at: str) -> Clinical
     arms_module = protocol.get("armsInterventionsModule", {})
     outcomes_module = protocol.get("outcomesModule", {})
     description_module = protocol.get("descriptionModule", {})
+
+    identification = identification if isinstance(identification, dict) else {}
+    status_module = status_module if isinstance(status_module, dict) else {}
+    conditions_module = conditions_module if isinstance(conditions_module, dict) else {}
+    sponsor_module = sponsor_module if isinstance(sponsor_module, dict) else {}
+    design_module = design_module if isinstance(design_module, dict) else {}
+    contacts_module = contacts_module if isinstance(contacts_module, dict) else {}
+    arms_module = arms_module if isinstance(arms_module, dict) else {}
+    outcomes_module = outcomes_module if isinstance(outcomes_module, dict) else {}
+    description_module = description_module if isinstance(description_module, dict) else {}
 
     nct_id = identification.get("nctId") or raw.get("nctId") or raw.get("trial_id", "")
     official_url = f"https://clinicaltrials.gov/study/{nct_id}" if nct_id else raw.get("official_url", "")
