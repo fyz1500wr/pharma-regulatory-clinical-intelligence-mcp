@@ -54,3 +54,10 @@ def test_product_modality_still_uses_product_modality(monkeypatch):
     trial = result["trials"][0]
     assert "product_modality" in trial
     assert "biologic_type" not in trial
+
+
+def test_search_clinical_trials_by_indication_rejects_non_string_indication():
+    for bad_input in ([], {}, 123):
+        result = search_clinical_trials_by_indication(bad_input)
+        assert "error" in result
+        assert result["error"]["code"] == "INVALID_PARAMETER"

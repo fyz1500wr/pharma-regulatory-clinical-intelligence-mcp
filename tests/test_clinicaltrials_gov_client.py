@@ -89,3 +89,12 @@ def test_normalize_clinicaltrials_record_missing_optional_fields():
     assert rec.trial_id == ""
     assert isinstance(rec.known_limitations, list)
     assert rec.known_limitations
+
+
+def test_normalize_clinicaltrials_record_handles_null_protocol_section():
+    rec = normalize_clinicaltrials_record({"protocolSection": None}, retrieved_at="2026-01-01T00:00:00Z")
+    rec_dict = rec.__dict__
+    assert rec.registry == "ClinicalTrials.gov"
+    assert isinstance(rec.known_limitations, list)
+    assert "product_modality" in rec_dict
+    assert "biologic_type" not in rec_dict

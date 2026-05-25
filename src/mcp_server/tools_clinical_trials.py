@@ -7,12 +7,14 @@ from src.core.normalization import normalize_clinicaltrials_record
 
 
 def search_clinical_trials_by_indication(indication: str, **kwargs):
-    if not indication or not indication.strip():
-        return build_error(ErrorCode.INVALID_PARAMETER, "indication is required")
+    if not isinstance(indication, str) or not indication.strip():
+        return build_error(ErrorCode.INVALID_PARAMETER, "indication must be a non-empty string")
+
+    clean_indication = indication.strip()
 
     client = ClinicalTrialsGovClient()
     result = client.search_studies(
-        indication=indication.strip(),
+        indication=clean_indication,
         page_size=kwargs.get("page_size", 20),
         sponsor=kwargs.get("sponsor"),
         phase=kwargs.get("phase"),
@@ -35,7 +37,7 @@ def search_clinical_trials_by_indication(indication: str, **kwargs):
             "no_result_reason": "NO_MATCHING_RECORDS",
             "suggested_next_action": "Broaden indication keywords or remove restrictive filters.",
             "query_metadata": {
-                "indication": indication.strip(),
+                "indication": clean_indication,
                 "registries_searched": ["ClinicalTrials.gov"],
                 "known_limitations": ["Only ClinicalTrials.gov API v2 is active in MVP v1."],
             },
@@ -47,7 +49,7 @@ def search_clinical_trials_by_indication(indication: str, **kwargs):
     return {
         "trials": normalized,
         "query_metadata": {
-            "indication": indication.strip(),
+            "indication": clean_indication,
             "registries_searched": ["ClinicalTrials.gov"],
             "known_limitations": [
                 "MVP v1 currently queries ClinicalTrials.gov only.",
