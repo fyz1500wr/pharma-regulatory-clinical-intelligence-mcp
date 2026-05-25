@@ -1,0 +1,50 @@
+{
+  "studies": [
+    {
+      "protocolSection": {
+        "identificationModule": {
+          "nctId": "NCT90000002",
+          "briefTitle": "Synthetic Follow-up Study"
+        },
+        "statusModule": {
+          "overallStatus": "COMPLETED",
+          "hasResults": true,
+          "startDateStruct": {"date": "2022-02-01", "type": "ACTUAL"},
+          "primaryCompletionDateStruct": {"date": "2024-10-15", "type": "ACTUAL"},
+          "lastUpdateSubmitDateStruct": {"date": "2026-02-22"}
+        },
+        "conditionsModule": {
+          "conditions": ["Breast Cancer"]
+        },
+        "sponsorCollaboratorsModule": {
+          "leadSponsor": {"name": "Synthetic Oncology Sponsor"}
+        },
+        "designModule": {
+          "phases": ["PHASE3"]
+        },
+        "contactsLocationsModule": {
+          "locations": [
+            {"country": "Germany"},
+            {"country": "France"}
+          ]
+        },
+        "armsInterventionsModule": {
+          "interventions": [
+            {"name": "monoclonal antibody Z"}
+          ]
+        },
+        "outcomesModule": {
+          "primaryOutcomes": [
+            {"measure": "Overall Survival"}
+          ]
+        },
+        "descriptionModule": {
+          "briefSummary": "Synthetic global phase 3 study with available results."
+        }
+      }
+    },
+    {
+      "protocolSection": null
+    }
+  ]
+}

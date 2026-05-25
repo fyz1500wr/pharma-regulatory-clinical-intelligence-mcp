@@ -1,0 +1,55 @@
+{
+  "studies": [
+    {
+      "protocolSection": {
+        "identificationModule": {
+          "nctId": "NCT90000001",
+          "briefTitle": "Synthetic Multinational Oncology Study"
+        },
+        "statusModule": {
+          "overallStatus": "RECRUITING",
+          "hasResults": false,
+          "startDateStruct": {"date": "2025-01-15", "type": "ACTUAL"},
+          "primaryCompletionDateStruct": {"date": "2027-06-30", "type": "ESTIMATED"},
+          "lastUpdateSubmitDateStruct": {"date": "2026-01-08"}
+        },
+        "conditionsModule": {
+          "conditions": ["NSCLC", "Solid Tumor"]
+        },
+        "sponsorCollaboratorsModule": {
+          "leadSponsor": {"name": "Synthetic Pharma A"},
+          "collaborators": [
+            {"name": "Synthetic Biotech B"},
+            {"name": "Synthetic Research Group"}
+          ]
+        },
+        "designModule": {
+          "phases": ["PHASE2"]
+        },
+        "contactsLocationsModule": {
+          "locations": [
+            {"country": "United States"},
+            {"country": "Canada"},
+            {"country": "Japan"}
+          ]
+        },
+        "armsInterventionsModule": {
+          "interventions": [
+            {"name": "targeted therapy X"},
+            {"name": "monoclonal antibody Y"}
+          ]
+        },
+        "outcomesModule": {
+          "primaryOutcomes": [
+            {"measure": "Progression-Free Survival"},
+            {"measure": "Objective Response Rate"}
+          ]
+        },
+        "descriptionModule": {
+          "briefSummary": "Synthetic phase 2 multinational study in NSCLC."
+        }
+      }
+    }
+  ],
+  "nextPageToken": "token-page-2"
+}
