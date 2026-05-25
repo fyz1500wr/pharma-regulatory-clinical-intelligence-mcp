@@ -1,0 +1,7 @@
+source_id: ClinicalTrialsGov_API
+agency_or_registry: ClinicalTrials.gov
+source_type: API
+base_url: https://clinicaltrials.gov/api/v2
+phase: MVP_v1
+active: true
+notes: MVP v1 active source. Official API v2 primary.

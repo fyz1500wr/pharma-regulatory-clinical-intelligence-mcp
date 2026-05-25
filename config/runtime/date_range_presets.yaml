@@ -1,0 +1,8 @@
+presets:
+  1m: {months: 1}
+  3m: {months: 3}
+  6m: {months: 6}
+  1y: {years: 1}
+  3y: {years: 3}
+  5y: {years: 5}
+  custom: {custom: true}
