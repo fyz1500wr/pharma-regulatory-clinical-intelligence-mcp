@@ -154,6 +154,31 @@ def test_normalize_handles_malformed_non_list_nested_values():
     assert rec.intervention_names == []
     assert rec.primary_outcomes == []
 
+
+def test_normalize_handles_non_dict_sponsor_and_date_structs():
+    raw = {
+        "sponsor": "Fallback Sponsor",
+        "start_date": "2026-02-01",
+        "primary_completion_date": "2026-08-01",
+        "last_update_date": "2026-09-01",
+        "protocolSection": {
+            "identificationModule": {"nctId": "NCT99999999"},
+            "sponsorCollaboratorsModule": {"leadSponsor": "not-a-dict"},
+            "statusModule": {
+                "startDateStruct": "not-a-dict",
+                "primaryCompletionDateStruct": [],
+                "lastUpdateSubmitDateStruct": None,
+            },
+        },
+    }
+
+    rec = normalize_clinicaltrials_record(raw, retrieved_at="2026-01-01T00:00:00Z")
+    assert rec.sponsor == "Fallback Sponsor"
+    assert rec.start_date == "2026-02-01"
+    assert rec.primary_completion_date == "2026-08-01"
+    assert rec.last_update_date == "2026-09-01"
+
+
 def test_iter_studies_stops_on_non_list_studies(monkeypatch):
     client = ClinicalTrialsGovClient()
     monkeypatch.setattr(client, "search_studies", lambda **kwargs: {"studies": "not-a-list"})
