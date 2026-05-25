@@ -113,6 +113,8 @@ class ClinicalTrialsGovClient:
                 status=status,
                 page_token=page_token,
             )
+            if not isinstance(result, dict):
+                break
             if "error" in result:
                 break
             page_studies = result.get("studies", [])

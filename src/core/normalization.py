@@ -25,7 +25,8 @@ def normalize_tfda_record(raw: dict, *, retrieved_at: str) -> RegulatoryUpdate:
 
 
 def normalize_clinicaltrials_record(raw: dict, *, retrieved_at: str) -> ClinicalTrialRecord:
-    protocol = raw.get("protocolSection", {}) if isinstance(raw, dict) else {}
+    raw = raw if isinstance(raw, dict) else {}
+    protocol = raw.get("protocolSection", {})
     if not isinstance(protocol, dict):
         protocol = {}
 

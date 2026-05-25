@@ -98,3 +98,78 @@ def test_normalize_clinicaltrials_record_handles_null_protocol_section():
     assert isinstance(rec.known_limitations, list)
     assert "product_modality" in rec_dict
     assert "biologic_type" not in rec_dict
+
+
+def test_iter_studies_rejects_non_object_payload(monkeypatch):
+    client = ClinicalTrialsGovClient()
+    monkeypatch.setattr(client, "search_studies", lambda **kwargs: "not-a-dict")
+    assert client.iter_studies(indication="NSCLC", max_pages=2) == []
+
+
+def test_iter_studies_paginates_with_next_page_token(monkeypatch):
+    client = ClinicalTrialsGovClient()
+    calls = []
+    pages = [
+        {"studies": [{"protocolSection": {"identificationModule": {"nctId": "NCTP1"}}}], "nextPageToken": "token-2"},
+        {"studies": [{"protocolSection": {"identificationModule": {"nctId": "NCTP2"}}}]},
+    ]
+
+    def fake_search(**kwargs):
+        calls.append(kwargs.get("page_token"))
+        return pages[len(calls) - 1]
+
+    monkeypatch.setattr(client, "search_studies", fake_search)
+    result = client.iter_studies(indication="NSCLC", max_pages=3)
+    assert len(result) == 2
+    assert calls == [None, "token-2"]
+
+
+def test_iter_studies_skips_non_dict_studies_via_normalizer():
+    rec = normalize_clinicaltrials_record("not-a-dict", retrieved_at="2026-01-01T00:00:00Z")
+    assert rec.trial_id == ""
+    assert rec.registry == "ClinicalTrials.gov"
+
+
+def test_normalize_clinicaltrials_record_rich_fixture_page_1():
+    raw = {
+        "protocolSection": {
+            "identificationModule": {"nctId": "NCT11111111", "briefTitle": "Small Molecule Trial"},
+            "sponsorCollaboratorsModule": {"leadSponsor": {"name": "Acme"}},
+            "statusModule": {"overallStatus": "RECRUITING"},
+            "designModule": {"phases": ["PHASE2"]},
+            "armsInterventionsModule": {"interventions": [{"name": "small molecule inhibitor"}]},
+            "conditionsModule": {"conditions": ["NSCLC"]},
+        }
+    }
+    rec = normalize_clinicaltrials_record(raw, retrieved_at="2026-01-01T00:00:00Z")
+    assert rec.trial_id == "NCT11111111"
+    assert "small_molecule" in rec.product_modality
+
+
+def test_normalize_clinicaltrials_record_rich_fixture_page_2():
+    raw = {
+        "protocolSection": {
+            "identificationModule": {"nctId": "NCT22222222", "briefTitle": "Monoclonal Antibody Trial"},
+            "sponsorCollaboratorsModule": {"leadSponsor": {"name": "BioCo"}},
+            "statusModule": {"overallStatus": "ACTIVE_NOT_RECRUITING"},
+            "designModule": {"phases": ["PHASE1"]},
+            "armsInterventionsModule": {"interventions": [{"name": "monoclonal antibody"}]},
+            "conditionsModule": {"conditions": ["Oncology"]},
+        }
+    }
+    rec = normalize_clinicaltrials_record(raw, retrieved_at="2026-01-01T00:00:00Z")
+    assert rec.trial_id == "NCT22222222"
+    assert "antibody" in rec.product_modality
+
+
+def test_normalize_clinicaltrials_record_handles_malformed_non_list_nested_values():
+    raw = {
+        "protocolSection": {
+            "identificationModule": {"nctId": "NCT33333333"},
+            "armsInterventionsModule": {"interventions": {"name": "broken"}},
+            "conditionsModule": {"conditions": "NSCLC"},
+        }
+    }
+    rec = normalize_clinicaltrials_record(raw, retrieved_at="2026-01-01T00:00:00Z")
+    assert rec.trial_id == "NCT33333333"
+    assert rec.intervention_names == []
