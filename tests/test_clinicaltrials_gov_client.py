@@ -1,7 +1,11 @@
+import json
 import types
+from pathlib import Path
 
 from src.connectors.clinical_trials.clinicaltrials_gov_client import ClinicalTrialsGovClient
 from src.core.normalization import normalize_clinicaltrials_record
+
+FIXTURE_DIR = Path(__file__).parent / "fixtures"
 
 
 class FakeResponse:
@@ -14,6 +18,10 @@ class FakeResponse:
         if self._json_error:
             raise ValueError("bad json")
         return self._payload
+
+
+def load_fixture(name: str) -> dict:
+    return json.loads((FIXTURE_DIR / name).read_text(encoding="utf-8"))
 
 
 def test_build_studies_query_basic():
@@ -65,6 +73,39 @@ def test_search_studies_handles_bad_json(monkeypatch):
     assert result["error"]["code"] == "INTERNAL_ERROR"
 
 
+def test_search_studies_rejects_non_object_payload(monkeypatch):
+    fake_requests = types.SimpleNamespace(get=lambda *args, **kwargs: FakeResponse(status_code=200, payload=[]), RequestException=Exception)
+    monkeypatch.setitem(__import__("sys").modules, "requests", fake_requests)
+    client = ClinicalTrialsGovClient()
+    result = client.search_studies(indication="NSCLC")
+    assert result["error"]["code"] == "INTERNAL_ERROR"
+
+
+def test_iter_studies_follows_next_page_token(monkeypatch):
+    page_1 = load_fixture("clinicaltrials_gov_v2_page_1.json")
+    page_2 = load_fixture("clinicaltrials_gov_v2_page_2.json")
+    calls = []
+
+    def fake_search_studies(**kwargs):
+        calls.append(kwargs)
+        return page_1 if len(calls) == 1 else page_2
+
+    client = ClinicalTrialsGovClient()
+    monkeypatch.setattr(client, "search_studies", fake_search_studies)
+    studies = client.iter_studies(indication="NSCLC", max_pages=2, page_size=1)
+    assert len(studies) == 3
+    assert calls[0]["page_token"] is None
+    assert calls[1]["page_token"] == "PAGE_2"
+
+
+def test_iter_studies_skips_non_dict_studies(monkeypatch):
+    client = ClinicalTrialsGovClient()
+    monkeypatch.setattr(client, "search_studies", lambda **kwargs: {"studies": [{"protocolSection": {}}, "bad-record"]})
+    studies = client.iter_studies(indication="NSCLC")
+    assert len(studies) == 1
+    assert isinstance(studies[0], dict)
+
+
 def test_normalize_clinicaltrials_record_minimal():
     raw = {
         "protocolSection": {
@@ -98,3 +139,45 @@ def test_normalize_clinicaltrials_record_handles_null_protocol_section():
     assert isinstance(rec.known_limitations, list)
     assert "product_modality" in rec_dict
     assert "biologic_type" not in rec_dict
+
+
+def test_normalize_clinicaltrials_record_rich_fixture_page_1():
+    payload = load_fixture("clinicaltrials_gov_v2_page_1.json")
+    rec = normalize_clinicaltrials_record(payload["studies"][0], retrieved_at="2026-01-01T00:00:00Z")
+    assert rec.trial_id == "NCT10000001"
+    assert rec.sponsor == "Acme Pharma"
+    assert rec.phase == "PHASE2"
+    assert rec.status == "RECRUITING"
+    assert rec.countries == ["Japan", "Taiwan", "United States"]
+    assert "Objective Response Rate" in rec.primary_outcomes
+    assert "Progression-Free Survival" in rec.primary_outcomes
+    assert "small_molecule" in rec.product_modality
+    assert "biologic_type" not in rec.__dict__
+
+
+def test_normalize_clinicaltrials_record_rich_fixture_page_2():
+    payload = load_fixture("clinicaltrials_gov_v2_page_2.json")
+    rec = normalize_clinicaltrials_record(payload["studies"][0], retrieved_at="2026-01-01T00:00:00Z")
+    assert rec.trial_id == "NCT10000002"
+    assert rec.results_available is True
+    assert rec.countries == ["France", "Germany"]
+    assert "Overall Survival" in rec.primary_outcomes
+    assert "antibody" in rec.product_modality
+
+
+def test_normalize_clinicaltrials_record_handles_non_list_nested_values():
+    raw = {
+        "protocolSection": {
+            "identificationModule": {"nctId": "NCT999"},
+            "conditionsModule": {"conditions": "not-a-list"},
+            "armsInterventionsModule": {"interventions": "not-a-list"},
+            "contactsLocationsModule": {"locations": "not-a-list"},
+            "outcomesModule": {"primaryOutcomes": "not-a-list"},
+        }
+    }
+    rec = normalize_clinicaltrials_record(raw, retrieved_at="2026-01-01T00:00:00Z")
+    assert rec.trial_id == "NCT999"
+    assert rec.indications == []
+    assert rec.intervention_names == []
+    assert rec.countries == []
+    assert rec.primary_outcomes == []
