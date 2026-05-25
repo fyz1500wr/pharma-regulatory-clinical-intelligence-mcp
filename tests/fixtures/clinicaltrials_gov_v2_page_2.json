@@ -1,0 +1,50 @@
+{
+  "studies": [
+    {
+      "protocolSection": {
+        "identificationModule": {
+          "nctId": "NCT10000002",
+          "briefTitle": "An Antibody Combination Study in Lung Cancer"
+        },
+        "statusModule": {
+          "overallStatus": "ACTIVE_NOT_RECRUITING",
+          "hasResults": true,
+          "startDateStruct": {"date": "2024-03"},
+          "primaryCompletionDateStruct": {"date": "2026-12"},
+          "lastUpdateSubmitDateStruct": {"date": "2026-04-20"}
+        },
+        "conditionsModule": {
+          "conditions": ["Lung Cancer"]
+        },
+        "sponsorCollaboratorsModule": {
+          "leadSponsor": {"name": "Beta Biologics"}
+        },
+        "designModule": {
+          "phases": ["PHASE3"]
+        },
+        "contactsLocationsModule": {
+          "locations": [
+            {"country": "Germany"},
+            {"country": "France"}
+          ]
+        },
+        "armsInterventionsModule": {
+          "interventions": [
+            {"name": "monoclonal antibody BB-456"}
+          ]
+        },
+        "outcomesModule": {
+          "primaryOutcomes": [
+            {"measure": "Overall Survival"}
+          ]
+        },
+        "descriptionModule": {
+          "briefSummary": "This study evaluates a monoclonal antibody regimen."
+        }
+      }
+    },
+    {
+      "protocolSection": null
+    }
+  ]
+}
