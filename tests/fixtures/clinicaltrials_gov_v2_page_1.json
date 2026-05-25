@@ -1,0 +1,16 @@
+{
+  "studies": [
+    {
+      "protocolSection": {
+        "identificationModule": {"nctId": "NCT10000001", "briefTitle": "Page 1 Trial"},
+        "statusModule": {"overallStatus": "RECRUITING", "hasResults": false, "startDateStruct": {"date": "2025-01-01"}},
+        "conditionsModule": {"conditions": ["NSCLC"]},
+        "sponsorCollaboratorsModule": {"leadSponsor": {"name": "Acme"}},
+        "designModule": {"phases": ["PHASE2"]},
+        "armsInterventionsModule": {"interventions": [{"name": "small molecule inhibitor"}]},
+        "descriptionModule": {"briefSummary": "oncology small molecule"}
+      }
+    }
+  ],
+  "nextPageToken": "TOKEN_2"
+}

@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 try:
     import yaml
 except Exception:  # pragma: no cover
@@ -30,7 +31,7 @@ def classify_product_modality(text: str, mapping: dict[str, list[str]] | None = 
     for label, keywords in mapping.items():
         if label in {"unknown", "requires_manual_review"}:
             continue
-        if any(str(k).lower() in content for k in keywords):
+        if any(re.search(r"(?<![a-z0-9])" + re.escape(str(k).lower()) + r"(?![a-z0-9])", content) for k in keywords):
             return {"product_modality": [label], "classification_confidence": "medium"}
     if content.strip():
         return {"product_modality": ["requires_manual_review"], "classification_confidence": "requires_manual_review"}

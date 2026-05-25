@@ -89,6 +89,14 @@ class ClinicalTrialsGovClient:
                 suggested_next_action="Validate upstream response format before processing.",
             )
 
+        if not isinstance(payload, dict):
+            return build_error(
+                ErrorCode.INTERNAL_ERROR,
+                "ClinicalTrials.gov response payload must be a JSON object",
+                details=f"Received payload type: {type(payload).__name__}",
+                suggested_next_action="Validate upstream API response shape before processing.",
+            )
+
         return payload
 
     def iter_studies(
@@ -118,7 +126,7 @@ class ClinicalTrialsGovClient:
             page_studies = result.get("studies", [])
             if not isinstance(page_studies, list):
                 break
-            studies.extend(page_studies)
+            studies.extend([study for study in page_studies if isinstance(study, dict)])
             page_token = result.get("nextPageToken")
             if not page_token:
                 break
