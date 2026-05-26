@@ -242,6 +242,45 @@ def _document_detail_payload(record: dict) -> dict:
     }
 
 
+def _lookup_failure(
+    agency: str,
+    *,
+    code: str,
+    message: str,
+    details="",
+    suggested_next_action: str = "",
+) -> dict:
+    return {
+        "agency": agency,
+        "code": code,
+        "message": message,
+        "details": details,
+        "suggested_next_action": suggested_next_action,
+    }
+
+
+def _lookup_failure_from_error_response(agency: str, response: dict) -> dict:
+    error = response.get("error", {})
+    return _lookup_failure(
+        agency,
+        code=error.get("code", ErrorCode.SOURCE_UNAVAILABLE.value),
+        message=error.get("message", f"{agency} lookup returned a structured error"),
+        details=error.get("details", ""),
+        suggested_next_action=error.get("suggested_next_action", ""),
+    )
+
+
+def _add_partial_failure_metadata(payload: dict, lookup_failures: list[dict]) -> dict:
+    payload["query_metadata"]["partial_lookup_failures"] = lookup_failures
+
+    if lookup_failures:
+        limitations = list(payload["document"].get("known_limitations", []))
+        limitations.append("Document detail lookup completed with partial source failures.")
+        payload["document"]["known_limitations"] = sorted(set(limitations))
+
+    return payload
+
+
 def get_regulatory_document_detail(document_id: str, **kwargs):
     if not isinstance(document_id, str) or not document_id.strip():
         return build_error(ErrorCode.INVALID_PARAMETER, "document_id is required")
@@ -249,6 +288,8 @@ def get_regulatory_document_detail(document_id: str, **kwargs):
     agencies = _parse_detail_agencies(kwargs.get("agency"))
     if isinstance(agencies, dict) and "error" in agencies:
         return agencies
+
+    single_agency_lookup = kwargs.get("agency") not in (None, "")
 
     if kwargs.get("source_types") is not None and len(agencies) > 1:
         return build_error(
@@ -264,6 +305,7 @@ def get_regulatory_document_detail(document_id: str, **kwargs):
     retrieved_at = datetime.now(timezone.utc).isoformat()
     checked_agencies = []
     checked_source_types = []
+    lookup_failures = []
 
     for agency in agencies:
         source_types = _parse_source_types(kwargs.get("source_types"), agency)
@@ -275,24 +317,35 @@ def get_regulatory_document_detail(document_id: str, **kwargs):
 
         client = FDAUpdatesClient() if agency == "FDA" else TFDAUpdatesClient()
         try:
-            raw = client.search_updates(query=document_id.strip(), source_types=source_types, limit=limit)
+            raw = client.search_updates(query=None, source_types=source_types, limit=limit)
         except Exception as exc:
-            return build_error(
+            error = build_error(
                 ErrorCode.SOURCE_UNAVAILABLE,
                 f"{agency} document detail lookup failed: {exc}",
                 suggested_next_action=f"Check {agency} connector runtime dependencies and source availability.",
             )
+            if single_agency_lookup:
+                return error
+            lookup_failures.append(_lookup_failure_from_error_response(agency, error))
+            continue
 
         if isinstance(raw, dict) and "error" in raw:
-            return raw
+            if single_agency_lookup:
+                return raw
+            lookup_failures.append(_lookup_failure_from_error_response(agency, raw))
+            continue
 
         if not isinstance(raw, list):
-            return build_error(
+            error = build_error(
                 ErrorCode.INTERNAL_ERROR,
                 f"{agency} document detail lookup returned an unexpected response shape",
                 details=f"Received type: {type(raw).__name__}",
                 suggested_next_action=f"Update {agency} search_updates to return a list of records or a structured error.",
             )
+            if single_agency_lookup:
+                return error
+            lookup_failures.append(_lookup_failure_from_error_response(agency, error))
+            continue
 
         normalizer = normalize_fda_record if agency == "FDA" else normalize_tfda_record
         records = [asdict(normalizer(item, retrieved_at=retrieved_at)) for item in raw]
@@ -310,22 +363,43 @@ def get_regulatory_document_detail(document_id: str, **kwargs):
                         "Detail response is reconstructed from normalized connector search result metadata.",
                     ],
                 }
-                return payload
+                return _add_partial_failure_metadata(payload, lookup_failures)
+
+    error_details = {
+        "document_id": document_id.strip(),
+        "agencies_checked": checked_agencies,
+        "sources_checked": sorted(set(checked_source_types)),
+        "partial_lookup_failures": lookup_failures,
+    }
+
+    if lookup_failures and len(lookup_failures) == len(agencies):
+        return build_error(
+            ErrorCode.SOURCE_UNAVAILABLE,
+            f"Document detail lookup failed for all requested agencies: {document_id.strip()}",
+            details=error_details,
+            suggested_next_action="Check source health before retrying document detail lookup.",
+        )
+
+    if lookup_failures:
+        return build_error(
+            ErrorCode.PARTIAL_RESULTS,
+            f"Document detail not found for document_id after partial lookup failures: {document_id.strip()}",
+            details=error_details,
+            suggested_next_action=(
+                "At least one agency failed during lookup. Check source health, then retry with a specific agency "
+                "or rerun search_regulatory_updates to refresh candidate document IDs."
+            ),
+        )
 
     return build_error(
         ErrorCode.NO_RESULTS,
         f"Document detail not found for document_id: {document_id.strip()}",
-        details={
-            "document_id": document_id.strip(),
-            "agencies_checked": checked_agencies,
-            "sources_checked": sorted(set(checked_source_types)),
-        },
+        details=error_details,
         suggested_next_action=(
             "Verify the document_id came from search_regulatory_updates records, or rerun search_regulatory_updates "
             "and pass the exact record id, content_hash, official_url, or title."
         ),
     )
-
 
 def compare_regulatory_updates(**kwargs):
     return build_error(
