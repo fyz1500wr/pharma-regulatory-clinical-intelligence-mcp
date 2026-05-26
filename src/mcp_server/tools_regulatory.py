@@ -173,10 +173,158 @@ def search_regulatory_updates(**kwargs):
     return {"records": records, "query_metadata": metadata, "known_limitations": sorted(set(known_limitations))}
 
 
+def _parse_detail_agencies(value) -> list[str] | dict:
+    if value in (None, ""):
+        return ["FDA", "TFDA"]
+
+    if not isinstance(value, str):
+        return build_error(ErrorCode.INVALID_PARAMETER, "agency must be FDA or TFDA")
+
+    agency = value.strip().upper()
+    if agency not in {"FDA", "TFDA"}:
+        return build_error(
+            ErrorCode.INVALID_PARAMETER,
+            f"Unsupported agency for document detail: {agency}",
+            suggested_next_action="Use agency='FDA' or agency='TFDA'.",
+        )
+    return [agency]
+
+
+def _record_matches_document_id(record: dict, document_id: str) -> bool:
+    document_id = document_id.strip()
+
+    candidate_values = [
+        record.get("id"),
+        record.get("content_hash"),
+        record.get("official_url"),
+        record.get("title"),
+    ]
+
+    return any(str(value).strip() == document_id for value in candidate_values if value is not None)
+
+
+def _document_detail_payload(record: dict) -> dict:
+    known_limitations = list(record.get("known_limitations", []))
+    known_limitations.append(
+        "MVP v1 document detail is reconstructed from normalized search result metadata; full document body and attachment parsing are not yet implemented."
+    )
+
+    return {
+        "document": {
+            "id": record.get("id", ""),
+            "agency": record.get("agency", ""),
+            "title": record.get("title", ""),
+            "original_language": "unknown",
+            "translated_title": "",
+            "publication_date": record.get("publication_date"),
+            "last_update_date": record.get("last_update_date"),
+            "effective_date": None,
+            "consultation_deadline": None,
+            "document_type": record.get("document_type", "unknown"),
+            "document_status": record.get("document_status", "unknown"),
+            "official_url": record.get("official_url", ""),
+            "attachment_urls": [],
+            "source_type": record.get("source_type", "unknown"),
+            "retrieved_at": record.get("retrieved_at"),
+            "content_hash": record.get("content_hash"),
+            "product_modality": record.get("product_modality", ["unknown"]),
+            "topics": record.get("topics", ["unknown"]),
+            "summary": record.get("summary", ""),
+            "impact_assessment": {
+                "impact_level": "unknown",
+                "impacted_functions": [],
+                "eCTD_module_mapping": [],
+                "rationale": "Impact assessment is not implemented in MVP v1 skeleton-backed document detail.",
+            },
+            "classification_notes": "Skeleton-backed detail uses normalized search metadata only.",
+            "known_limitations": sorted(set(known_limitations)),
+        }
+    }
+
+
 def get_regulatory_document_detail(document_id: str, **kwargs):
-    if not document_id:
+    if not isinstance(document_id, str) or not document_id.strip():
         return build_error(ErrorCode.INVALID_PARAMETER, "document_id is required")
-    return build_error(ErrorCode.DATA_NOT_INGESTED, "Document detail is not available in skeleton")
+
+    agencies = _parse_detail_agencies(kwargs.get("agency"))
+    if isinstance(agencies, dict) and "error" in agencies:
+        return agencies
+
+    if kwargs.get("source_types") is not None and len(agencies) > 1:
+        return build_error(
+            ErrorCode.INVALID_PARAMETER,
+            "source_types can only be used when agency is specified",
+            suggested_next_action="Pass agency='FDA' or agency='TFDA' when filtering source_types.",
+        )
+
+    limit = _parse_limit(kwargs.get("limit", 100))
+    if isinstance(limit, dict) and "error" in limit:
+        return limit
+
+    retrieved_at = datetime.now(timezone.utc).isoformat()
+    checked_agencies = []
+    checked_source_types = []
+
+    for agency in agencies:
+        source_types = _parse_source_types(kwargs.get("source_types"), agency)
+        if isinstance(source_types, dict) and "error" in source_types:
+            return source_types
+
+        checked_agencies.append(agency)
+        checked_source_types.extend(source_types)
+
+        client = FDAUpdatesClient() if agency == "FDA" else TFDAUpdatesClient()
+        try:
+            raw = client.search_updates(query=document_id.strip(), source_types=source_types, limit=limit)
+        except Exception as exc:
+            return build_error(
+                ErrorCode.SOURCE_UNAVAILABLE,
+                f"{agency} document detail lookup failed: {exc}",
+                suggested_next_action=f"Check {agency} connector runtime dependencies and source availability.",
+            )
+
+        if isinstance(raw, dict) and "error" in raw:
+            return raw
+
+        if not isinstance(raw, list):
+            return build_error(
+                ErrorCode.INTERNAL_ERROR,
+                f"{agency} document detail lookup returned an unexpected response shape",
+                details=f"Received type: {type(raw).__name__}",
+                suggested_next_action=f"Update {agency} search_updates to return a list of records or a structured error.",
+            )
+
+        normalizer = normalize_fda_record if agency == "FDA" else normalize_tfda_record
+        records = [asdict(normalizer(item, retrieved_at=retrieved_at)) for item in raw]
+
+        for record in records:
+            if _record_matches_document_id(record, document_id):
+                payload = _document_detail_payload(record)
+                payload["query_metadata"] = {
+                    "document_id": document_id.strip(),
+                    "agencies_checked": checked_agencies,
+                    "sources_checked": sorted(set(checked_source_types)),
+                    "lookup_mode": "skeleton_backed_search_metadata",
+                    "known_limitations": [
+                        "No persistent document detail store is implemented in MVP v1.",
+                        "Detail response is reconstructed from normalized connector search result metadata.",
+                    ],
+                }
+                return payload
+
+    return build_error(
+        ErrorCode.NO_RESULTS,
+        f"Document detail not found for document_id: {document_id.strip()}",
+        details={
+            "document_id": document_id.strip(),
+            "agencies_checked": checked_agencies,
+            "sources_checked": sorted(set(checked_source_types)),
+        },
+        suggested_next_action=(
+            "Verify the document_id came from search_regulatory_updates records, or rerun search_regulatory_updates "
+            "and pass the exact record id, content_hash, official_url, or title."
+        ),
+    )
 
 
 def compare_regulatory_updates(**kwargs):
