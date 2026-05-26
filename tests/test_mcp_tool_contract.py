@@ -30,9 +30,31 @@ def test_search_regulatory_updates_fda_with_fake_client(monkeypatch):
     assert "biologic_type" not in result["records"][0]
 
 
-def test_search_regulatory_updates_tfda_not_ingested():
+def test_search_regulatory_updates_tfda_with_fake_client(monkeypatch):
+    class FakeTFDAClient:
+        def search_updates(self, **kwargs):
+            return [
+                {
+                    "id": "tfda-1",
+                    "title": "TFDA Regulatory Update",
+                    "official_url": "https://www.fda.gov.tw/TC/newsContent.aspx?id=1",
+                    "publication_date": "2026-01-15",
+                    "source_type": "TFDA_HTML",
+                    "document_type": "regulatory_update",
+                    "document_status": "published",
+                    "product_modality": ["unknown"],
+                    "topics": ["藥品公告"],
+                    "summary": "summary",
+                    "known_limitations": [],
+                }
+            ]
+
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.TFDAUpdatesClient", lambda: FakeTFDAClient())
     result = search_regulatory_updates(agency="TFDA")
-    assert result["no_result_reason"] == "DATA_NOT_INGESTED"
+
+    assert result["records"]
+    assert result["records"][0]["agency"] == "TFDA"
+    assert result["query_metadata"]["sources_searched"] == ["TFDA_HTML"]
 
 
 def test_search_regulatory_updates_unsupported_agency():
@@ -273,3 +295,84 @@ def test_search_regulatory_updates_filters_date_range(monkeypatch):
 def test_search_regulatory_updates_rejects_invalid_date_range():
     result = search_regulatory_updates(agency="FDA", date_from="2026-05-01", date_to="2026-04-01")
     assert result["error"]["code"] == "INVALID_PARAMETER"
+def test_search_regulatory_updates_tfda_rejects_invalid_source_type():
+    result = search_regulatory_updates(agency="TFDA", source_types=["TFDA_BAD"])
+    assert result["error"]["code"] == "INVALID_PARAMETER"
+
+
+def test_search_regulatory_updates_tfda_filters_document_status(monkeypatch):
+    class FakeTFDAClient:
+        def search_updates(self, **kwargs):
+            return [
+                {
+                    "id": "published",
+                    "title": "Published TFDA Update",
+                    "official_url": "https://www.fda.gov.tw/published",
+                    "publication_date": "2026-01-15",
+                    "source_type": "TFDA_HTML",
+                    "document_type": "regulatory_update",
+                    "document_status": "published",
+                    "product_modality": ["unknown"],
+                    "topics": ["general"],
+                    "summary": "",
+                    "known_limitations": [],
+                },
+                {
+                    "id": "draft",
+                    "title": "Draft TFDA Update",
+                    "official_url": "https://www.fda.gov.tw/draft",
+                    "publication_date": "2026-01-20",
+                    "source_type": "TFDA_HTML",
+                    "document_type": "regulatory_update",
+                    "document_status": "draft",
+                    "product_modality": ["unknown"],
+                    "topics": ["general"],
+                    "summary": "",
+                    "known_limitations": [],
+                },
+            ]
+
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.TFDAUpdatesClient", lambda: FakeTFDAClient())
+    result = search_regulatory_updates(agency="TFDA", document_status="published")
+
+    assert len(result["records"]) == 1
+    assert result["records"][0]["document_status"] == "published"
+
+
+def test_search_regulatory_updates_tfda_date_filter(monkeypatch):
+    class FakeTFDAClient:
+        def search_updates(self, **kwargs):
+            return [
+                {
+                    "id": "old",
+                    "title": "Old TFDA Update",
+                    "official_url": "https://www.fda.gov.tw/old",
+                    "publication_date": "2026-01-15",
+                    "source_type": "TFDA_HTML",
+                    "document_type": "regulatory_update",
+                    "document_status": "published",
+                    "product_modality": ["unknown"],
+                    "topics": ["general"],
+                    "summary": "",
+                    "known_limitations": [],
+                },
+                {
+                    "id": "new",
+                    "title": "New TFDA Update",
+                    "official_url": "https://www.fda.gov.tw/new",
+                    "publication_date": "2026-03-01",
+                    "source_type": "TFDA_HTML",
+                    "document_type": "regulatory_update",
+                    "document_status": "published",
+                    "product_modality": ["unknown"],
+                    "topics": ["general"],
+                    "summary": "",
+                    "known_limitations": [],
+                },
+            ]
+
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.TFDAUpdatesClient", lambda: FakeTFDAClient())
+    result = search_regulatory_updates(agency="TFDA", date_from="2026-03-01")
+
+    assert len(result["records"]) == 1
+    assert result["records"][0]["id"] == "new"

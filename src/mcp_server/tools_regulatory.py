@@ -4,12 +4,23 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 
 from src.connectors.fda.fda_updates_client import FDAUpdatesClient
+from src.connectors.tfda.tfda_updates_client import TFDAUpdatesClient
 from src.core.errors import ErrorCode, build_error
-from src.core.normalization import normalize_fda_record
+from src.core.normalization import normalize_fda_record, normalize_tfda_record
 
 
-_ALLOWED_FDA_SOURCE_TYPES = {"FDA_GUIDANCE", "FDA_RSS"}
-_ALLOWED_DOCUMENT_STATUSES = {"draft", "final", "unknown"}
+_ALLOWED_SOURCE_TYPES = {
+    "FDA": {"FDA_GUIDANCE", "FDA_RSS"},
+    "TFDA": {"TFDA_HTML", "TFDA_JSON"},
+}
+_DEFAULT_SOURCE_TYPES = {
+    "FDA": ["FDA_GUIDANCE", "FDA_RSS"],
+    "TFDA": ["TFDA_HTML"],
+}
+_ALLOWED_DOCUMENT_STATUSES = {
+    "FDA": {"draft", "final", "unknown"},
+    "TFDA": {"published", "draft", "final", "unknown"},
+}
 
 
 def _parse_limit(value) -> int | dict:
@@ -26,9 +37,9 @@ def _parse_limit(value) -> int | dict:
     return limit
 
 
-def _parse_source_types(value) -> list[str] | dict:
+def _parse_source_types(value, agency: str) -> list[str] | dict:
     if value is None:
-        return ["FDA_GUIDANCE", "FDA_RSS"]
+        return list(_DEFAULT_SOURCE_TYPES[agency])
     if isinstance(value, str):
         source_types = [value]
     elif isinstance(value, list) and all(isinstance(item, str) for item in value):
@@ -37,10 +48,10 @@ def _parse_source_types(value) -> list[str] | dict:
         return build_error(ErrorCode.INVALID_PARAMETER, "source_types must be a string or list of strings")
 
     normalized = [item.strip().upper() for item in source_types if item.strip()]
-    invalid = sorted(set(normalized) - _ALLOWED_FDA_SOURCE_TYPES)
+    invalid = sorted(set(normalized) - _ALLOWED_SOURCE_TYPES[agency])
     if invalid:
-        return build_error(ErrorCode.INVALID_PARAMETER, f"Unsupported FDA source_types: {invalid}")
-    return normalized or ["FDA_GUIDANCE", "FDA_RSS"]
+        return build_error(ErrorCode.INVALID_PARAMETER, f"Unsupported {agency} source_types: {invalid}")
+    return normalized or list(_DEFAULT_SOURCE_TYPES[agency])
 
 
 def _parse_iso_date(value, name: str):
@@ -76,31 +87,30 @@ def search_regulatory_updates(**kwargs):
 
     agency = agency.strip().upper()
 
-    if agency == "TFDA":
-        return {
-            "records": [],
-            "no_result_reason": "DATA_NOT_INGESTED",
-            "query_metadata": {"agency_searched": ["TFDA"], "sources_searched": [], "filters_applied": kwargs},
-        }
-
-    if agency != "FDA":
+    if agency not in {"FDA", "TFDA"}:
         return build_error(ErrorCode.INVALID_PARAMETER, f"Unsupported agency: {agency}")
 
     limit = _parse_limit(kwargs.get("limit", 20))
     if isinstance(limit, dict) and "error" in limit:
         return limit
 
-    source_types = _parse_source_types(kwargs.get("source_types"))
+    source_types = _parse_source_types(kwargs.get("source_types"), agency)
     if isinstance(source_types, dict) and "error" in source_types:
         return source_types
 
     document_status = kwargs.get("document_status")
     if document_status is not None:
         if not isinstance(document_status, str):
-            return build_error(ErrorCode.INVALID_PARAMETER, "document_status must be draft, final, or unknown")
+            return build_error(
+                ErrorCode.INVALID_PARAMETER,
+                f"document_status must be one of {sorted(_ALLOWED_DOCUMENT_STATUSES[agency])}",
+            )
         document_status = document_status.strip().lower()
-        if document_status not in _ALLOWED_DOCUMENT_STATUSES:
-            return build_error(ErrorCode.INVALID_PARAMETER, "document_status must be draft, final, or unknown")
+        if document_status not in _ALLOWED_DOCUMENT_STATUSES[agency]:
+            return build_error(
+                ErrorCode.INVALID_PARAMETER,
+                f"document_status must be one of {sorted(_ALLOWED_DOCUMENT_STATUSES[agency])}",
+            )
 
     date_from = _parse_iso_date(kwargs.get("date_from"), "date_from")
     if isinstance(date_from, dict) and "error" in date_from:
@@ -113,14 +123,14 @@ def search_regulatory_updates(**kwargs):
     if date_from and date_to and date_from > date_to:
         return build_error(ErrorCode.INVALID_PARAMETER, "date_from must be earlier than or equal to date_to")
 
-    client = FDAUpdatesClient()
+    client = FDAUpdatesClient() if agency == "FDA" else TFDAUpdatesClient()
     try:
         raw = client.search_updates(query=query, source_types=source_types, limit=limit)
     except Exception as exc:
         return build_error(
             ErrorCode.SOURCE_UNAVAILABLE,
-            f"FDA search failed: {exc}",
-            suggested_next_action="Check FDA connector runtime dependencies and source availability.",
+            f"{agency} search failed: {exc}",
+            suggested_next_action=f"Check {agency} connector runtime dependencies and source availability.",
         )
 
     if isinstance(raw, dict) and "error" in raw:
@@ -129,18 +139,19 @@ def search_regulatory_updates(**kwargs):
     if not isinstance(raw, list):
         return build_error(
             ErrorCode.INTERNAL_ERROR,
-            "FDA search returned an unexpected response shape",
+            f"{agency} search returned an unexpected response shape",
             details=f"Received type: {type(raw).__name__}",
-            suggested_next_action="Update FDAUpdatesClient.search_updates to return a list of records or a structured error.",
+            suggested_next_action=f"Update {agency} search_updates to return a list of records or a structured error.",
         )
 
     raw = _filter_records(raw, document_status=document_status, date_from=date_from, date_to=date_to)
 
     retrieved_at = datetime.now(timezone.utc).isoformat()
-    records = [asdict(normalize_fda_record(item, retrieved_at=retrieved_at)) for item in raw]
+    normalizer = normalize_fda_record if agency == "FDA" else normalize_tfda_record
+    records = [asdict(normalizer(item, retrieved_at=retrieved_at)) for item in raw]
 
     metadata = {
-        "agency_searched": ["FDA"],
+        "agency_searched": [agency],
         "sources_searched": source_types,
         "filters_applied": {
             "query": query,
