@@ -41,13 +41,23 @@ def normalize_fda_record(raw: dict, *, retrieved_at: str) -> RegulatoryUpdate:
 
 
 def normalize_tfda_record(raw: dict, *, retrieved_at: str) -> RegulatoryUpdate:
+    raw = _as_dict(raw)
+    known_limitations = _as_list(raw.get("known_limitations", []))
+    topics = _as_list(raw.get("topics", [])) or ["unknown"]
+    modality = _as_list(raw.get("product_modality", [])) or classify_product_modality(
+        " ".join([str(raw.get("title", "")), str(raw.get("summary", "")), " ".join(topics)])
+    ).get("product_modality", ["unknown"])
+    content_hash = _content_hash(raw)
+    if not content_hash:
+        known_limitations.append("content_hash unavailable due to missing stable fields")
+
     return RegulatoryUpdate(
         id=str(raw.get("id", "")), agency="TFDA", region="Taiwan", title=raw.get("title", ""),
         publication_date=raw.get("publication_date"), last_update_date=raw.get("last_update_date"),
-        retrieved_at=retrieved_at, official_url=raw.get("official_url", ""), source_type=raw.get("source_type", "API"),
-        document_type=raw.get("document_type", "unknown"), document_status=raw.get("document_status", "unknown"),
-        product_modality=raw.get("product_modality", []), topics=raw.get("topics", []), summary=raw.get("summary", ""),
-        known_limitations=raw.get("known_limitations", ["MVP v1 placeholder mapping"]))
+        retrieved_at=retrieved_at, official_url=raw.get("official_url", ""), source_type=raw.get("source_type", "TFDA_HTML"),
+        document_type=raw.get("document_type", "regulatory_update"), document_status=raw.get("document_status", "unknown"),
+        product_modality=modality, topics=topics, summary=raw.get("summary", ""),
+        known_limitations=known_limitations, content_hash=content_hash)
 
 
 def normalize_clinicaltrials_record(raw: dict, *, retrieved_at: str) -> ClinicalTrialRecord:
