@@ -28,13 +28,19 @@ def test_check_source_health_all_sources_available_through_registry(monkeypatch)
     result = _check_source_health()
 
     assert result["overall_status"] == "available"
-    assert result["query_metadata"]["sources_checked"] == ["FDA", "TFDA", "ClinicalTrials.gov"]
+    assert result["query_metadata"]["sources_checked"] == [
+        "FDA_openFDA",
+        "TFDA_DataAction",
+        "ClinicalTrialsGov_API",
+    ]
+    assert result["query_metadata"]["internal_sources_checked"] == ["FDA", "TFDA", "ClinicalTrials.gov"]
     assert len(result["sources"]) == 3
     assert len(result["source_health"]) == 3
     assert all(item["status"] == "pass" for item in result["source_health"])
+    assert all(item["source_type"] == "API" for item in result["source_health"])
 
 
-def test_check_source_health_accepts_contract_sources_list(monkeypatch):
+def test_check_source_health_accepts_contract_source_ids_list(monkeypatch):
     class FakeTFDAClient:
         def search_updates(self, **kwargs):
             return [{"id": "tfda-ok"}]
@@ -49,11 +55,34 @@ def test_check_source_health_accepts_contract_sources_list(monkeypatch):
         lambda: FakeClinicalTrialsGovClient(),
     )
 
-    result = _check_source_health(sources=["TFDA", "ClinicalTrials.gov"])
+    result = _check_source_health(sources=["TFDA_DataAction", "ClinicalTrialsGov_API"])
 
     assert result["overall_status"] == "available"
-    assert result["query_metadata"]["sources_checked"] == ["TFDA", "ClinicalTrials.gov"]
+    assert result["query_metadata"]["sources_checked"] == ["TFDA_DataAction", "ClinicalTrialsGov_API"]
+    assert result["query_metadata"]["internal_sources_checked"] == ["TFDA", "ClinicalTrials.gov"]
+    assert [item["source_id"] for item in result["source_health"]] == ["TFDA_DataAction", "ClinicalTrialsGov_API"]
     assert [item["agency_or_registry"] for item in result["source_health"]] == ["TFDA", "ClinicalTrials.gov"]
+    assert all(item["source_type"] == "API" for item in result["source_health"])
+
+
+def test_check_source_health_accepts_legacy_sources_list(monkeypatch):
+    class FakeFDAClient:
+        def search_updates(self, **kwargs):
+            return [{"id": "fda-ok"}]
+
+    class FakeTFDAClient:
+        def search_updates(self, **kwargs):
+            return [{"id": "tfda-ok"}]
+
+    monkeypatch.setattr("src.mcp_server.tools_source_health.FDAUpdatesClient", lambda: FakeFDAClient())
+    monkeypatch.setattr("src.mcp_server.tools_source_health.TFDAUpdatesClient", lambda: FakeTFDAClient())
+
+    result = _check_source_health(sources=["FDA", "TFDA"])
+
+    assert result["overall_status"] == "available"
+    assert result["query_metadata"]["sources_checked"] == ["FDA_openFDA", "TFDA_DataAction"]
+    assert result["query_metadata"]["internal_sources_checked"] == ["FDA", "TFDA"]
+    assert [item["source_id"] for item in result["source_health"]] == ["FDA_openFDA", "TFDA_DataAction"]
 
 
 def test_check_source_health_single_tfda_available_legacy_source_param(monkeypatch):
@@ -66,10 +95,29 @@ def test_check_source_health_single_tfda_available_legacy_source_param(monkeypat
     result = _check_source_health(source="TFDA")
 
     assert result["overall_status"] == "available"
-    assert result["query_metadata"]["sources_checked"] == ["TFDA"]
+    assert result["query_metadata"]["sources_checked"] == ["TFDA_DataAction"]
+    assert result["query_metadata"]["internal_sources_checked"] == ["TFDA"]
     assert result["sources"][0]["source"] == "TFDA"
-    assert result["source_health"][0]["source_id"] == "TFDA_connector"
+    assert result["source_health"][0]["source_id"] == "TFDA_DataAction"
+    assert result["source_health"][0]["source_type"] == "API"
     assert result["source_health"][0]["status"] == "pass"
+
+
+def test_check_source_health_single_fda_contract_id(monkeypatch):
+    class FakeFDAClient:
+        def search_updates(self, **kwargs):
+            return [{"id": "fda-ok"}]
+
+    monkeypatch.setattr("src.mcp_server.tools_source_health.FDAUpdatesClient", lambda: FakeFDAClient())
+
+    result = _check_source_health(source="FDA_openFDA")
+
+    assert result["overall_status"] == "available"
+    assert result["query_metadata"]["sources_checked"] == ["FDA_openFDA"]
+    assert result["query_metadata"]["internal_sources_checked"] == ["FDA"]
+    assert result["source_health"][0]["source_id"] == "FDA_openFDA"
+    assert result["source_health"][0]["agency_or_registry"] == "FDA"
+    assert result["source_health"][0]["source_type"] == "API"
 
 
 def test_check_source_health_regulatory_error_response(monkeypatch):
@@ -85,11 +133,12 @@ def test_check_source_health_regulatory_error_response(monkeypatch):
 
     monkeypatch.setattr("src.mcp_server.tools_source_health.FDAUpdatesClient", lambda: FakeFDAClient())
 
-    result = _check_source_health(source="FDA")
+    result = _check_source_health(source="FDA_openFDA")
 
     assert result["overall_status"] == "degraded"
     assert result["sources"][0]["available"] is False
     assert result["source_health"][0]["status"] == "failed"
+    assert result["source_health"][0]["failure_type"] == "api_status"
     assert result["source_health"][0]["error_message"] == "FDA unavailable"
     assert result["source_health"][0]["suggested_fix"] == "Retry later."
 
@@ -109,11 +158,12 @@ def test_check_source_health_clinicaltrials_error_response(monkeypatch):
         lambda: FakeClinicalTrialsGovClient(),
     )
 
-    result = _check_source_health(source="ClinicalTrials.gov")
+    result = _check_source_health(source="ClinicalTrialsGov_API")
 
     assert result["overall_status"] == "degraded"
     assert result["sources"][0]["source"] == "ClinicalTrials.gov"
     assert result["source_health"][0]["source_id"] == "ClinicalTrialsGov_API"
+    assert result["source_health"][0]["source_type"] == "API"
     assert result["source_health"][0]["status"] == "failed"
     assert result["source_health"][0]["failure_type"] == "api_status"
 
@@ -125,11 +175,13 @@ def test_check_source_health_handles_connector_exception(monkeypatch):
 
     monkeypatch.setattr("src.mcp_server.tools_source_health.TFDAUpdatesClient", lambda: FakeTFDAClient())
 
-    result = _check_source_health(source="TFDA")
+    result = _check_source_health(source="TFDA_DataAction")
 
     assert result["overall_status"] == "degraded"
     assert result["sources"][0]["available"] is False
+    assert result["source_health"][0]["source_id"] == "TFDA_DataAction"
     assert result["source_health"][0]["status"] == "failed"
+    assert result["source_health"][0]["failure_type"] == "api_status"
     assert "TFDA timeout" in result["source_health"][0]["error_message"]
 
 
@@ -166,4 +218,6 @@ def test_check_source_health_accepts_clinicaltrials_alias(monkeypatch):
 
     assert result["overall_status"] == "available"
     assert result["sources"][0]["source"] == "ClinicalTrials.gov"
+    assert result["source_health"][0]["source_id"] == "ClinicalTrialsGov_API"
     assert result["source_health"][0]["agency_or_registry"] == "ClinicalTrials.gov"
+    assert result["source_health"][0]["source_type"] == "API"
