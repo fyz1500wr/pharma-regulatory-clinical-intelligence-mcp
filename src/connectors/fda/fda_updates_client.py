@@ -147,18 +147,41 @@ class FDAUpdatesClient:
             })
         return items
 
-    def search_updates(self, query: str | None = None, source_types: list[str] | None = None, limit: int = 20) -> list[dict]:
+    def search_updates(self, query: str | None = None, source_types: list[str] | None = None, limit: int = 20) -> list[dict] | dict:
         source_types = source_types or ["FDA_GUIDANCE", "FDA_RSS"]
         records: list[dict] = []
+        source_failures: list[dict] = []
+        attempted_sources = 0
+
         if "FDA_GUIDANCE" in source_types:
+            attempted_sources += 1
             guidance_payload = self.fetch_guidance_documents(query=query, limit=limit)
-            if isinstance(guidance_payload, dict) and "error" not in guidance_payload:
+            if isinstance(guidance_payload, dict) and "error" in guidance_payload:
+                source_failures.append(guidance_payload["error"])
+            elif isinstance(guidance_payload, dict):
                 records.extend(self.parse_guidance_documents(guidance_payload)[:limit])
+
         if "FDA_RSS" in source_types:
-            rss_payload = self.fetch_rss_feed(urljoin(self.base_url, "/about-fda/contact-fda/stay-informed/rss-feeds/whats-new-drug-rss-feed"), limit=limit)
-            if isinstance(rss_payload, dict) and "error" not in rss_payload:
+            attempted_sources += 1
+            rss_payload = self.fetch_rss_feed(
+                urljoin(self.base_url, "/about-fda/contact-fda/stay-informed/rss-feeds/whats-new-drug-rss-feed"),
+                limit=limit,
+            )
+            if isinstance(rss_payload, dict) and "error" in rss_payload:
+                source_failures.append(rss_payload["error"])
+            elif isinstance(rss_payload, dict):
                 records.extend(self.parse_rss_items(rss_payload.get("xml", ""))[:limit])
+
         if query:
             q = query.lower().strip()
             records = [r for r in records if q in json.dumps(r).lower()]
+
+        if not records and attempted_sources > 0 and len(source_failures) == attempted_sources:
+            return build_error(
+                ErrorCode.SOURCE_UNAVAILABLE,
+                "All requested FDA sources are unavailable",
+                details={"source_failures": source_failures},
+                suggested_next_action="Check FDA source availability and connector fetch methods.",
+            )
+
         return records[:limit]

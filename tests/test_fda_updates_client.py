@@ -66,3 +66,22 @@ def test_empty_fixture_returns_empty_list():
     client = FDAUpdatesClient()
     assert client.parse_guidance_documents("") == []
     assert client.parse_rss_items("") == []
+
+def test_search_updates_returns_source_unavailable_when_all_sources_fail(monkeypatch):
+    client = FDAUpdatesClient()
+
+    monkeypatch.setattr(
+        client,
+        "fetch_guidance_documents",
+        lambda *args, **kwargs: {"error": {"code": "SOURCE_UNAVAILABLE", "message": "guidance down"}},
+    )
+    monkeypatch.setattr(
+        client,
+        "fetch_rss_feed",
+        lambda *args, **kwargs: {"error": {"code": "SOURCE_UNAVAILABLE", "message": "rss down"}},
+    )
+
+    result = client.search_updates()
+    assert "error" in result
+    assert result["error"]["code"] == "SOURCE_UNAVAILABLE"
+

@@ -22,7 +22,26 @@ def search_regulatory_updates(**kwargs):
         return build_error(ErrorCode.INVALID_PARAMETER, f"Unsupported agency: {agency}")
 
     client = FDAUpdatesClient()
-    raw = client.search_updates(query=query, limit=kwargs.get("limit", 20))
+    try:
+        raw = client.search_updates(query=query, limit=kwargs.get("limit", 20))
+    except Exception as exc:
+        return build_error(
+            ErrorCode.SOURCE_UNAVAILABLE,
+            f"FDA search failed: {exc}",
+            suggested_next_action="Check FDA connector runtime dependencies and source availability.",
+        )
+
+    if isinstance(raw, dict) and "error" in raw:
+        return raw
+
+    if not isinstance(raw, list):
+        return build_error(
+            ErrorCode.INTERNAL_ERROR,
+            "FDA search returned an unexpected response shape",
+            details=f"Received type: {type(raw).__name__}",
+            suggested_next_action="Update FDAUpdatesClient.search_updates to return a list of records or a structured error.",
+        )
+
     retrieved_at = datetime.now(timezone.utc).isoformat()
     records = [asdict(normalize_fda_record(item, retrieved_at=retrieved_at)) for item in raw]
 
