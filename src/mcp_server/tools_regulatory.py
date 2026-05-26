@@ -130,7 +130,7 @@ def search_regulatory_updates(**kwargs):
         return build_error(
             ErrorCode.SOURCE_UNAVAILABLE,
             f"{agency} search failed: {exc}",
-            suggested_next_action="Check FDA connector runtime dependencies and source availability.",
+            suggested_next_action=f"Check {agency} connector runtime dependencies and source availability.",
         )
 
     if isinstance(raw, dict) and "error" in raw:
