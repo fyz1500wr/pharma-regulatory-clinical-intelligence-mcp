@@ -79,9 +79,11 @@ class _GuidanceHTMLParser(HTMLParser):
                 self._article_field = "title"
                 self._current_article["official_url"] = attrs_dict.get("href", "")
             elif tag == "time":
-                self._article_field = "publication_date"
                 if attrs_dict.get("datetime"):
                     self._current_article["publication_date"] = attrs_dict["datetime"]
+                    self._article_field = None
+                else:
+                    self._article_field = "publication_date"
             elif tag == "p" and "summary" in classes:
                 self._article_field = "summary"
             elif tag == "span" and "status" in classes:

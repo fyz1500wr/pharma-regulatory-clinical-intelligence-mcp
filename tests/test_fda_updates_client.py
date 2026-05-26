@@ -163,3 +163,10 @@ def test_search_updates_partial_source_failure_keeps_successful_records(monkeypa
     assert isinstance(records, list)
     assert records
     assert any("Partial FDA source failure" in " ".join(record.get("known_limitations", [])) for record in records)
+
+def test_guidance_time_datetime_attribute_is_not_concatenated_with_display_text():
+    client = FDAUpdatesClient()
+    records = client.parse_guidance_documents(_read_fixture("fda_guidance_sample.html"))
+    assert records
+    assert records[0]["publication_date"] == "2026-01-15"
+
