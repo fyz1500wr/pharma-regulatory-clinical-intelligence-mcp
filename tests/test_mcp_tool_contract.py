@@ -155,3 +155,121 @@ def test_search_clinical_trials_by_indication_rejects_non_string_indication():
         assert "error" in result
         assert result["error"]["code"] == "INVALID_PARAMETER"
 
+def test_search_regulatory_updates_source_types_guidance_only(monkeypatch):
+    seen = {}
+
+    class FakeFDAClient:
+        def search_updates(self, **kwargs):
+            seen.update(kwargs)
+            return [
+                {
+                    "id": "g1",
+                    "title": "Final FDA Guidance",
+                    "official_url": "https://www.fda.gov/guidance",
+                    "publication_date": "2026-03-14",
+                    "source_type": "FDA_GUIDANCE",
+                    "document_type": "guidance",
+                    "document_status": "final",
+                    "product_modality": ["unknown"],
+                    "topics": ["general"],
+                    "summary": "summary",
+                    "known_limitations": [],
+                }
+            ]
+
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.FDAUpdatesClient", lambda: FakeFDAClient())
+    result = search_regulatory_updates(agency="FDA", source_types=["FDA_GUIDANCE"], limit=10)
+    assert result["records"]
+    assert seen["source_types"] == ["FDA_GUIDANCE"]
+    assert result["query_metadata"]["sources_searched"] == ["FDA_GUIDANCE"]
+
+
+def test_search_regulatory_updates_rejects_invalid_source_type():
+    result = search_regulatory_updates(agency="FDA", source_types=["FDA_BAD"])
+    assert result["error"]["code"] == "INVALID_PARAMETER"
+
+
+def test_search_regulatory_updates_rejects_invalid_limit():
+    result = search_regulatory_updates(agency="FDA", limit=0)
+    assert result["error"]["code"] == "INVALID_PARAMETER"
+
+
+def test_search_regulatory_updates_filters_document_status(monkeypatch):
+    class FakeFDAClient:
+        def search_updates(self, **kwargs):
+            return [
+                {
+                    "id": "draft",
+                    "title": "Draft FDA Guidance",
+                    "official_url": "https://www.fda.gov/draft",
+                    "publication_date": "2026-04-02",
+                    "source_type": "FDA_GUIDANCE",
+                    "document_type": "guidance",
+                    "document_status": "draft",
+                    "product_modality": ["unknown"],
+                    "topics": ["general"],
+                    "summary": "",
+                    "known_limitations": [],
+                },
+                {
+                    "id": "final",
+                    "title": "Final FDA Guidance",
+                    "official_url": "https://www.fda.gov/final",
+                    "publication_date": "2026-03-14",
+                    "source_type": "FDA_GUIDANCE",
+                    "document_type": "guidance",
+                    "document_status": "final",
+                    "product_modality": ["unknown"],
+                    "topics": ["general"],
+                    "summary": "",
+                    "known_limitations": [],
+                },
+            ]
+
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.FDAUpdatesClient", lambda: FakeFDAClient())
+    result = search_regulatory_updates(agency="FDA", document_status="draft")
+    assert len(result["records"]) == 1
+    assert result["records"][0]["document_status"] == "draft"
+
+
+def test_search_regulatory_updates_filters_date_range(monkeypatch):
+    class FakeFDAClient:
+        def search_updates(self, **kwargs):
+            return [
+                {
+                    "id": "old",
+                    "title": "Old FDA Guidance",
+                    "official_url": "https://www.fda.gov/old",
+                    "publication_date": "2026-01-01",
+                    "source_type": "FDA_GUIDANCE",
+                    "document_type": "guidance",
+                    "document_status": "final",
+                    "product_modality": ["unknown"],
+                    "topics": ["general"],
+                    "summary": "",
+                    "known_limitations": [],
+                },
+                {
+                    "id": "new",
+                    "title": "New FDA Guidance",
+                    "official_url": "https://www.fda.gov/new",
+                    "publication_date": "2026-04-02",
+                    "source_type": "FDA_GUIDANCE",
+                    "document_type": "guidance",
+                    "document_status": "draft",
+                    "product_modality": ["unknown"],
+                    "topics": ["general"],
+                    "summary": "",
+                    "known_limitations": [],
+                },
+            ]
+
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.FDAUpdatesClient", lambda: FakeFDAClient())
+    result = search_regulatory_updates(agency="FDA", date_from="2026-04-01", date_to="2026-04-30")
+    assert len(result["records"]) == 1
+    assert result["records"][0]["id"] == "new"
+
+
+def test_search_regulatory_updates_rejects_invalid_date_range():
+    result = search_regulatory_updates(agency="FDA", date_from="2026-05-01", date_to="2026-04-01")
+    assert result["error"]["code"] == "INVALID_PARAMETER"
