@@ -1,3 +1,5 @@
+import hashlib
+
 from src.mcp_server.server import TOOL_REGISTRY
 
 
@@ -174,3 +176,118 @@ def test_get_regulatory_document_detail_handles_unexpected_connector_shape(monke
     )
 
     assert result["error"]["code"] == "INTERNAL_ERROR"
+
+def test_get_regulatory_document_detail_content_hash_lookup_does_not_filter_by_document_id_query(monkeypatch):
+    title = "FDA Hash Detail Guidance"
+    official_url = "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/fda-hash-detail-guidance"
+    publication_date = "2026-03-01"
+    expected_hash = hashlib.sha1(f"{title}|{official_url}|{publication_date}".encode("utf-8")).hexdigest()
+
+    class FakeFDAClient:
+        def search_updates(self, **kwargs):
+            assert kwargs["query"] is None
+            return [
+                {
+                    "id": "fda-hash-detail-1",
+                    "title": title,
+                    "official_url": official_url,
+                    "publication_date": publication_date,
+                    "last_update_date": None,
+                    "source_type": "FDA_GUIDANCE",
+                    "document_type": "guidance",
+                    "document_status": "final",
+                    "product_modality": ["drug"],
+                    "topics": ["quality"],
+                    "summary": "FDA hash detail test record.",
+                    "known_limitations": [],
+                }
+            ]
+
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.FDAUpdatesClient", lambda: FakeFDAClient())
+
+    result = TOOL_REGISTRY["get_regulatory_document_detail"](
+        document_id=expected_hash,
+        agency="FDA",
+    )
+
+    assert result["document"]["id"] == "fda-hash-detail-1"
+    assert result["document"]["content_hash"] == expected_hash
+    assert result["query_metadata"]["lookup_mode"] == "skeleton_backed_search_metadata"
+
+
+def test_get_regulatory_document_detail_all_agency_lookup_continues_after_fda_failure(monkeypatch):
+    class FakeFDAClient:
+        def search_updates(self, **kwargs):
+            raise RuntimeError("FDA transient failure")
+
+    class FakeTFDAClient:
+        def search_updates(self, **kwargs):
+            return [
+                {
+                    "id": "tfda-after-fda-failure-1",
+                    "title": "TFDA After FDA Failure Detail",
+                    "official_url": "https://www.fda.gov.tw/TC/newsContent.aspx?id=300",
+                    "publication_date": "2026-03-15",
+                    "last_update_date": None,
+                    "source_type": "TFDA_HTML",
+                    "document_type": "regulatory_update",
+                    "document_status": "published",
+                    "product_modality": ["drug"],
+                    "topics": ["藥品公告"],
+                    "summary": "TFDA detail found after FDA failure.",
+                    "known_limitations": [],
+                }
+            ]
+
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.FDAUpdatesClient", lambda: FakeFDAClient())
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.TFDAUpdatesClient", lambda: FakeTFDAClient())
+
+    result = TOOL_REGISTRY["get_regulatory_document_detail"](
+        document_id="tfda-after-fda-failure-1",
+    )
+
+    assert result["document"]["id"] == "tfda-after-fda-failure-1"
+    assert result["document"]["agency"] == "TFDA"
+    assert result["query_metadata"]["agencies_checked"] == ["FDA", "TFDA"]
+    assert result["query_metadata"]["partial_lookup_failures"][0]["agency"] == "FDA"
+    assert result["query_metadata"]["partial_lookup_failures"][0]["code"] == "SOURCE_UNAVAILABLE"
+
+
+def test_get_regulatory_document_detail_all_agency_lookup_returns_partial_results_when_one_source_fails_and_no_match(monkeypatch):
+    class FakeFDAClient:
+        def search_updates(self, **kwargs):
+            raise RuntimeError("FDA transient failure")
+
+    class FakeTFDAClient:
+        def search_updates(self, **kwargs):
+            return []
+
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.FDAUpdatesClient", lambda: FakeFDAClient())
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.TFDAUpdatesClient", lambda: FakeTFDAClient())
+
+    result = TOOL_REGISTRY["get_regulatory_document_detail"](
+        document_id="missing-after-partial-failure",
+    )
+
+    assert result["error"]["code"] == "PARTIAL_RESULTS"
+    assert result["error"]["details"]["partial_lookup_failures"][0]["agency"] == "FDA"
+
+
+def test_get_regulatory_document_detail_all_agency_lookup_returns_source_unavailable_when_all_sources_fail(monkeypatch):
+    class FakeFDAClient:
+        def search_updates(self, **kwargs):
+            raise RuntimeError("FDA transient failure")
+
+    class FakeTFDAClient:
+        def search_updates(self, **kwargs):
+            raise RuntimeError("TFDA transient failure")
+
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.FDAUpdatesClient", lambda: FakeFDAClient())
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.TFDAUpdatesClient", lambda: FakeTFDAClient())
+
+    result = TOOL_REGISTRY["get_regulatory_document_detail"](
+        document_id="missing-after-total-failure",
+    )
+
+    assert result["error"]["code"] == "SOURCE_UNAVAILABLE"
+    assert len(result["error"]["details"]["partial_lookup_failures"]) == 2
