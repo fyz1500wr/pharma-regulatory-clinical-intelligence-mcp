@@ -291,3 +291,46 @@ def test_get_regulatory_document_detail_all_agency_lookup_returns_source_unavail
 
     assert result["error"]["code"] == "SOURCE_UNAVAILABLE"
     assert len(result["error"]["details"]["partial_lookup_failures"]) == 2
+
+def test_get_regulatory_document_detail_all_agency_lookup_preserves_internal_error_when_all_sources_return_unexpected_shapes(monkeypatch):
+    class FakeFDAClient:
+        def search_updates(self, **kwargs):
+            return {"unexpected": "fda-shape"}
+
+    class FakeTFDAClient:
+        def search_updates(self, **kwargs):
+            return {"unexpected": "tfda-shape"}
+
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.FDAUpdatesClient", lambda: FakeFDAClient())
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.TFDAUpdatesClient", lambda: FakeTFDAClient())
+
+    result = TOOL_REGISTRY["get_regulatory_document_detail"](
+        document_id="missing-after-internal-errors",
+    )
+
+    assert result["error"]["code"] == "INTERNAL_ERROR"
+    assert len(result["error"]["details"]["partial_lookup_failures"]) == 2
+    assert {failure["code"] for failure in result["error"]["details"]["partial_lookup_failures"]} == {"INTERNAL_ERROR"}
+
+
+def test_get_regulatory_document_detail_all_agency_lookup_preserves_internal_error_when_failures_are_mixed(monkeypatch):
+    class FakeFDAClient:
+        def search_updates(self, **kwargs):
+            return {"unexpected": "fda-shape"}
+
+    class FakeTFDAClient:
+        def search_updates(self, **kwargs):
+            raise RuntimeError("TFDA transient failure")
+
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.FDAUpdatesClient", lambda: FakeFDAClient())
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.TFDAUpdatesClient", lambda: FakeTFDAClient())
+
+    result = TOOL_REGISTRY["get_regulatory_document_detail"](
+        document_id="missing-after-mixed-failures",
+    )
+
+    assert result["error"]["code"] == "INTERNAL_ERROR"
+    assert {failure["code"] for failure in result["error"]["details"]["partial_lookup_failures"]} == {
+        "INTERNAL_ERROR",
+        "SOURCE_UNAVAILABLE",
+    }

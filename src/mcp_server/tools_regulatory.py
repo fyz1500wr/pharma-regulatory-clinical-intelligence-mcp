@@ -373,11 +373,22 @@ def get_regulatory_document_detail(document_id: str, **kwargs):
     }
 
     if lookup_failures and len(lookup_failures) == len(agencies):
+        failure_codes = {failure.get("code") for failure in lookup_failures}
+        if failure_codes == {ErrorCode.SOURCE_UNAVAILABLE.value}:
+            return build_error(
+                ErrorCode.SOURCE_UNAVAILABLE,
+                f"Document detail lookup failed for all requested agencies: {document_id.strip()}",
+                details=error_details,
+                suggested_next_action="Check source health before retrying document detail lookup.",
+            )
+
         return build_error(
-            ErrorCode.SOURCE_UNAVAILABLE,
-            f"Document detail lookup failed for all requested agencies: {document_id.strip()}",
+            ErrorCode.INTERNAL_ERROR,
+            f"Document detail lookup encountered non-source-availability failures for all requested agencies: {document_id.strip()}",
             details=error_details,
-            suggested_next_action="Check source health before retrying document detail lookup.",
+            suggested_next_action=(
+                "Inspect connector response shapes and error codes before treating this as a transient source outage."
+            ),
         )
 
     if lookup_failures:
