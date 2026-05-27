@@ -12,6 +12,45 @@ def test_required_tool_names_exist():
     assert required.issubset(set(TOOL_REGISTRY.keys()))
 
 
+
+def test_list_source_failures_contract_response(monkeypatch):
+    def fake_health_impl(source, mode):
+        available = source != "FDA"
+        source_type = "clinical_trials_registry" if source == "ClinicalTrials.gov" else "regulatory"
+        return {
+            "overall_status": "available" if available else "degraded",
+            "sources": [
+                {
+                    "source": source,
+                    "source_type": source_type,
+                    "available": available,
+                    "retrieved_at": "2026-01-01T00:00:00+00:00",
+                    "error_code": "" if available else "SOURCE_UNAVAILABLE",
+                    "message": "OK" if available else "FDA timeout",
+                    "suggested_next_action": f"Check {source} connector.",
+                    "known_limitations": [],
+                }
+            ],
+            "query_metadata": {
+                "known_limitations": [],
+            },
+        }
+
+    monkeypatch.setattr("src.mcp_server.tools_healthcheck._check_source_health_impl", fake_health_impl)
+
+    result = TOOL_REGISTRY["list_source_failures"](sources=["FDA_openFDA"])
+
+    assert "error" not in result
+    assert "failures" in result
+    assert "summary" in result
+    assert "query_metadata" in result
+    assert result["failures"][0]["source_id"] == "FDA_openFDA"
+    assert result["failures"][0]["status"] == "open"
+    assert result["failures"][0]["failure_type"] == "api_status"
+    assert result["summary"]["open_failure_count"] == 1
+    assert result["query_metadata"]["lookup_mode"] == "current_health_snapshot"
+
+
 def test_compare_regulatory_updates_contract_response(monkeypatch):
     class FakeFDAClient:
         def search_updates(self, **kwargs):

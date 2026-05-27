@@ -264,12 +264,235 @@ def check_source_health(**kwargs):
     )
 
 
-def list_source_failures(**kwargs):
+_FAILURE_TYPES = {
+    "api_status",
+    "schema_validation",
+    "rss_status",
+    "html_selector",
+    "attachment_download",
+    "empty_result",
+    "unknown",
+}
+_FAILURE_SEVERITIES = {"low", "medium", "high", "critical"}
+
+
+def _as_filter_list(value: Any, name: str) -> list[str] | dict:
+    if value in (None, ""):
+        return []
+
+    if isinstance(value, str):
+        values = [value]
+    elif isinstance(value, list) and all(isinstance(item, str) for item in value):
+        values = value
+    else:
+        return build_error(ErrorCode.INVALID_PARAMETER, f"{name} must be a string or list of strings")
+
+    return [item.strip() for item in values if item.strip()]
+
+
+def _failure_id_for_health_item(item: dict[str, Any]) -> str:
+    source_id = item.get("source_id", "unknown")
+    failure_type = item.get("failure_type") or "unknown"
+    status = "open" if item.get("status") in {"failed", "warning", "unknown"} else "resolved"
+    return f"{source_id}-{failure_type}-{status}".replace(" ", "_")
+
+
+def _status_for_failure(item: dict[str, Any]) -> str:
+    if item.get("status") in {"failed", "warning", "unknown"}:
+        return "open"
+    return "resolved"
+
+
+def _suspected_cause_for_failure(item: dict[str, Any]) -> str:
+    failure_type = item.get("failure_type") or "unknown"
+    if failure_type == "api_status":
+        return "Current source health check did not pass; API or connector availability may be affected."
+    if failure_type == "schema_validation":
+        return "Current source response may not match the expected parser or normalization schema."
+    if failure_type == "html_selector":
+        return "Current source webpage structure may have changed."
+    if failure_type == "empty_result":
+        return "Current source returned no usable records for the health check."
+    return "Current source health check did not pass; cause requires manual review."
+
+
+def _health_item_to_failure(item: dict[str, Any]) -> dict[str, Any]:
+    detected_at = item.get("last_checked_at")
+    status = _status_for_failure(item)
+
     return {
-        "failures": [],
+        "failure_id": _failure_id_for_health_item(item),
+        "source_id": item.get("source_id", "unknown"),
+        "agency_or_registry": item.get("agency_or_registry", "unknown"),
+        "detected_at": detected_at,
+        "resolved_at": item.get("last_successful_check") if status == "resolved" else None,
+        "status": status,
+        "failure_type": item.get("failure_type") or "unknown",
+        "severity": item.get("severity", "medium"),
+        "error_message": item.get("error_message", ""),
+        "suspected_cause": _suspected_cause_for_failure(item),
+        "suggested_fix": item.get("suggested_fix", ""),
+        "suggested_connector_file": item.get("suggested_connector_file", ""),
+        "github_issue_url": "",
+        "known_limitations": item.get("known_limitations", []),
+    }
+
+
+def _failure_matches_filters(
+    failure: dict[str, Any],
+    *,
+    agencies_or_registries: list[str],
+    failure_types: list[str],
+    severities: list[str],
+    include_resolved: bool,
+) -> bool:
+    if not include_resolved and failure.get("status") == "resolved":
+        return False
+
+    if agencies_or_registries:
+        allowed = {item.strip().lower() for item in agencies_or_registries}
+        if str(failure.get("agency_or_registry", "")).strip().lower() not in allowed:
+            return False
+
+    if failure_types:
+        allowed = {item.strip().lower() for item in failure_types}
+        if str(failure.get("failure_type", "")).strip().lower() not in allowed:
+            return False
+
+    if severities:
+        allowed = {item.strip().lower() for item in severities}
+        if str(failure.get("severity", "")).strip().lower() not in allowed:
+            return False
+
+    return True
+
+
+def _validate_failure_types(values: list[str]) -> dict | None:
+    invalid = sorted({item.strip().lower() for item in values} - _FAILURE_TYPES)
+    if invalid:
+        return build_error(
+            ErrorCode.INVALID_PARAMETER,
+            f"Unsupported failure_types: {invalid}",
+            details={"supported_failure_types": sorted(_FAILURE_TYPES)},
+        )
+    return None
+
+
+def _validate_severities(values: list[str]) -> dict | None:
+    invalid = sorted({item.strip().lower() for item in values} - _FAILURE_SEVERITIES)
+    if invalid:
+        return build_error(
+            ErrorCode.INVALID_PARAMETER,
+            f"Unsupported severity values: {invalid}",
+            details={"supported_severity_values": sorted(_FAILURE_SEVERITIES)},
+        )
+    return None
+
+
+def list_source_failures(**kwargs):
+    sources = kwargs.get("sources")
+    source = kwargs.get("source")
+    agencies_or_registries = _as_filter_list(kwargs.get("agencies_or_registries"), "agencies_or_registries")
+    if isinstance(agencies_or_registries, dict) and "error" in agencies_or_registries:
+        return agencies_or_registries
+
+    failure_types = _as_filter_list(kwargs.get("failure_types"), "failure_types")
+    if isinstance(failure_types, dict) and "error" in failure_types:
+        return failure_types
+
+    failure_type_error = _validate_failure_types(failure_types)
+    if failure_type_error:
+        return failure_type_error
+
+    severities = _as_filter_list(kwargs.get("severity"), "severity")
+    if isinstance(severities, dict) and "error" in severities:
+        return severities
+
+    severity_error = _validate_severities(severities)
+    if severity_error:
+        return severity_error
+
+    include_resolved = kwargs.get("include_resolved", False)
+    if not isinstance(include_resolved, bool):
+        return build_error(ErrorCode.INVALID_PARAMETER, "include_resolved must be a boolean")
+
+    if source is not None and sources is not None:
+        return build_error(
+            ErrorCode.INVALID_PARAMETER,
+            "Use either source or sources, not both",
+            suggested_next_action="Use source='FDA_openFDA' for one source or sources=['FDA_openFDA', 'TFDA_DataAction'] for multiple sources.",
+        )
+
+    selected_sources = sources if sources is not None else source
+    if selected_sources is None and agencies_or_registries:
+        selected_sources = agencies_or_registries
+
+    health_result = check_source_health(
+        sources=selected_sources,
+        mode=kwargs.get("mode", "limited_live_connector_check"),
+    )
+    if isinstance(health_result, dict) and "error" in health_result:
+        return health_result
+
+    source_health = health_result.get("source_health", [])
+    if not isinstance(source_health, list):
+        return build_error(
+            ErrorCode.INTERNAL_ERROR,
+            "check_source_health returned an unexpected source_health shape",
+            details=f"Received source_health type: {type(source_health).__name__}",
+        )
+
+    failures = [
+        _health_item_to_failure(item)
+        for item in source_health
+        if item.get("status") in {"failed", "warning", "unknown"}
+    ]
+
+    failures = [
+        failure
+        for failure in failures
+        if _failure_matches_filters(
+            failure,
+            agencies_or_registries=agencies_or_registries,
+            failure_types=failure_types,
+            severities=severities,
+            include_resolved=include_resolved,
+        )
+    ]
+
+    critical_failure_count = sum(1 for failure in failures if failure.get("severity") == "critical")
+    high_failure_count = sum(1 for failure in failures if failure.get("severity") == "high")
+    open_failure_count = sum(1 for failure in failures if failure.get("status") == "open")
+
+    known_limitations = [
+        "MVP v1 list_source_failures is a current health snapshot, not a persisted historical failure event store.",
+        "date_range is accepted for contract compatibility but does not query historical failure records in MVP v1.",
+        "resolved failures are not available unless a future persisted event store is implemented.",
+    ]
+    known_limitations.extend(health_result.get("known_limitations", []))
+
+    return {
+        "failures": failures,
         "summary": {
-            "open_failure_count": 0,
-            "critical_failure_count": 0,
-            "known_limitations": ["No persisted events in skeleton"],
+            "open_failure_count": open_failure_count,
+            "critical_failure_count": critical_failure_count,
+            "high_failure_count": high_failure_count,
+            "known_limitations": sorted(set(known_limitations)),
+        },
+        "query_metadata": {
+            "sources_checked": health_result.get("query_metadata", {}).get("sources_checked", []),
+            "internal_sources_checked": health_result.get("query_metadata", {}).get("internal_sources_checked", []),
+            "filters_applied": {
+                "source": source,
+                "sources": sources,
+                "agencies_or_registries": agencies_or_registries,
+                "failure_types": failure_types,
+                "severity": severities,
+                "include_resolved": include_resolved,
+                "date_range": kwargs.get("date_range"),
+                "mode": kwargs.get("mode", "limited_live_connector_check"),
+            },
+            "lookup_mode": "current_health_snapshot",
+            "known_limitations": sorted(set(known_limitations)),
         },
     }
