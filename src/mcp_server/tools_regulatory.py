@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from src.connectors.fda.fda_updates_client import FDAUpdatesClient
 from src.connectors.tfda.tfda_updates_client import TFDAUpdatesClient
@@ -412,9 +412,430 @@ def get_regulatory_document_detail(document_id: str, **kwargs):
         ),
     )
 
-def compare_regulatory_updates(**kwargs):
-    return build_error(
-        ErrorCode.DATA_NOT_INGESTED,
-        "compare_regulatory_updates is not implemented in MVP v1 skeleton",
-        suggested_next_action="Implement after MVP v1 core tools stabilize and data is ingested.",
+_COMPARE_AXES = {"agency", "topic", "product_modality", "document_status"}
+_DATE_RANGE_DAYS = {
+    "1m": 30,
+    "3m": 90,
+    "6m": 180,
+    "1y": 365,
+    "3y": 1095,
+    "5y": 1825,
+}
+
+
+def _parse_compare_agencies(value) -> list[str] | dict:
+    if value in (None, ""):
+        return ["FDA", "TFDA"]
+
+    if isinstance(value, str):
+        raw_agencies = [value]
+    elif isinstance(value, list) and all(isinstance(item, str) for item in value):
+        raw_agencies = value
+    else:
+        return build_error(ErrorCode.INVALID_PARAMETER, "agencies must be a string or list of strings")
+
+    agencies = []
+    for item in raw_agencies:
+        agency = item.strip().upper()
+        if not agency:
+            continue
+        if agency not in {"FDA", "TFDA"}:
+            return build_error(
+                ErrorCode.INVALID_PARAMETER,
+                f"Unsupported agency for MVP v1 comparison: {agency}",
+                suggested_next_action="Use MVP v1 active agencies only: FDA and TFDA.",
+            )
+        if agency not in agencies:
+            agencies.append(agency)
+
+    return agencies or ["FDA", "TFDA"]
+
+
+def _parse_compare_axis(value) -> str | dict:
+    if value in (None, ""):
+        return "agency"
+    if not isinstance(value, str):
+        return build_error(ErrorCode.INVALID_PARAMETER, "comparison_axis must be a string")
+    axis = value.strip().lower()
+    if axis not in _COMPARE_AXES:
+        return build_error(
+            ErrorCode.INVALID_PARAMETER,
+            f"Unsupported comparison_axis: {axis}",
+            suggested_next_action=f"Use one of: {sorted(_COMPARE_AXES)}.",
+        )
+    return axis
+
+
+def _parse_compare_values(value, name: str) -> list[str] | dict:
+    if value in (None, ""):
+        return []
+
+    if isinstance(value, str):
+        values = [value]
+    elif isinstance(value, list) and all(isinstance(item, str) for item in value):
+        values = value
+    else:
+        return build_error(ErrorCode.INVALID_PARAMETER, f"{name} must be a string or list of strings")
+
+    normalized = [item.strip() for item in values if item.strip()]
+    return normalized
+
+
+def _parse_compare_query(kwargs) -> str | None | dict:
+    query = kwargs.get("query")
+    keywords = kwargs.get("keywords")
+
+    if query not in (None, ""):
+        if not isinstance(query, str):
+            return build_error(ErrorCode.INVALID_PARAMETER, "query must be a string")
+        return query.strip() or None
+
+    if keywords in (None, ""):
+        return None
+
+    if isinstance(keywords, str):
+        return keywords.strip() or None
+
+    if isinstance(keywords, list) and all(isinstance(item, str) for item in keywords):
+        joined = " ".join(item.strip() for item in keywords if item.strip())
+        return joined or None
+
+    return build_error(ErrorCode.INVALID_PARAMETER, "keywords must be a string or list of strings")
+
+
+def _resolve_compare_dates(kwargs) -> dict:
+    custom_date_range = kwargs.get("custom_date_range") or {}
+    if custom_date_range and not isinstance(custom_date_range, dict):
+        return build_error(ErrorCode.INVALID_PARAMETER, "custom_date_range must be an object")
+
+    date_from_value = kwargs.get("date_from") or kwargs.get("start_date") or custom_date_range.get("start_date")
+    date_to_value = kwargs.get("date_to") or kwargs.get("end_date") or custom_date_range.get("end_date")
+    date_range = kwargs.get("date_range")
+
+    if date_range not in (None, "", "custom"):
+        if not isinstance(date_range, str):
+            return build_error(ErrorCode.INVALID_PARAMETER, "date_range must be a string")
+        normalized_range = date_range.strip().lower()
+        if normalized_range not in _DATE_RANGE_DAYS:
+            return build_error(
+                ErrorCode.INVALID_PARAMETER,
+                f"date_range must be one of {sorted(_DATE_RANGE_DAYS) + ['custom']}",
+            )
+        today = datetime.now(timezone.utc).date()
+        date_to_value = date_to_value or today.isoformat()
+        date_from_value = date_from_value or (today - timedelta(days=_DATE_RANGE_DAYS[normalized_range])).isoformat()
+        date_range = normalized_range
+    elif date_range == "custom":
+        date_range = "custom"
+    else:
+        date_range = "custom" if date_from_value or date_to_value else None
+
+    date_from = _parse_iso_date(date_from_value, "date_from")
+    if isinstance(date_from, dict) and "error" in date_from:
+        return date_from
+
+    date_to = _parse_iso_date(date_to_value, "date_to")
+    if isinstance(date_to, dict) and "error" in date_to:
+        return date_to
+
+    if date_from and date_to and date_from > date_to:
+        return build_error(ErrorCode.INVALID_PARAMETER, "date_from must be earlier than or equal to date_to")
+
+    return {"date_range": date_range, "date_from": date_from, "date_to": date_to}
+
+
+def _as_list(value) -> list:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    return [value]
+
+
+def _lower_set(values: list[str]) -> set[str]:
+    return {str(value).strip().lower() for value in values if str(value).strip()}
+
+
+def _record_matches_compare_filters(
+    record: dict,
+    *,
+    product_modality: list[str],
+    topics: list[str],
+    document_status: list[str],
+) -> bool:
+    if product_modality and not (_lower_set(_as_list(record.get("product_modality"))) & _lower_set(product_modality)):
+        return False
+
+    if topics and not (_lower_set(_as_list(record.get("topics"))) & _lower_set(topics)):
+        return False
+
+    if document_status and str(record.get("document_status", "unknown")).strip().lower() not in _lower_set(document_status):
+        return False
+
+    return True
+
+
+def _top_record_values(records: list[dict], field: str, limit: int = 5) -> list[str]:
+    counts = {}
+    labels = {}
+    for record in records:
+        for value in _as_list(record.get(field)):
+            label = str(value).strip()
+            if not label:
+                continue
+            key = label.lower()
+            counts[key] = counts.get(key, 0) + 1
+            labels.setdefault(key, label)
+
+    ranked = sorted(counts, key=lambda key: (-counts[key], labels[key].lower()))
+    return [labels[key] for key in ranked[:limit]]
+
+
+def _compare_key_update(record: dict) -> dict:
+    return {
+        "id": record.get("id", ""),
+        "agency": record.get("agency", ""),
+        "title": record.get("title", ""),
+        "publication_date": record.get("publication_date"),
+        "official_url": record.get("official_url", ""),
+        "impact_level": record.get("impact_level", "unknown"),
+        "document_status": record.get("document_status", "unknown"),
+        "summary": record.get("summary", ""),
+    }
+
+
+def _compare_known_limitations(records: list[dict], extra_limitations: list[str] | None = None) -> list[str]:
+    limitations = list(extra_limitations or [])
+    limitations.append("Skeleton-backed comparison uses normalized regulatory search metadata only.")
+    limitations.append("Comparison output is descriptive and does not establish agency equivalence or final regulatory interpretation.")
+
+    for record in records:
+        limitations.extend(record.get("known_limitations", []))
+
+    return sorted(set(limitations))
+
+
+def _compare_entry(axis: str, value: str, records: list[dict], *, agency: str | None = None) -> dict:
+    sorted_records = sorted(
+        records,
+        key=lambda record: (record.get("publication_date") or "", record.get("title") or ""),
+        reverse=True,
     )
+    agencies = sorted({record.get("agency", "") for record in records if record.get("agency")})
+    if agency and agency not in agencies:
+        agencies = [agency] + agencies
+
+    if axis == "agency":
+        notes = (
+            [f"{value}: {len(records)} matching normalized update(s)."]
+            if records
+            else [f"{value}: no matching normalized updates found for the selected filters."]
+        )
+        agency_value = value
+    else:
+        notes = [f"Includes agencies: {', '.join(agencies) if agencies else 'none'}."]
+        agency_value = "multiple"
+
+    return {
+        "comparison_axis": axis,
+        "comparison_value": value,
+        "agency": agency_value,
+        "agencies": agencies,
+        "record_count": len(records),
+        "key_updates": [_compare_key_update(record) for record in sorted_records[:5]],
+        "common_themes": _top_record_values(records, "topics"),
+        "agency_specific_notes": notes,
+        "known_limitations": _compare_known_limitations(records),
+    }
+
+
+def _build_comparison(axis: str, records: list[dict], successful_agencies: list[str]) -> list[dict]:
+    if axis == "agency":
+        by_agency = {agency: [] for agency in successful_agencies}
+        for record in records:
+            agency = record.get("agency", "unknown")
+            by_agency.setdefault(agency, []).append(record)
+        return [_compare_entry(axis, agency, by_agency.get(agency, []), agency=agency) for agency in successful_agencies]
+
+    field_map = {
+        "topic": "topics",
+        "product_modality": "product_modality",
+        "document_status": "document_status",
+    }
+    field = field_map[axis]
+    grouped = {}
+    for record in records:
+        values = _as_list(record.get(field)) or ["unknown"]
+        for value in values:
+            label = str(value).strip() or "unknown"
+            grouped.setdefault(label, []).append(record)
+
+    return [_compare_entry(axis, value, grouped[value]) for value in sorted(grouped, key=lambda item: item.lower())]
+
+
+def _build_compare_summary(
+    records: list[dict],
+    successful_agencies: list[str],
+    lookup_failures: list[dict],
+) -> dict:
+    agency_counts = {agency: 0 for agency in successful_agencies}
+    for record in records:
+        agency = record.get("agency")
+        if agency:
+            agency_counts[agency] = agency_counts.get(agency, 0) + 1
+
+    recommended_follow_up = []
+    if lookup_failures:
+        recommended_follow_up.append("Run check_source_health for agencies with partial lookup failures before relying on the comparison.")
+    if records:
+        recommended_follow_up.append("Use get_regulatory_document_detail for any key update before making regulatory or CMC decisions.")
+    else:
+        recommended_follow_up.append("Relax filters or rerun search_regulatory_updates to identify candidate documents.")
+    recommended_follow_up.append("Perform manual regulatory review before treating this comparison as final agency requirement mapping.")
+
+    return {
+        "overall_themes": _top_record_values(records, "topics") or _top_record_values(records, "product_modality"),
+        "major_differences": [f"{agency}: {count} matching update(s)" for agency, count in agency_counts.items()],
+        "recommended_follow_up": recommended_follow_up,
+    }
+
+
+def compare_regulatory_updates(**kwargs):
+    agencies = _parse_compare_agencies(kwargs.get("agencies", kwargs.get("agency")))
+    if isinstance(agencies, dict) and "error" in agencies:
+        return agencies
+
+    axis = _parse_compare_axis(kwargs.get("comparison_axis"))
+    if isinstance(axis, dict) and "error" in axis:
+        return axis
+
+    query = _parse_compare_query(kwargs)
+    if isinstance(query, dict) and "error" in query:
+        return query
+
+    product_modality = _parse_compare_values(kwargs.get("product_modality"), "product_modality")
+    if isinstance(product_modality, dict) and "error" in product_modality:
+        return product_modality
+
+    topics = _parse_compare_values(kwargs.get("topics"), "topics")
+    if isinstance(topics, dict) and "error" in topics:
+        return topics
+
+    document_status = _parse_compare_values(kwargs.get("document_status"), "document_status")
+    if isinstance(document_status, dict) and "error" in document_status:
+        return document_status
+
+    limit = _parse_limit(kwargs.get("limit", 20))
+    if isinstance(limit, dict) and "error" in limit:
+        return limit
+
+    dates = _resolve_compare_dates(kwargs)
+    if isinstance(dates, dict) and "error" in dates:
+        return dates
+
+    lookup_failures = []
+    successful_agencies = []
+    records = []
+    known_limitations = []
+
+    for agency in agencies:
+        result = search_regulatory_updates(
+            agency=agency,
+            query=query,
+            limit=limit,
+            date_from=dates["date_from"],
+            date_to=dates["date_to"],
+        )
+
+        if isinstance(result, dict) and "error" in result:
+            if len(agencies) == 1:
+                return result
+            lookup_failures.append(_lookup_failure_from_error_response(agency, result))
+            continue
+
+        if not isinstance(result, dict):
+            error = build_error(
+                ErrorCode.INTERNAL_ERROR,
+                f"{agency} comparison lookup returned an unexpected response shape",
+                details=f"Received type: {type(result).__name__}",
+            )
+            if len(agencies) == 1:
+                return error
+            lookup_failures.append(_lookup_failure_from_error_response(agency, error))
+            continue
+
+        agency_records = result.get("records", [])
+        if not isinstance(agency_records, list):
+            error = build_error(
+                ErrorCode.INTERNAL_ERROR,
+                f"{agency} comparison records returned an unexpected response shape",
+                details=f"Received records type: {type(agency_records).__name__}",
+            )
+            if len(agencies) == 1:
+                return error
+            lookup_failures.append(_lookup_failure_from_error_response(agency, error))
+            continue
+
+        successful_agencies.append(agency)
+        known_limitations.extend(result.get("known_limitations", []))
+
+        filtered_records = [
+            record
+            for record in agency_records
+            if _record_matches_compare_filters(
+                record,
+                product_modality=product_modality,
+                topics=topics,
+                document_status=document_status,
+            )
+        ]
+        records.extend(filtered_records)
+
+    error_details = {
+        "agencies_checked": agencies,
+        "successful_agencies": successful_agencies,
+        "partial_lookup_failures": lookup_failures,
+    }
+
+    if lookup_failures and len(lookup_failures) == len(agencies):
+        failure_codes = {failure.get("code") for failure in lookup_failures}
+        if failure_codes == {ErrorCode.SOURCE_UNAVAILABLE.value}:
+            return build_error(
+                ErrorCode.SOURCE_UNAVAILABLE,
+                "compare_regulatory_updates failed for all requested agencies",
+                details=error_details,
+                suggested_next_action="Run check_source_health before retrying the comparison.",
+            )
+
+        return build_error(
+            ErrorCode.INTERNAL_ERROR,
+            "compare_regulatory_updates encountered non-source-availability failures for all requested agencies",
+            details=error_details,
+            suggested_next_action="Inspect connector response shapes and error codes before treating this as a transient source outage.",
+        )
+
+    comparison = _build_comparison(axis, records, successful_agencies)
+
+    return {
+        "comparison": comparison,
+        "comparison_summary": _build_compare_summary(records, successful_agencies, lookup_failures),
+        "query_metadata": {
+            "agencies_checked": agencies,
+            "successful_agencies": successful_agencies,
+            "comparison_axis": axis,
+            "filters_applied": {
+                "query": query,
+                "keywords": kwargs.get("keywords"),
+                "date_range": dates["date_range"],
+                "date_from": dates["date_from"],
+                "date_to": dates["date_to"],
+                "product_modality": product_modality,
+                "topics": topics,
+                "document_status": document_status,
+                "limit_per_agency": limit,
+            },
+            "lookup_mode": "skeleton_backed_search_metadata",
+            "partial_lookup_failures": lookup_failures,
+            "known_limitations": _compare_known_limitations(records, known_limitations),
+        },
+    }
