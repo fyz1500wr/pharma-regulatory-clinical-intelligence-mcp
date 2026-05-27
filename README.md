@@ -150,6 +150,25 @@ Claude should use MCP tools to perform tasks such as:
 
 ---
 
+## MVP v1 MCP Tool Status
+
+This status table is intended to keep MVP v1 implementation focused and prevent uncontrolled scope expansion.
+
+| MCP Tool | MVP v1 Status | Notes |
+|---|---|---|
+| `search_regulatory_updates` | Implemented | FDA and TFDA regulatory update search. |
+| `get_regulatory_document_detail` | Implemented, metadata-backed | Reconstructs detail from normalized search metadata; full document body and attachment parsing are not implemented yet. |
+| `compare_regulatory_updates` | Implemented, metadata-backed | Compares FDA / TFDA updates by agency, topic, product modality, or document status. |
+| `search_clinical_trials_by_indication` | Implemented | Uses ClinicalTrials.gov API v2. |
+| `compare_companies_by_indication` | Placeholder | Not implemented in MVP v1 yet. |
+| `check_source_health` | Implemented | Checks FDA, TFDA, and ClinicalTrials.gov source health. |
+| `list_source_failures` | Implemented, current snapshot | Converts current source health results into failure records; no historical event store. |
+| `generate_regulatory_digest` | Skeleton | Returns an empty MVP skeleton digest; full digest generation is not implemented yet. |
+
+MVP v1 should continue to focus on FDA, TFDA, and ClinicalTrials.gov only. EMA, NMPA, PMDA, historical failure storage, scheduling, alerting, and advanced report generation should remain out of scope until the current MVP v1 tools are stable end to end.
+
+---
+
 ## Non-Expansion Reminder
 
 This repository should stay controlled and phase-based.
