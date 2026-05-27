@@ -163,7 +163,7 @@ This status table is intended to keep MVP v1 implementation focused and prevent 
 | `compare_companies_by_indication` | Placeholder | Not implemented in MVP v1 yet. |
 | `check_source_health` | Implemented | Checks FDA, TFDA, and ClinicalTrials.gov source health. |
 | `list_source_failures` | Implemented, current snapshot | Converts current source health results into failure records; no historical event store. |
-| `generate_regulatory_digest` | Skeleton | Returns an empty MVP skeleton digest; full digest generation is not implemented yet. |
+| `generate_regulatory_digest` | Implemented, minimal MVP aggregation | Generates a rule-based MVP v1 digest from existing regulatory search, clinical trial search, source health, and source failure outputs; not a final regulatory or clinical assessment. |
 
 MVP v1 should continue to focus on FDA, TFDA, and ClinicalTrials.gov only. EMA, NMPA, PMDA, historical failure storage, scheduling, alerting, and advanced report generation should remain out of scope until the current MVP v1 tools are stable end to end.
 
