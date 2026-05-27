@@ -160,7 +160,7 @@ This status table is intended to keep MVP v1 implementation focused and prevent 
 | `get_regulatory_document_detail` | Implemented, metadata-backed | Reconstructs detail from normalized search metadata; full document body and attachment parsing are not implemented yet. |
 | `compare_regulatory_updates` | Implemented, metadata-backed | Compares FDA / TFDA updates by agency, topic, product modality, or document status. |
 | `search_clinical_trials_by_indication` | Implemented | Uses ClinicalTrials.gov API v2. |
-| `compare_companies_by_indication` | Placeholder | Not implemented in MVP v1 yet. |
+| `compare_companies_by_indication` | Implemented, minimal MVP aggregation | Compares sponsor-name-based ClinicalTrials.gov trial activity by indication; does not infer clinical success, approval probability, commercial strength, or company superiority. |
 | `check_source_health` | Implemented | Checks FDA, TFDA, and ClinicalTrials.gov source health. |
 | `list_source_failures` | Implemented, current snapshot | Converts current source health results into failure records; no historical event store. |
 | `generate_regulatory_digest` | Implemented, minimal MVP aggregation | Generates a rule-based MVP v1 digest from existing regulatory search, clinical trial search, source health, and source failure outputs; not a final regulatory or clinical assessment. |
