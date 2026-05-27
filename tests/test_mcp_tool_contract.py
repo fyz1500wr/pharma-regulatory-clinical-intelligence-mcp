@@ -12,10 +12,62 @@ def test_required_tool_names_exist():
     assert required.issubset(set(TOOL_REGISTRY.keys()))
 
 
-def test_compare_regulatory_updates_structured_error():
-    result = compare_regulatory_updates()
-    assert "error" in result
-    assert result["error"]["code"] == "DATA_NOT_INGESTED"
+def test_compare_regulatory_updates_contract_response(monkeypatch):
+    class FakeFDAClient:
+        def search_updates(self, **kwargs):
+            return [
+                {
+                    "id": "fda-contract-compare-1",
+                    "title": "FDA Contract Compare Guidance",
+                    "official_url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/fda-contract-compare-1",
+                    "publication_date": "2026-01-01",
+                    "source_type": "FDA_GUIDANCE",
+                    "document_type": "guidance",
+                    "document_status": "final",
+                    "product_modality": ["unknown"],
+                    "topics": ["quality"],
+                    "summary": "FDA comparison contract record.",
+                    "known_limitations": [],
+                }
+            ]
+
+    class FakeTFDAClient:
+        def search_updates(self, **kwargs):
+            return [
+                {
+                    "id": "tfda-contract-compare-1",
+                    "title": "TFDA Contract Compare Update",
+                    "official_url": "https://www.fda.gov.tw/TC/newsContent.aspx?id=contract-compare-1",
+                    "publication_date": "2026-01-15",
+                    "source_type": "TFDA_HTML",
+                    "document_type": "regulatory_update",
+                    "document_status": "published",
+                    "product_modality": ["unknown"],
+                    "topics": ["quality"],
+                    "summary": "TFDA comparison contract record.",
+                    "known_limitations": [],
+                }
+            ]
+
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.FDAUpdatesClient", lambda: FakeFDAClient())
+    monkeypatch.setattr("src.mcp_server.tools_regulatory.TFDAUpdatesClient", lambda: FakeTFDAClient())
+
+    result = compare_regulatory_updates(
+        agencies=["FDA", "TFDA"],
+        comparison_axis="agency",
+        query="quality",
+    )
+
+    assert "error" not in result
+    assert "comparison" in result
+    assert "comparison_summary" in result
+    assert "query_metadata" in result
+
+    by_agency = {entry["agency"]: entry for entry in result["comparison"]}
+    assert by_agency["FDA"]["record_count"] == 1
+    assert by_agency["TFDA"]["record_count"] == 1
+    assert result["query_metadata"]["comparison_axis"] == "agency"
+    assert result["query_metadata"]["lookup_mode"] == "skeleton_backed_search_metadata"
 
 
 def test_search_regulatory_updates_fda_with_fake_client(monkeypatch):
