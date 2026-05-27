@@ -188,9 +188,64 @@ def test_tool_registry_compare_companies_by_indication_remains_placeholder():
     assert result["error"]["code"] == "DATA_NOT_INGESTED"
 
 
-def test_tool_registry_generate_regulatory_digest_remains_skeleton():
-    result = TOOL_REGISTRY["generate_regulatory_digest"](date_range="1m", agencies=["FDA"])
+def test_tool_registry_generate_regulatory_digest_minimal_mvp_smoke(monkeypatch):
+    def fake_search_regulatory_updates(**kwargs):
+        return {
+            "records": [
+                {
+                    "title": "FDA MVP v1 Digest Smoke Guidance",
+                    "agency": "FDA",
+                    "publication_date": "2026-01-01",
+                    "impact_level": "unknown",
+                    "official_url": "https://www.fda.gov/smoke",
+                    "summary": "Digest smoke regulatory record.",
+                    "topics": ["quality"],
+                    "product_modality": ["unknown"],
+                }
+            ],
+            "known_limitations": [],
+        }
+
+    def fake_search_clinical_trials_by_indication(indication, **kwargs):
+        return {
+            "trials": [
+                {
+                    "trial_id": "NCT00000001",
+                    "title": "Digest Smoke Trial",
+                    "sponsor": "Acme Pharma",
+                    "phase": "PHASE2",
+                    "status": "RECRUITING",
+                    "last_update_date": "2026-01-02",
+                    "official_url": "https://clinicaltrials.gov/study/NCT00000001",
+                    "indications": [indication],
+                }
+            ],
+            "query_metadata": {"known_limitations": []},
+        }
+
+    def fake_check_source_health(**kwargs):
+        return {"overall_status": "available", "known_limitations": []}
+
+    def fake_list_source_failures(**kwargs):
+        return {"summary": {"open_failure_count": 0, "known_limitations": []}}
+
+    monkeypatch.setattr("src.mcp_server.tools_digest.search_regulatory_updates", fake_search_regulatory_updates)
+    monkeypatch.setattr(
+        "src.mcp_server.tools_digest.search_clinical_trials_by_indication",
+        fake_search_clinical_trials_by_indication,
+    )
+    monkeypatch.setattr("src.mcp_server.tools_digest.check_source_health", fake_check_source_health)
+    monkeypatch.setattr("src.mcp_server.tools_digest.list_source_failures", fake_list_source_failures)
+
+    result = TOOL_REGISTRY["generate_regulatory_digest"](
+        date_range="1m",
+        agencies=["FDA"],
+        registries=["ClinicalTrials.gov"],
+        indications=["NSCLC"],
+    )
 
     assert "error" not in result
-    assert result["digest"]["title"] == "MVP v1 Skeleton Digest"
-    assert "DATA_NOT_INGESTED" in result["digest"]["known_limitations"]
+    assert result["digest"]["title"] == "MVP v1 Regulatory and Clinical Intelligence Digest"
+    assert result["digest"]["key_regulatory_updates"]
+    assert result["digest"]["key_clinical_trial_updates"]
+    assert result["query_metadata"]["lookup_mode"] == "minimal_mvp_aggregation"
