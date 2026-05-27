@@ -182,10 +182,41 @@ def test_tool_registry_list_source_failures_smoke(monkeypatch):
     assert result["summary"]["open_failure_count"] == 1
 
 
-def test_tool_registry_compare_companies_by_indication_remains_placeholder():
-    result = TOOL_REGISTRY["compare_companies_by_indication"](indication="NSCLC")
+def test_tool_registry_compare_companies_by_indication_minimal_mvp_smoke(monkeypatch):
+    def fake_search_clinical_trials_by_indication(indication, **kwargs):
+        return {
+            "trials": [
+                {
+                    "trial_id": "NCT00000001",
+                    "title": "Company Compare Smoke Trial",
+                    "sponsor": kwargs.get("sponsor", "Acme Pharma"),
+                    "phase": "PHASE2",
+                    "status": "RECRUITING",
+                    "last_update_date": "2026-01-02",
+                    "official_url": "https://clinicaltrials.gov/study/NCT00000001",
+                    "intervention_names": ["smoke intervention"],
+                    "product_modality": ["small_molecule"],
+                    "results_available": False,
+                }
+            ],
+            "query_metadata": {"known_limitations": []},
+        }
 
-    assert result["error"]["code"] == "DATA_NOT_INGESTED"
+    monkeypatch.setattr(
+        "src.mcp_server.tools_clinical_trials.search_clinical_trials_by_indication",
+        fake_search_clinical_trials_by_indication,
+    )
+
+    result = TOOL_REGISTRY["compare_companies_by_indication"](
+        indication="NSCLC",
+        companies=["Acme Pharma"],
+        registries=["ClinicalTrials.gov"],
+    )
+
+    assert "error" not in result
+    assert result["company_comparison"][0]["company"] == "Acme Pharma"
+    assert result["company_comparison"][0]["trial_count"] == 1
+    assert result["query_metadata"]["lookup_mode"] == "clinicaltrials_gov_sponsor_activity_mvp"
 
 
 def test_tool_registry_generate_regulatory_digest_minimal_mvp_smoke(monkeypatch):
