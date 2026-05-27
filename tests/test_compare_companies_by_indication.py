@@ -67,6 +67,8 @@ def test_compare_companies_by_indication_minimal_mvp(monkeypatch):
     assert result["company_comparison"][0]["completed_trial_count"] == 1
     assert result["company_comparison"][0]["highest_phase"] == "PHASE3"
     assert result["query_metadata"]["lookup_mode"] == "clinicaltrials_gov_sponsor_activity_mvp"
+    assert result["query_metadata"]["date_range_filter_applied"] is False
+    assert "date-based trial filtering is not applied" in " ".join(result["landscape_summary"]["data_gaps"])
 
 
 def test_compare_companies_by_indication_filters_phase_and_completed_trials(monkeypatch):

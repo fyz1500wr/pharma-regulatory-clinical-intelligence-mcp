@@ -326,6 +326,7 @@ def compare_companies_by_indication(indication: str | None = None, **kwargs):
 
     data_gaps = [
         "MVP v1 uses ClinicalTrials.gov only; no EU CTIS, WHO ICTRP, literature, patent, finance, or commercial intelligence sources are included.",
+        "date_range is recorded in query metadata only; date-based trial filtering is not applied in MVP v1.",
         "Company matching is sponsor-name based and does not infer corporate family relationships.",
         "This output compares trial activity only and does not rank company superiority.",
     ]
@@ -353,6 +354,7 @@ def compare_companies_by_indication(indication: str | None = None, **kwargs):
             "companies": companies,
             "registries": registries,
             "date_range": date_range,
+            "date_range_filter_applied": False,
             "product_modality": product_modality,
             "phase": phase_filter,
             "include_completed_trials": include_completed_trials,
