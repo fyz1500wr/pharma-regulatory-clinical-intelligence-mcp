@@ -47,7 +47,7 @@ The initial build target is:
 FDA + TFDA + ClinicalTrials.gov
 ```
 
-EMA, NMPA, PMDA, and advanced monitoring should be added only after MVP v1 works end to end.
+EMA, NMPA, PMDA, and advanced monitoring should be considered only through a separate approved post-MVP source expansion decision.
 
 ---
 
@@ -55,7 +55,7 @@ EMA, NMPA, PMDA, and advanced monitoring should be added only after MVP v1 works
 
 This repository is designed to:
 
-- Track regulatory updates from FDA, EMA, TFDA, NMPA, and PMDA
+- Track regulatory updates from official or high-reliability regulatory sources within the approved project phase
 - Record publication dates, update dates, official URLs, and attachment links
 - Classify regulatory updates by product modality and regulatory topic
 - Track clinical trials by indication, sponsor/company, phase, status, and results availability
@@ -89,16 +89,16 @@ PROJECT_INSTRUCTION.md
 
 `PROJECT_INSTRUCTION.md` defines the project scope, source priority rules, implementation phases, MCP design principles, and non-expansion rules.
 
-Additional core documents to be created next:
+Core and supporting documents include:
 
 ```text
+CLAUDE.md
+AGENTS.md
 docs/source_priority_matrix.md
 docs/product_modality_taxonomy.md
 docs/mcp_tool_contract.md
 docs/data_dictionary.md
 workflows/regulatory_clinical_intelligence_workflow.md
-CLAUDE.md
-AGENTS.md
 ```
 
 ---
@@ -165,7 +165,22 @@ This status table is intended to keep MVP v1 implementation focused and prevent 
 | `list_source_failures` | Implemented, current snapshot | Converts current source health results into failure records; no historical event store. |
 | `generate_regulatory_digest` | Implemented, minimal MVP aggregation | Generates a rule-based MVP v1 digest from existing regulatory search, clinical trial search, source health, and source failure outputs; not a final regulatory or clinical assessment. |
 
-MVP v1 should continue to focus on FDA, TFDA, and ClinicalTrials.gov only. EMA, NMPA, PMDA, historical failure storage, scheduling, alerting, and advanced report generation should remain out of scope until the current MVP v1 tools are stable end to end.
+MVP v1 should continue to focus on FDA, TFDA, and ClinicalTrials.gov only. EMA, NMPA, PMDA, historical failure storage, scheduling, alerting, and advanced report generation should remain out of scope unless a separate post-MVP decision explicitly approves the change.
+
+---
+
+## Post-MVP Documentation Index
+
+These documents make MVP v1 easier to use, review, and govern. They are not source expansion approvals.
+
+| Document | Use |
+|---|---|
+| `docs/mvp_v1_completion_note.md` | Records the MVP v1 baseline, active sources, implemented tools, tag, validation, and limitations. |
+| `docs/mcp_usage_examples.md` | Shows safe practical examples for using the MVP v1 MCP tools. |
+| `docs/sample_prompts.md` | Provides copy-paste prompts that keep usage inside MVP v1 scope. |
+| `docs/tool_output_review_checklist.md` | Provides checklist items for reviewing MCP outputs before regulatory, clinical, PM, or management-facing use. |
+| `docs/live_source_behavior_notes.md` | Explains live-source behavior such as empty results, missing metadata, keyword sensitivity, and source health caveats. |
+| `docs/post_mvp_source_expansion_decision_matrix.md` | Defines the gate for evaluating whether any future source expansion is justified and scope-controlled. |
 
 ---
 
