@@ -181,6 +181,7 @@ These documents make MVP v1 easier to use, review, and govern. They are not sour
 | `docs/tool_output_review_checklist.md` | Provides checklist items for reviewing MCP outputs before regulatory, clinical, PM, or management-facing use. |
 | `docs/live_source_behavior_notes.md` | Explains live-source behavior such as empty results, missing metadata, keyword sensitivity, and source health caveats. |
 | `docs/post_mvp_source_expansion_decision_matrix.md` | Defines the gate for evaluating whether any future source expansion is justified and scope-controlled. |
+| `docs/claude_project_validation_workflow.md` | Defines the Claude Project setup and validation workflow for safe MVP v1 MCP output use. |
 
 ---
 
