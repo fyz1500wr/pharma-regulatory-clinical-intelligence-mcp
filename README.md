@@ -150,6 +150,34 @@ Claude should use MCP tools to perform tasks such as:
 
 ---
 
+## Local MCP stdio server
+
+MVP v1 exposes its Python tool registry through a local MCP stdio server.
+
+After installing the project dependencies, start the server with:
+
+```bash
+python -m src.mcp_server.stdio_server
+```
+
+After package installation, the console script can also be used:
+
+```bash
+pharma-rci-mcp
+```
+
+This stdio wrapper exposes the existing 8 MVP v1 tools from `src.mcp_server.server.TOOL_REGISTRY`.
+It does not add new sources, HTTP/SSE deployment, persistence, scheduling, alerting, or source expansion.
+
+Important interpretation rules remain unchanged:
+
+- MCP output is a working intelligence draft, not a final regulatory, clinical, legal, medical, CMC, QA, or management decision.
+- Source health `pass` does not prove complete data coverage.
+- Connector unavailable must not be interpreted as `0 results`.
+- Official source URLs and key findings still require manual verification before decision use.
+
+---
+
 ## MVP v1 MCP Tool Status
 
 This status table is intended to keep MVP v1 implementation focused and prevent uncontrolled scope expansion.
