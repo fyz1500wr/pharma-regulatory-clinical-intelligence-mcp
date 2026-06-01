@@ -285,6 +285,12 @@ Claude may use this tool to answer questions such as:
 }
 ```
 
+### 5.3.1 MVP v0.2.0 Implementation Note
+
+`search_regulatory_updates` supports `product_modality` filtering for active MVP sources FDA and TFDA.
+
+The filter uses normalized `product_modality` values and approved labels from `docs/product_modality_taxonomy.md`. Classification remains conservative and may require manual verification. A no-result response after product modality filtering must not be interpreted as evidence that no regulatory activity exists outside the stated query scope.
+
 ### 5.4 Required Output Fields
 
 ```json
