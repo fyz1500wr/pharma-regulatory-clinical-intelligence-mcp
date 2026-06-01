@@ -34,15 +34,16 @@ def _normalize_source_name(source: str | None) -> str | None:
     return _SUPPORTED_SOURCES.get(key)
 
 
-def _error_parts(result: dict[str, Any]) -> tuple[str | None, str, str]:
+def _error_parts(result: dict[str, Any]) -> tuple[str | None, str, str, Any]:
     error = result.get("error", {}) if isinstance(result, dict) else {}
     if not isinstance(error, dict):
-        return None, "", ""
+        return None, "", "", ""
 
     return (
         error.get("code"),
         error.get("message", ""),
         error.get("suggested_next_action", ""),
+        error.get("details", ""),
     )
 
 
@@ -54,6 +55,7 @@ def _available_result(source: str, source_type: str, retrieved_at: str) -> dict[
         "status": "available",
         "error_code": None,
         "message": "",
+        "error_details": "",
         "retrieved_at": retrieved_at,
         "suggested_next_action": "",
         "known_limitations": [
@@ -70,6 +72,7 @@ def _unavailable_result(
     error_code: str = "SOURCE_UNAVAILABLE",
     message: str = "",
     suggested_next_action: str = "",
+    error_details: Any = "",
 ) -> dict[str, Any]:
     return {
         "source": source,
@@ -78,6 +81,7 @@ def _unavailable_result(
         "status": "unavailable",
         "error_code": error_code,
         "message": message,
+        "error_details": error_details,
         "retrieved_at": retrieved_at,
         "suggested_next_action": suggested_next_action
         or f"Check {source} connector runtime dependencies and source availability.",
@@ -111,7 +115,7 @@ def _check_regulatory_source(source: str, client: Any, retrieved_at: str) -> dic
         )
 
     if isinstance(result, dict) and "error" in result:
-        error_code, message, suggested_next_action = _error_parts(result)
+        error_code, message, suggested_next_action, error_details = _error_parts(result)
         return _unavailable_result(
             source,
             "regulatory",
@@ -119,6 +123,7 @@ def _check_regulatory_source(source: str, client: Any, retrieved_at: str) -> dic
             error_code=error_code or "SOURCE_UNAVAILABLE",
             message=message,
             suggested_next_action=suggested_next_action,
+            error_details=error_details,
         )
 
     if isinstance(result, list):
@@ -142,7 +147,7 @@ def _check_clinical_trials_source(retrieved_at: str) -> dict[str, Any]:
         )
 
     if isinstance(result, dict) and "error" in result:
-        error_code, message, suggested_next_action = _error_parts(result)
+        error_code, message, suggested_next_action, error_details = _error_parts(result)
         return _unavailable_result(
             source,
             "clinical_trials_registry",
@@ -151,6 +156,7 @@ def _check_clinical_trials_source(retrieved_at: str) -> dict[str, Any]:
             message=message,
             suggested_next_action=suggested_next_action
             or "Check ClinicalTrials.gov connector runtime dependencies and API v2 availability.",
+            error_details=error_details,
         )
 
     if isinstance(result, dict) and "studies" in result:
