@@ -291,6 +291,16 @@ Claude may use this tool to answer questions such as:
 
 The filter uses normalized `product_modality` values and approved labels from `docs/product_modality_taxonomy.md`. Classification remains conservative and may require manual verification. A no-result response after product modality filtering must not be interpreted as evidence that no regulatory activity exists outside the stated query scope.
 
+### 5.3.2 MVP v0.2.2 Implementation Note
+
+`search_regulatory_updates` supports user-friendly date range normalization for active MVP regulatory sources FDA and TFDA.
+
+Supported values are `1m`, `3m`, `6m`, `1y`, `3y`, `5y`, and `custom`.
+
+When `date_range="custom"`, pass `custom_date_range={"start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD"}`.
+
+The existing `date_from` and `date_to` inputs remain supported for backward compatibility. Do not combine `date_range` / `custom_date_range` with explicit `date_from` / `date_to` in the same request.
+
 ### 5.4 Required Output Fields
 
 ```json
