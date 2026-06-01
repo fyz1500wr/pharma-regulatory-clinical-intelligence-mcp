@@ -210,6 +210,7 @@ These documents make MVP v1 easier to use, review, and govern. They are not sour
 | `docs/live_source_behavior_notes.md` | Explains live-source behavior such as empty results, missing metadata, keyword sensitivity, and source health caveats. |
 | `docs/post_mvp_source_expansion_decision_matrix.md` | Defines the gate for evaluating whether any future source expansion is justified and scope-controlled. |
 | `docs/claude_project_validation_workflow.md` | Defines the Claude Project setup and validation workflow for safe MVP v1 MCP output use. |
+| `docs/claude_code_web_mcp_smoke_test_note.md` | Records Claude Code Web MCP transport validation, tool invocation results, and egress allowlist limitation for live-source checks. |
 
 ---
 
