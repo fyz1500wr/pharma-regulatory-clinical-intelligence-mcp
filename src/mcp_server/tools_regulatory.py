@@ -21,6 +21,26 @@ _ALLOWED_DOCUMENT_STATUSES = {
     "FDA": {"draft", "final", "unknown"},
     "TFDA": {"published", "draft", "final", "unknown"},
 }
+_ALLOWED_PRODUCT_MODALITIES = {
+    "small_molecule",
+    "peptide",
+    "oligonucleotide",
+    "mrna_rna",
+    "antibody",
+    "adc",
+    "recombinant_protein",
+    "biosimilar",
+    "vaccine",
+    "cell_therapy",
+    "gene_therapy",
+    "radiopharmaceutical",
+    "combination_product",
+    "unknown",
+    "requires_manual_review",
+}
+_PRODUCT_MODALITY_FILTER_LIMITATION = (
+    "Product modality filtering is based on MVP keyword/metadata classification and may require manual verification."
+)
 
 
 def _parse_limit(value) -> int | dict:
@@ -52,6 +72,47 @@ def _parse_source_types(value, agency: str) -> list[str] | dict:
     if invalid:
         return build_error(ErrorCode.INVALID_PARAMETER, f"Unsupported {agency} source_types: {invalid}")
     return normalized or list(_DEFAULT_SOURCE_TYPES[agency])
+
+
+
+def _parse_product_modality(value) -> list[str] | None | dict:
+    if value in (None, ""):
+        return None
+    if isinstance(value, str):
+        modalities = [value]
+    elif isinstance(value, list) and all(isinstance(item, str) for item in value):
+        modalities = value
+    else:
+        return build_error(ErrorCode.INVALID_PARAMETER, "product_modality must be a string or list of strings")
+
+    normalized = [item.strip().lower() for item in modalities if item.strip()]
+    invalid = sorted(set(normalized) - _ALLOWED_PRODUCT_MODALITIES)
+    if invalid:
+        return build_error(
+            ErrorCode.INVALID_PARAMETER,
+            f"Unsupported product_modality: {invalid}",
+            details=f"Supported product_modality labels: {sorted(_ALLOWED_PRODUCT_MODALITIES)}",
+            suggested_next_action="Use product_modality labels from docs/product_modality_taxonomy.md.",
+        )
+    return normalized or None
+
+
+def _record_product_modalities(record: dict) -> set[str]:
+    value = record.get("product_modality", [])
+    if isinstance(value, str):
+        values = [value]
+    elif isinstance(value, list):
+        values = value
+    else:
+        values = []
+    return {str(item).strip().lower() for item in values if str(item).strip()}
+
+
+def _filter_records_by_product_modality(records: list[dict], product_modality: list[str] | None) -> list[dict]:
+    if not product_modality:
+        return records
+    requested = set(product_modality)
+    return [record for record in records if _record_product_modalities(record) & requested]
 
 
 def _parse_iso_date(value, name: str):
@@ -97,6 +158,10 @@ def search_regulatory_updates(**kwargs):
     source_types = _parse_source_types(kwargs.get("source_types"), agency)
     if isinstance(source_types, dict) and "error" in source_types:
         return source_types
+
+    product_modality = _parse_product_modality(kwargs.get("product_modality"))
+    if isinstance(product_modality, dict) and "error" in product_modality:
+        return product_modality
 
     document_status = kwargs.get("document_status")
     if document_status is not None:
@@ -149,6 +214,7 @@ def search_regulatory_updates(**kwargs):
     retrieved_at = datetime.now(timezone.utc).isoformat()
     normalizer = normalize_fda_record if agency == "FDA" else normalize_tfda_record
     records = [asdict(normalizer(item, retrieved_at=retrieved_at)) for item in raw]
+    records = _filter_records_by_product_modality(records, product_modality)
 
     metadata = {
         "agency_searched": [agency],
@@ -157,6 +223,7 @@ def search_regulatory_updates(**kwargs):
             "query": query,
             "limit": limit,
             "source_types": source_types,
+            "product_modality": product_modality,
             "document_status": document_status,
             "date_from": date_from,
             "date_to": date_to,
@@ -164,11 +231,16 @@ def search_regulatory_updates(**kwargs):
     }
 
     if not records:
-        return {"records": [], "no_result_reason": "NO_MATCHING_RECORDS", "query_metadata": metadata}
+        payload = {"records": [], "no_result_reason": "NO_MATCHING_RECORDS", "query_metadata": metadata}
+        if product_modality:
+            payload["known_limitations"] = [_PRODUCT_MODALITY_FILTER_LIMITATION]
+        return payload
 
     known_limitations = []
     for rec in records:
         known_limitations.extend(rec.get("known_limitations", []))
+    if product_modality:
+        known_limitations.append(_PRODUCT_MODALITY_FILTER_LIMITATION)
 
     return {"records": records, "query_metadata": metadata, "known_limitations": sorted(set(known_limitations))}
 

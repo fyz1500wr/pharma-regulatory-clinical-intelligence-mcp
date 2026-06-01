@@ -30,6 +30,7 @@ def _call_tool(tool_name: str, **kwargs: Any) -> dict[str, Any]:
 def search_regulatory_updates(
     agency: str = "FDA",
     query: str | None = None,
+    product_modality: list[str] | str | None = None,
     limit: int = 20,
     source_types: list[str] | None = None,
     document_status: str | None = None,
@@ -41,6 +42,7 @@ def search_regulatory_updates(
         "search_regulatory_updates",
         agency=agency,
         query=query,
+        product_modality=product_modality,
         limit=limit,
         source_types=source_types,
         document_status=document_status,
