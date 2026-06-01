@@ -221,3 +221,63 @@ def test_check_source_health_accepts_clinicaltrials_alias(monkeypatch):
     assert result["source_health"][0]["source_id"] == "ClinicalTrialsGov_API"
     assert result["source_health"][0]["agency_or_registry"] == "ClinicalTrials.gov"
     assert result["source_health"][0]["source_type"] == "API"
+
+
+
+# --- egress policy classification tests ---
+def test_check_source_health_classifies_egress_policy_via_exception_message(monkeypatch):
+    from src.mcp_server import tools_source_health
+    from src.mcp_server.tools_healthcheck import check_source_health
+
+    class RaisingClient:
+        def search_updates(self, limit=1):
+            raise RuntimeError("403 Host not in allowlist")
+
+    monkeypatch.setattr(tools_source_health, "TFDAUpdatesClient", lambda: RaisingClient())
+
+    result = check_source_health(sources=["TFDA_DataAction"])
+    item = result["source_health"][0]
+
+    assert item["failure_type"] == "egress_policy"
+    assert "allowlist" in item["suggested_fix"].lower()
+    assert "Codespaces" in item["suggested_fix"]
+    assert any("MUST NOT be interpreted as no matching records" in text for text in item["known_limitations"])
+
+
+def test_check_source_health_classifies_egress_policy_via_error_details(monkeypatch):
+    from src.mcp_server import tools_source_health
+    from src.mcp_server.tools_healthcheck import check_source_health
+
+    class ErrorClient:
+        def search_updates(self, limit=1):
+            return {
+                "error": {
+                    "code": "SOURCE_UNAVAILABLE",
+                    "message": "upstream failed",
+                    "details": {"reason": "Host not in allowlist"},
+                }
+            }
+
+    monkeypatch.setattr(tools_source_health, "FDAUpdatesClient", lambda: ErrorClient())
+
+    result = check_source_health(sources=["FDA_openFDA"])
+    item = result["source_health"][0]
+
+    assert item["failure_type"] == "egress_policy"
+    assert item["error_details"]["reason"] == "Host not in allowlist"
+
+
+def test_check_source_health_keeps_api_status_for_generic_unavailable(monkeypatch):
+    from src.mcp_server import tools_source_health
+    from src.mcp_server.tools_healthcheck import check_source_health
+
+    class RaisingClient:
+        def search_updates(self, limit=1):
+            raise RuntimeError("TFDA timeout")
+
+    monkeypatch.setattr(tools_source_health, "TFDAUpdatesClient", lambda: RaisingClient())
+
+    result = check_source_health(sources=["TFDA_DataAction"])
+    item = result["source_health"][0]
+
+    assert item["failure_type"] == "api_status"
