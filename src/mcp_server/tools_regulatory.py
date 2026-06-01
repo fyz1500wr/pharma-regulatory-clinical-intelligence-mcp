@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import calendar
 from dataclasses import asdict
 from datetime import datetime, timedelta, timezone
 
@@ -41,6 +42,7 @@ _ALLOWED_PRODUCT_MODALITIES = {
 _PRODUCT_MODALITY_FILTER_LIMITATION = (
     "Product modality filtering is based on MVP keyword/metadata classification and may require manual verification."
 )
+_ALLOWED_DATE_RANGES = {"1m", "3m", "6m", "1y", "3y", "5y", "custom"}
 
 
 def _parse_limit(value) -> int | dict:
@@ -126,6 +128,103 @@ def _parse_iso_date(value, name: str):
         return build_error(ErrorCode.INVALID_PARAMETER, f"{name} must be YYYY-MM-DD")
 
 
+
+def _subtract_months(date_value, months: int):
+    month_index = date_value.month - 1 - months
+    year = date_value.year + month_index // 12
+    month = month_index % 12 + 1
+    day = min(date_value.day, calendar.monthrange(year, month)[1])
+    return date_value.replace(year=year, month=month, day=day)
+
+
+def _parse_date_range_value(value) -> str | None | dict:
+    if value in (None, ""):
+        return None
+    if not isinstance(value, str):
+        return build_error(ErrorCode.INVALID_PARAMETER, "date_range must be one of 1m, 3m, 6m, 1y, 3y, 5y, custom")
+    normalized = value.strip().lower()
+    if normalized not in _ALLOWED_DATE_RANGES:
+        return build_error(ErrorCode.INVALID_PARAMETER, "date_range must be one of 1m, 3m, 6m, 1y, 3y, 5y, custom")
+    return normalized
+
+
+def _resolve_date_filters(
+    *,
+    date_from: str | None,
+    date_to: str | None,
+    date_range,
+    custom_date_range,
+) -> tuple[str | None, str | None, str | None, dict | None] | dict:
+    if custom_date_range not in (None, "") and date_range in (None, ""):
+        date_range = "custom"
+
+    parsed_date_range = _parse_date_range_value(date_range)
+    if isinstance(parsed_date_range, dict) and "error" in parsed_date_range:
+        return parsed_date_range
+
+    if parsed_date_range is None:
+        if custom_date_range not in (None, ""):
+            return build_error(
+                ErrorCode.INVALID_PARAMETER,
+                "custom_date_range can only be used with date_range='custom'",
+            )
+        return date_from, date_to, None, None
+
+    if date_from or date_to:
+        return build_error(
+            ErrorCode.INVALID_PARAMETER,
+            "date_range/custom_date_range cannot be combined with date_from or date_to",
+            suggested_next_action="Use either date_range/custom_date_range or explicit date_from/date_to.",
+        )
+
+    if parsed_date_range == "custom":
+        if not isinstance(custom_date_range, dict):
+            return build_error(
+                ErrorCode.INVALID_PARAMETER,
+                "custom_date_range must be an object with start_date and end_date when date_range='custom'",
+            )
+
+        start_date = _parse_iso_date(custom_date_range.get("start_date"), "custom_date_range.start_date")
+        if isinstance(start_date, dict) and "error" in start_date:
+            return start_date
+
+        end_date = _parse_iso_date(custom_date_range.get("end_date"), "custom_date_range.end_date")
+        if isinstance(end_date, dict) and "error" in end_date:
+            return end_date
+
+        if not start_date or not end_date:
+            return build_error(
+                ErrorCode.INVALID_PARAMETER,
+                "custom_date_range requires both start_date and end_date",
+            )
+
+        if start_date > end_date:
+            return build_error(
+                ErrorCode.INVALID_PARAMETER,
+                "custom_date_range.start_date must be earlier than or equal to custom_date_range.end_date",
+            )
+
+        return start_date, end_date, "custom", {"start_date": start_date, "end_date": end_date}
+
+    if custom_date_range not in (None, ""):
+        return build_error(
+            ErrorCode.INVALID_PARAMETER,
+            "custom_date_range can only be used with date_range='custom'",
+        )
+
+    today = datetime.now(timezone.utc).date()
+    months_by_range = {
+        "1m": 1,
+        "3m": 3,
+        "6m": 6,
+        "1y": 12,
+        "3y": 36,
+        "5y": 60,
+    }
+    start = _subtract_months(today, months_by_range[parsed_date_range])
+    return start.isoformat(), today.isoformat(), parsed_date_range, None
+
+
 def _filter_records(records: list[dict], *, document_status: str | None, date_from: str | None, date_to: str | None) -> list[dict]:
     filtered = records
     if document_status:
@@ -185,6 +284,16 @@ def search_regulatory_updates(**kwargs):
     if isinstance(date_to, dict) and "error" in date_to:
         return date_to
 
+    resolved_dates = _resolve_date_filters(
+        date_from=date_from,
+        date_to=date_to,
+        date_range=kwargs.get("date_range"),
+        custom_date_range=kwargs.get("custom_date_range"),
+    )
+    if isinstance(resolved_dates, dict) and "error" in resolved_dates:
+        return resolved_dates
+    date_from, date_to, normalized_date_range, normalized_custom_date_range = resolved_dates
+
     if date_from and date_to and date_from > date_to:
         return build_error(ErrorCode.INVALID_PARAMETER, "date_from must be earlier than or equal to date_to")
 
@@ -225,6 +334,8 @@ def search_regulatory_updates(**kwargs):
             "source_types": source_types,
             "product_modality": product_modality,
             "document_status": document_status,
+            "date_range": normalized_date_range,
+            "custom_date_range": normalized_custom_date_range,
             "date_from": date_from,
             "date_to": date_to,
         },
