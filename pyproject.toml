@@ -9,8 +9,12 @@ description = "MVP v1 skeleton for pharmaceutical regulatory and clinical intell
 requires-python = ">=3.10"
 dependencies = [
   "requests>=2.31.0",
-  "PyYAML>=6.0"
+  "PyYAML>=6.0",
+  "mcp[cli]>=1.0.0,<2.0.0"
 ]
+
+[project.scripts]
+pharma-rci-mcp = "src.mcp_server.stdio_server:main"
 
 [project.optional-dependencies]
 dev = [
