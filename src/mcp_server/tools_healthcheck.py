@@ -55,6 +55,24 @@ _SUPPORTED_SOURCE_VALUES = [
     "ClinicalTrialsGov_API",
 ]
 
+_EGRESS_POLICY_PATTERNS = (
+    "Host not in allowlist",
+    "not in allowlist",
+    "egress allowlist",
+    "runtime network policy",
+    "network allowlist",
+)
+
+_EGRESS_POLICY_SUGGESTED_FIX = (
+    "Check the runtime/network egress allowlist, including Claude Code Web environment settings if applicable, "
+    "and add the source host; otherwise rerun live-source validation in Codespaces/local."
+)
+
+_EGRESS_POLICY_KNOWN_LIMITATION = (
+    "Runtime network policy / egress allowlist failure means the source could not be reached from this runtime; "
+    "it MUST NOT be interpreted as no matching records, no clinical trials, or no regulatory updates."
+)
+
 
 def _as_source_list(value: Any) -> list[str] | dict | None:
     if value is None:
@@ -110,9 +128,42 @@ def _status_for_contract(item: dict[str, Any]) -> str:
     return "unknown"
 
 
+def _iter_strings(value: Any):
+    if value is None:
+        return
+    if isinstance(value, str):
+        yield value
+        return
+    if isinstance(value, dict):
+        for item in value.values():
+            yield from _iter_strings(item)
+        return
+    if isinstance(value, (list, tuple, set)):
+        for item in value:
+            yield from _iter_strings(item)
+        return
+    yield str(value)
+
+
+def _looks_like_egress_policy(item: dict[str, Any]) -> bool:
+    text = " ".join(
+        [
+            *list(_iter_strings(item.get("message"))),
+            *list(_iter_strings(item.get("error_message"))),
+            *list(_iter_strings(item.get("error_details"))),
+            *list(_iter_strings(item.get("suggested_next_action"))),
+            *list(_iter_strings(item.get("suggested_fix"))),
+        ]
+    ).lower()
+    return any(pattern.lower() in text for pattern in _EGRESS_POLICY_PATTERNS)
+
+
 def _failure_type_for_contract(item: dict[str, Any]) -> str:
     if item.get("available") is True:
         return ""
+
+    if _looks_like_egress_policy(item):
+        return "egress_policy"
 
     source_type = item.get("source_type")
     if source_type == "clinical_trials_registry":
@@ -132,6 +183,19 @@ def _severity_for_contract(item: dict[str, Any]) -> str:
     if error_code == "SOURCE_UNAVAILABLE":
         return "high"
     return "medium"
+
+
+def _suggested_fix_for_contract(item: dict[str, Any]) -> str:
+    if _looks_like_egress_policy(item):
+        return _EGRESS_POLICY_SUGGESTED_FIX
+    return item.get("suggested_next_action", "")
+
+
+def _known_limitations_for_contract(item: dict[str, Any]) -> list[str]:
+    limitations = list(item.get("known_limitations", []))
+    if _looks_like_egress_policy(item) and _EGRESS_POLICY_KNOWN_LIMITATION not in limitations:
+        limitations.append(_EGRESS_POLICY_KNOWN_LIMITATION)
+    return limitations
 
 
 def _default_spec_for_health_item(item: dict[str, Any]) -> dict[str, str]:
@@ -160,10 +224,11 @@ def _to_contract_health_item(item: dict[str, Any], spec: dict[str, str] | None =
         "last_checked_at": checked_at,
         "failure_type": _failure_type_for_contract(item),
         "error_message": item.get("message", ""),
-        "suggested_fix": item.get("suggested_next_action", ""),
+        "error_details": item.get("error_details", ""),
+        "suggested_fix": _suggested_fix_for_contract(item),
         "suggested_connector_file": resolved_spec["suggested_connector_file"],
         "severity": _severity_for_contract(item),
-        "known_limitations": item.get("known_limitations", []),
+        "known_limitations": _known_limitations_for_contract(item),
     }
 
 
@@ -266,6 +331,7 @@ def check_source_health(**kwargs):
 
 _FAILURE_TYPES = {
     "api_status",
+    "egress_policy",
     "schema_validation",
     "rss_status",
     "html_selector",
@@ -305,6 +371,13 @@ def _status_for_failure(item: dict[str, Any]) -> str:
 
 def _suspected_cause_for_failure(item: dict[str, Any]) -> str:
     failure_type = item.get("failure_type") or "unknown"
+    if failure_type == "egress_policy":
+        return (
+            "Health check call was blocked by the runtime/network egress allowlist "
+            "(e.g. Claude Code Web Host not in allowlist 403). "
+            "This is a runtime network policy issue, NOT the upstream source being offline, "
+            "and NOT a no-result / no matching records signal."
+        )
     if failure_type == "api_status":
         return "Current source health check did not pass; API or connector availability may be affected."
     if failure_type == "schema_validation":
@@ -330,6 +403,7 @@ def _health_item_to_failure(item: dict[str, Any]) -> dict[str, Any]:
         "failure_type": item.get("failure_type") or "unknown",
         "severity": item.get("severity", "medium"),
         "error_message": item.get("error_message", ""),
+        "error_details": item.get("error_details", ""),
         "suspected_cause": _suspected_cause_for_failure(item),
         "suggested_fix": item.get("suggested_fix", ""),
         "suggested_connector_file": item.get("suggested_connector_file", ""),
