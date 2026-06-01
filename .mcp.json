@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "pharma-rci": {
+      "command": "bash",
+      "args": [
+        "-lc",
+        "cd \"${CLAUDE_PROJECT_DIR:-$PWD}\" && python -m pip install -e . >/tmp/pharma-rci-mcp-install.log 2>&1 && python -m src.mcp_server.stdio_server"
+      ]
+    }
+  }
+}
