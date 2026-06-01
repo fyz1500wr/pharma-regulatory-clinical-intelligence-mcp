@@ -213,13 +213,8 @@ These documents make MVP v1 easier to use, review, and govern. They are not sour
 | `docs/claude_code_web_mcp_smoke_test_note.md` | Records Claude Code Web MCP transport validation, tool invocation results, and egress allowlist limitation for live-source checks. |
 | `docs/source_failure_diagnostic_runbook.md` | Defines the purpose-first SOP for distinguishing source failure, runtime egress policy, parser/API changes, and true no-result cases. |
 | `docs/product_modality_regulatory_search_smoke_example.md` | Documents the offline smoke example for validating product_modality regulatory search without live FDA/TFDA source access. |
+| `docs/regulatory_date_range_smoke_example.md` | Documents the offline smoke example for validating date_range regulatory search without live FDA/TFDA source access. |
 
 ---
 
 ## Non-Expansion Reminder
-
-This repository should stay controlled and phase-based.
-
-Do not add new agencies, tools, workflows, or markdown files unless they clearly support the current phase or have been explicitly approved.
-
-When uncertain, keep the implementation smaller and document the limitation clearly.
