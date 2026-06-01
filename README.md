@@ -218,3 +218,9 @@ These documents make MVP v1 easier to use, review, and govern. They are not sour
 ---
 
 ## Non-Expansion Reminder
+
+This repository should stay controlled and phase-based.
+
+Do not add new agencies, tools, workflows, or markdown files unless they clearly support the current phase or have been explicitly approved.
+
+When uncertain, keep the implementation smaller and document the limitation clearly.
