@@ -22,6 +22,7 @@ EXPECTED_INDEX_ENTRIES = [
     "docs/regulatory_date_range_smoke_example.md",
     "docs/tfda_bilingual_regulatory_search_smoke_example.md",
     "docs/offline_smoke_example_conventions.md",
+    "docs/query_metadata_consistency_smoke_example.md",
     "docs/release_handoff_checklist.md",
     ".ai/PROJECT_STATE.md",
 ]
