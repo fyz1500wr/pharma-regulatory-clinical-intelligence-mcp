@@ -4,24 +4,24 @@ Last updated: 2026-06-02
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
-Current completed release: `v0.2.7-release-handoff-checklist`
+Current completed release: `v0.2.8-readme-documentation-index-consistency`
 
 ---
 
 ## 1. Current Status
 
-The repository is currently at a clean post-v0.2.7 checkpoint after the release handoff checklist documentation was merged.
+The repository is currently at a clean post-v0.2.8 checkpoint after the README documentation index consistency test was merged.
 
 Latest confirmed main commit:
 
 ```text
-633cf4b Add release handoff checklist (#58)
+4ef8953 Add README documentation index consistency test (#60)
 ```
 
 Latest confirmed release tag:
 
 ```text
-v0.2.7-release-handoff-checklist
+v0.2.8-readme-documentation-index-consistency
 ```
 
 Important correction note:
@@ -312,6 +312,38 @@ This is a documentation-only maintenance release. It does not add runtime behavi
 
 ---
 
+### v0.2.8 — README documentation index consistency test
+
+PR: #60 Add README documentation index consistency test
+
+Main commit: 4ef8953 Add README documentation index consistency test (#60)
+
+Release tag: v0.2.8-readme-documentation-index-consistency
+
+Scope:
+- Added test-only regression coverage for README Post-MVP Documentation Index consistency.
+- Preserved scope control: test only.
+
+Files added or updated:
+- tests/test_readme_documentation_index.py
+- .ai/PROJECT_STATE.md
+
+Validation result:
+- Focused test passed: 5 passed.
+- Full test suite passed: 182 passed.
+
+Test coverage added:
+- Confirms Post-MVP Documentation Index exists.
+- Confirms expected index entries are present.
+- Confirms indexed docs and .ai/PROJECT_STATE.md paths exist.
+- Confirms no duplicate index entries.
+- Confirms release_handoff_checklist.md is indexed with expected scope text.
+
+Important interpretation:
+This is a test-only maintenance release. It does not add runtime behavior, source scope, MCP tools, .mcp.json changes, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, GitHub issue automation, or external integrations.
+
+---
+
 ## 3. Important Workflow Correction
 
 Use this workflow for future PRs:
@@ -380,14 +412,14 @@ Current classifier priority is determined by the order of labels in `config/taxo
 Recommended next version:
 
 ```text
-v0.2.8 — Add README documentation index consistency test
+v0.2.9 — Decide next controlled maintenance improvement
 ```
 
 Recommended options:
 
-- Add a test-only regression to confirm README documentation index consistency.
 - Add a small offline smoke for query metadata consistency across FDA and TFDA mocked regulatory search.
 - Add a documentation-only note linking release checklist usage from future project-state updates.
+- Add a small test-only regression for project-state release/tag consistency.
 
 Keep the next step small and phase-controlled.
 
