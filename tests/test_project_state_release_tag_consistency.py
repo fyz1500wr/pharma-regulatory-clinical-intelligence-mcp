@@ -97,11 +97,20 @@ def test_project_state_keeps_scope_guardrails_visible() -> None:
     text = _project_state_text()
 
     required_guardrails = [
-        "No new source expansion",
-        "No new MCP tools",
-        "No `.mcp.json` changes",
-        "No scheduler / alerts / persistence / dashboard work",
-        "No EMA / NMPA / PMDA / WHO ICTRP / EU CTIS source additions",
+        "MVP source scope remains limited to:",
+        "FDA",
+        "TFDA",
+        "ClinicalTrials.gov",
+        "Do not add the following unless explicitly approved:",
+        "Additional agencies such as EMA, NMPA, PMDA, WHO ICTRP, EU CTIS",
+        "New MCP tools",
+        "`.mcp.json` changes",
+        "Scheduler",
+        "Alerts",
+        "Persistence layer",
+        "Dashboard",
+        "HTTP/SSE transport",
+        "GitHub issue automation",
     ]
 
     missing_guardrails = [guardrail for guardrail in required_guardrails if guardrail not in text]
