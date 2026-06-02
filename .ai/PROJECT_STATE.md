@@ -4,24 +4,24 @@ Last updated: 2026-06-02
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
-Current completed release: `v0.2.6-offline-smoke-example-conventions`
+Current completed release: `v0.2.7-release-handoff-checklist`
 
 ---
 
 ## 1. Current Status
 
-The repository is currently at a clean post-v0.2.6 checkpoint after the offline smoke example conventions documentation was merged and tagged.
+The repository is currently at a clean post-v0.2.7 checkpoint after the release handoff checklist documentation was merged.
 
 Latest confirmed main commit:
 
 ```text
-4cd8108 Add offline smoke example conventions (#56)
+633cf4b Add release handoff checklist (#58)
 ```
 
 Latest confirmed release tag:
 
 ```text
-v0.2.6-offline-smoke-example-conventions
+v0.2.7-release-handoff-checklist
 ```
 
 Important correction note:
@@ -273,6 +273,45 @@ This is a documentation-only maintenance release. It does not validate runtime b
 
 ---
 
+### v0.2.7 — Release handoff checklist
+
+PR: #58 Add release handoff checklist
+
+Main commit: 633cf4b Add release handoff checklist (#58)
+
+Release tag: v0.2.7-release-handoff-checklist
+
+Scope:
+- Added documentation-only release/tag/project-state handoff checklist.
+- Added README documentation index entry.
+- Preserved scope control: documentation only.
+
+Files added or updated:
+- docs/release_handoff_checklist.md
+- README.md
+- .ai/PROJECT_STATE.md
+
+Documented checklist coverage:
+- Pre-branch status check.
+- Branch naming.
+- Scope check before implementation.
+- Safe implementation rules.
+- Pre-PR validation.
+- PR review checklist.
+- Merge-before-tag rule.
+- Post-merge main sync.
+- Tag creation and tag correction rule.
+- Project-state update rule.
+- Final verification.
+- Branch cleanup.
+- Handoff note for next work.
+- Stop conditions.
+
+Important interpretation:
+This is a documentation-only maintenance release. It does not add runtime behavior, tests, source scope, MCP tools, .mcp.json changes, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, GitHub issue automation, or external integrations.
+
+---
+
 ## 3. Important Workflow Correction
 
 Use this workflow for future PRs:
@@ -341,14 +380,14 @@ Current classifier priority is determined by the order of labels in `config/taxo
 Recommended next version:
 
 ```text
-v0.2.7 — Decide next controlled maintenance improvement
+v0.2.8 — Add README documentation index consistency test
 ```
 
 Recommended options:
 
-- Add a small test-only regression for README documentation index consistency.
+- Add a test-only regression to confirm README documentation index consistency.
 - Add a small offline smoke for query metadata consistency across FDA and TFDA mocked regulatory search.
-- Add a documentation-only project handoff checklist for release/tag/project-state updates.
+- Add a documentation-only note linking release checklist usage from future project-state updates.
 
 Keep the next step small and phase-controlled.
 
