@@ -4,7 +4,7 @@ Last updated: 2026-06-02
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
-Current completed release: `v0.2.4-bilingual-product-modality-taxonomy`
+Current completed release: `v0.2.5-offline-tfda-bilingual-regulatory-search-smoke`
 
 ---
 
@@ -209,6 +209,77 @@ python -m pytest -q
 176 passed
 ```
 
+### v0.2.5 — Offline TFDA bilingual regulatory search smoke example
+
+PR:
+
+```text
+#54 Add offline TFDA bilingual regulatory search smoke example
+```
+
+Main commit:
+
+```text
+1515075 Add offline TFDA bilingual regulatory search smoke example (#54)
+```
+
+Release tag:
+
+```text
+v0.2.5-offline-tfda-bilingual-regulatory-search-smoke
+```
+
+Scope:
+
+- Added an offline mocked TFDA-style bilingual regulatory search smoke example.
+- Added documentation for the TFDA bilingual regulatory search smoke example.
+- Added pytest wrapper for the smoke example.
+- Added README documentation index entry.
+- Preserved scope control: offline example/docs/tests only.
+
+Files added or updated:
+
+```text
+examples/offline_tfda_bilingual_regulatory_search_smoke.py
+docs/tfda_bilingual_regulatory_search_smoke_example.md
+tests/test_offline_tfda_bilingual_regulatory_search_smoke_example.py
+README.md
+```
+
+Validated behavior:
+
+- TFDA bilingual query retrieval for `mRNA疫苗`
+- TFDA bilingual query retrieval for `抗體藥物複合體 ADC`
+- TFDA bilingual query retrieval for `生物相似性藥品`
+- product modality classification from Chinese title and summary text
+- `product_modality="mrna_rna"`
+- `product_modality="adc"`
+- `product_modality="biosimilar"`
+- `product_modality` as a list of strings
+- no-result behavior after product modality filtering
+- invalid `product_modality` structured error handling
+- `query_metadata.filters_applied.query`
+- `query_metadata.filters_applied.product_modality`
+
+Validation result on main after merge:
+
+```text
+python examples/offline_tfda_bilingual_regulatory_search_smoke.py
+offline TFDA bilingual regulatory search smoke passed
+
+python -m pytest tests/test_offline_tfda_bilingual_regulatory_search_smoke_example.py -q
+1 passed
+
+python -m pytest -q
+177 passed
+```
+
+Important interpretation:
+
+Passing this offline smoke confirms the TFDA-style bilingual query retrieval and product modality filter path in mocked records. It does not validate live TFDA source availability.
+
+---
+
 ---
 
 ## 3. Important Workflow Correction
@@ -279,31 +350,15 @@ Current classifier priority is determined by the order of labels in `config/taxo
 Recommended next version:
 
 ```text
-v0.2.5 — Add offline TFDA bilingual regulatory search smoke example
+v0.2.6 — Decide next controlled post-smoke improvement
 ```
 
-Recommended scope:
+Recommended options:
 
-- Add an offline mocked smoke example for TFDA-oriented bilingual regulatory retrieval.
-- Validate that Chinese modality terms can support retrieval/filter expectations without depending on live TFDA access.
-- Keep this as examples/docs/tests only.
-- Do not add new source scope.
-- Do not add MCP tools.
-- Do not change `.mcp.json`.
+- Add a documentation-only maintenance note for offline smoke example conventions.
+- Add a small test-only regression for README documentation index consistency.
+- Add a small offline smoke for query metadata consistency across FDA and TFDA mocked regulatory search.
 
-Potential files:
+Keep the next step small and phase-controlled.
 
-```text
-examples/offline_tfda_bilingual_regulatory_smoke.py
-docs/tfda_bilingual_regulatory_smoke_example.md
-tests/test_offline_tfda_bilingual_regulatory_smoke_example.py
-README.md
-```
-
-Alternative next version if TFDA smoke is not desired:
-
-```text
-v0.2.5 — Add modality taxonomy documentation index and maintenance note
-```
-
-This alternative should remain documentation-only.
+Do not add new source scope, MCP tools, `.mcp.json` changes, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, GitHub issue automation, EMA/NMPA/PMDA/WHO ICTRP/EU CTIS, literature, patent, or finance integrations.
