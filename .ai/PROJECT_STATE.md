@@ -4,24 +4,24 @@ Last updated: 2026-06-02
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
-Current completed release: `v0.2.5-offline-tfda-bilingual-regulatory-search-smoke`
+Current completed release: `v0.2.6-offline-smoke-example-conventions`
 
 ---
 
 ## 1. Current Status
 
-The repository is currently at a clean post-v0.2.5 checkpoint after the TFDA bilingual offline smoke example was merged.
+The repository is currently at a clean post-v0.2.6 checkpoint after the offline smoke example conventions documentation was merged and tagged.
 
-Latest confirmed functional release commit:
+Latest confirmed main commit:
 
 ```text
-1515075 Add offline TFDA bilingual regulatory search smoke example (#54)
+4cd8108 Add offline smoke example conventions (#56)
 ```
 
 Latest confirmed release tag:
 
 ```text
-v0.2.5-offline-tfda-bilingual-regulatory-search-smoke
+v0.2.6-offline-smoke-example-conventions
 ```
 
 Important correction note:
@@ -235,6 +235,44 @@ Passing this offline smoke confirms the TFDA-style bilingual query retrieval and
 
 ---
 
+### v0.2.6 — Offline smoke example conventions
+
+PR: #56 Add offline smoke example conventions
+
+Main commit: 4cd8108 Add offline smoke example conventions (#56)
+
+Release tag: v0.2.6-offline-smoke-example-conventions
+
+Scope:
+- Added documentation-only conventions for future offline smoke examples.
+- Added README documentation index entry.
+- Refreshed the v0.2.5 tag correction note.
+- Preserved scope control: documentation and project-state text only.
+
+Files added or updated:
+- docs/offline_smoke_example_conventions.md
+- README.md
+- .ai/PROJECT_STATE.md
+
+Documented conventions:
+- Offline smoke example naming pattern.
+- Example script structure.
+- Documentation structure.
+- Pytest wrapper structure.
+- README index rule.
+- Scope-control boundaries.
+- Validation expectations.
+
+Validation result:
+- docs/offline_smoke_example_conventions.md exists.
+- README index contains docs/offline_smoke_example_conventions.md.
+- v0.2.6 tag points to 4cd8108.
+
+Important interpretation:
+This is a documentation-only maintenance release. It does not validate runtime behavior and does not add source scope, MCP tools, tests, .mcp.json changes, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, GitHub issue automation, or external integrations.
+
+---
+
 ## 3. Important Workflow Correction
 
 Use this workflow for future PRs:
@@ -303,14 +341,14 @@ Current classifier priority is determined by the order of labels in `config/taxo
 Recommended next version:
 
 ```text
-v0.2.6 — Decide next controlled post-smoke improvement
+v0.2.7 — Decide next controlled maintenance improvement
 ```
 
 Recommended options:
 
-- Add a documentation-only maintenance note for offline smoke example conventions.
 - Add a small test-only regression for README documentation index consistency.
 - Add a small offline smoke for query metadata consistency across FDA and TFDA mocked regulatory search.
+- Add a documentation-only project handoff checklist for release/tag/project-state updates.
 
 Keep the next step small and phase-controlled.
 
