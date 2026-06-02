@@ -43,7 +43,7 @@ PR:
 Main commit:
 
 ```text
-68b1f59 Add offline date range smoke example (#49)
+68b1f59 Add offline date range regulatory search smoke example (#49)
 ```
 
 Initial release tag:
