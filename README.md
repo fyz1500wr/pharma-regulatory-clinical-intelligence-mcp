@@ -215,6 +215,7 @@ These documents make MVP v1 easier to use, review, and govern. They are not sour
 | `docs/product_modality_regulatory_search_smoke_example.md` | Documents the offline smoke example for validating product_modality regulatory search without live FDA/TFDA source access. |
 | `docs/regulatory_date_range_smoke_example.md` | Documents the offline smoke example for validating date_range regulatory search without live FDA/TFDA source access. |
 | `docs/tfda_bilingual_regulatory_search_smoke_example.md` | Documents the offline smoke example for validating TFDA-style bilingual regulatory search behavior without live TFDA source access. |
+| `docs/offline_smoke_example_conventions.md` | Defines naming, documentation, pytest wrapper, README index, and scope-control conventions for offline smoke examples. |
 | `.ai/PROJECT_STATE.md` | Internal AI/project continuation checkpoint for current version, tags, validation results, guardrails, and recommended next step. |
 
 ---

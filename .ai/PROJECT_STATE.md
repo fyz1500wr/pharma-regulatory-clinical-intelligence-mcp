@@ -26,7 +26,7 @@ v0.2.5-offline-tfda-bilingual-regulatory-search-smoke
 
 Important correction note:
 
-The v0.2.5 tag was initially created after a duplicated root `PROJECT_STATE.md` commit appeared on `main`. The duplicate root file must be removed, and the tag should be corrected after the cleanup is complete so the repository handoff state remains unambiguous.
+The v0.2.5 tag was initially created after a duplicated root `PROJECT_STATE.md` commit appeared on `main`. The duplicate root file was removed in PR #55, and the v0.2.5 tag was corrected to point to the cleaned post-v0.2.5 main state.
 
 ---
 
