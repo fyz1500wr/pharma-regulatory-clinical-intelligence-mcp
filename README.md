@@ -217,6 +217,7 @@ These documents make MVP v1 easier to use, review, and govern. They are not sour
 | `docs/tfda_bilingual_regulatory_search_smoke_example.md` | Documents the offline smoke example for validating TFDA-style bilingual regulatory search behavior without live TFDA source access. |
 | `docs/offline_smoke_example_conventions.md` | Defines naming, documentation, pytest wrapper, README index, and scope-control conventions for offline smoke examples. |
 | `docs/query_metadata_consistency_smoke_example.md` | Documents the offline smoke example for validating normalized regulatory search query metadata consistency across mocked FDA/TFDA records. |
+| `docs/clinical_trial_query_metadata_consistency_smoke_example.md` | Documents the offline smoke example for validating ClinicalTrials.gov-style clinical trial query metadata consistency across mocked records. |
 | `docs/release_handoff_checklist.md` | Defines the merge, tag, project-state, branch cleanup, and final verification checklist for controlled release handoff. |
 | `.ai/PROJECT_STATE.md` | Internal AI/project continuation checkpoint for current version, tags, validation results, guardrails, and recommended next step. |
 
