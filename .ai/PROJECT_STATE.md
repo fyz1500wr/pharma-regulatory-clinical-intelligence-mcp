@@ -4,24 +4,24 @@ Last updated: 2026-06-02
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
-Current completed release: `v0.2.8-readme-documentation-index-consistency`
+Current completed release: `v0.2.9-project-state-release-tag-consistency`
 
 ---
 
 ## 1. Current Status
 
-The repository is currently at a clean post-v0.2.8 checkpoint after the README documentation index consistency test was merged.
+The repository is currently at a clean post-v0.2.9 checkpoint after the project-state release/tag consistency test was merged.
 
 Latest confirmed main commit:
 
 ```text
-4ef8953 Add README documentation index consistency test (#60)
+0c27888 Add project state release tag consistency test (#62)
 ```
 
 Latest confirmed release tag:
 
 ```text
-v0.2.8-readme-documentation-index-consistency
+v0.2.9-project-state-release-tag-consistency
 ```
 
 Important correction note:
@@ -344,6 +344,40 @@ This is a test-only maintenance release. It does not add runtime behavior, sourc
 
 ---
 
+### v0.2.9 — Project-state release/tag consistency test
+
+PR: #62 Add project state release tag consistency test
+
+Main commit: 0c27888 Add project state release tag consistency test (#62)
+
+Release tag: v0.2.9-project-state-release-tag-consistency
+
+Scope:
+- Added test-only regression coverage for `.ai/PROJECT_STATE.md` release/tag consistency.
+- Added checks that visible source-scope and expansion guardrails remain present.
+- Preserved scope control: test only.
+
+Files added or updated:
+- tests/test_project_state_release_tag_consistency.py
+- .ai/PROJECT_STATE.md
+
+Validation result:
+- Focused test passed: 5 passed.
+- Full test suite passed: 187 passed.
+
+Test coverage added:
+- Confirms `Current completed release` matches `Latest confirmed release tag`.
+- Confirms release tag naming follows `vX.Y.Z-*` format.
+- Confirms latest confirmed main commit is an ancestor of current HEAD.
+- Confirms the current release section mentions release tag, PR, and main commit.
+- Confirms recommended next version is present.
+- Confirms current source-scope and expansion guardrails remain visible.
+
+Important interpretation:
+This is a test-only maintenance release. It does not add runtime behavior, source scope, MCP tools, .mcp.json changes, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, GitHub issue automation, or external integrations.
+
+---
+
 ## 3. Important Workflow Correction
 
 Use this workflow for future PRs:
@@ -412,14 +446,14 @@ Current classifier priority is determined by the order of labels in `config/taxo
 Recommended next version:
 
 ```text
-v0.2.9 — Decide next controlled maintenance improvement
+v0.2.10 — Add query metadata consistency offline smoke
 ```
 
 Recommended options:
 
 - Add a small offline smoke for query metadata consistency across FDA and TFDA mocked regulatory search.
 - Add a documentation-only note linking release checklist usage from future project-state updates.
-- Add a small test-only regression for project-state release/tag consistency.
+- Add a small README/project-state cross-reference consistency test if needed.
 
 Keep the next step small and phase-controlled.
 
