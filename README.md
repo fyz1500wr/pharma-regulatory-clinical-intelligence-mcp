@@ -214,6 +214,7 @@ These documents make MVP v1 easier to use, review, and govern. They are not sour
 | `docs/source_failure_diagnostic_runbook.md` | Defines the purpose-first SOP for distinguishing source failure, runtime egress policy, parser/API changes, and true no-result cases. |
 | `docs/product_modality_regulatory_search_smoke_example.md` | Documents the offline smoke example for validating product_modality regulatory search without live FDA/TFDA source access. |
 | `docs/regulatory_date_range_smoke_example.md` | Documents the offline smoke example for validating date_range regulatory search without live FDA/TFDA source access. |
+| `.ai/PROJECT_STATE.md` | Internal AI/project continuation checkpoint for current version, tags, validation results, guardrails, and recommended next step. |
 
 ---
 
