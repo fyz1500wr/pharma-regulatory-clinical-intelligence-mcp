@@ -216,18 +216,29 @@ from pprint import pprint
 from src.mcp_server.tools_digest import generate_regulatory_digest
 
 result = generate_regulatory_digest(
-    query="oncology",
-    agencies=["FDA", "TFDA"],
-    date_range="1y",
-    indication="gastric cancer",
+    digest_type="combined",
+    agencies=["TFDA"],
+    registries=["ClinicalTrials.gov"],
+    indications=["gastric cancer"],
     companies=["AstraZeneca", "Merck"],
+    topics=["submission"],
+    date_range="1y",
     limit=5,
+    include_impact_matrix=True,
+    include_source_health_summary=True,
 )
 pprint(result)
 PY
 ```
 
 Assess whether the digest clearly remains a working intelligence draft and whether source limitations are visible.
+
+Interpret the digest result using these rules:
+
+- If FDA is currently classified as `BLOCKED_SOURCE`, do not include FDA in the final source-limited digest check.
+- `BLOCKED_SOURCE` is a source-health limitation, not a zero-result regulatory finding.
+- The digest must remain a working intelligence draft, not a final regulatory, clinical, legal, medical, or competitive assessment.
+- If a requested source is unavailable, the source limitation should remain visible and should not be silently converted into zero results.
 
 ## Step 9 — Record results
 
