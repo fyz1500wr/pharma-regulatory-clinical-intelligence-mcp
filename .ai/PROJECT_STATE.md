@@ -4,32 +4,33 @@ Last updated: 2026-06-03
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
-Current completed release: `v0.2.12-mvp-live-acceptance-validation`
+Current completed release: `v0.2.13-post-live-validation-release-hardening`
 
 ---
 
 ## 1. Current Status
 
-The repository is currently at a clean post-v0.2.12 tagged-release checkpoint. PR #73 has been merged on main for v0.2.13 live validation runbook hardening and release handoff checklist hardening, but the v0.2.13 release tag remains intended/pending until it is actually created.
+The repository is now at a clean post-v0.2.13 tagged-release checkpoint after PR #73 merged, PR #74 merged, the `v0.2.13-post-live-validation-release-hardening` tag was created and pushed, and the full test suite passed on main before tag creation.
 
 Latest confirmed main commit:
 
 ```text
-429d11d Harden v0.2.13 live validation and release handoff docs (#73)
+152e091 Update project state after v0.2.13 (#74)
 ```
 
 Latest confirmed release tag:
 
 ```text
-v0.2.12-mvp-live-acceptance-validation
+v0.2.13-post-live-validation-release-hardening
 ```
 
 Important release status:
 
-- v0.2.12 remains the latest confirmed completed and tagged release.
-- Pending v0.2.13 documentation-only release hardening has been merged on main, but its final release tag is still intended/pending until the tag is actually created.
-- PR #73 has been merged into `main`, and the full test suite passed on main after that documentation-only hardening.
-- The latest confirmed release tag remains `v0.2.12-mvp-live-acceptance-validation` until the intended v0.2.13 tag is created.
+- v0.2.13 is the latest confirmed completed and tagged release.
+- PR #73 has been merged into `main` for documentation-only live validation and release handoff hardening.
+- PR #74 has been merged into `main` as the project-state release checkpoint.
+- The `v0.2.13-post-live-validation-release-hardening` tag has been created and pushed.
+- The full test suite passed on main before v0.2.13 tag creation.
 - ClinicalTrials.gov search and company comparison returned structured MVP outputs.
 - Digest validation guidance now distinguishes the FDA + TFDA primary path from the TFDA-only fallback path when FDA is `BLOCKED_SOURCE`.
 - Digest output remains working intelligence and requires human review before regulatory, clinical, legal, medical, competitive, or commercial decisions.
@@ -530,15 +531,19 @@ v0.2.12 validates the controlled MVP live acceptance path under known source-hea
 
 ---
 
-### Pending release / intended next tag — v0.2.13 post-live validation cleanup and release hardening
+### v0.2.13 — Post-live validation cleanup and release hardening
 
-PR: #73 Harden v0.2.13 live validation and release handoff docs
+PR: #74 Update project state after v0.2.13
 
-Main commit: 429d11d Harden v0.2.13 live validation and release handoff docs (#73)
+Related PR: #73 Harden v0.2.13 live validation and release handoff docs
 
-Pending release tag: v0.2.13-post-live-validation-release-hardening
+Main commit: 152e091 Update project state after v0.2.13 (#74)
 
-Status: intended/pending until the v0.2.13 tag is actually created; not the latest confirmed release tag yet.
+Release checkpoint commit: 152e091 Update project state after v0.2.13 (#74)
+
+Release tag: v0.2.13-post-live-validation-release-hardening
+
+Status: confirmed tagged release after PR #73 and PR #74 were merged into `main`.
 
 Scope:
 - Documentation-only hardening.
@@ -556,12 +561,12 @@ Files updated:
 - docs/release_handoff_checklist.md
 - .ai/PROJECT_STATE.md
 
-Validation:
+Validation before tag creation on main:
 - pytest tests/test_readme_documentation_index.py -q: 5 passed
 - pytest -q: 192 passed
 
 Important interpretation:
-v0.2.13 does not add sources, tools, runtime behavior, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, .mcp.json, or GitHub automation. It only hardens documentation and release handoff guidance after v0.2.12 live acceptance validation. Its final release tag remains intended/pending until tag creation is completed.
+v0.2.13 does not add sources, tools, runtime behavior, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, .mcp.json, or GitHub automation. It only hardens documentation and release handoff guidance after v0.2.12 live acceptance validation, then records the post-tag project-state checkpoint.
 
 ---
 
