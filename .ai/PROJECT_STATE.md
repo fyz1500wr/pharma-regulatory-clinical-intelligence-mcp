@@ -1,32 +1,37 @@
 # Project State — Pharma Regulatory Clinical Intelligence MCP
 
-Last updated: 2026-06-02
+Last updated: 2026-06-03
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
-Current completed release: `v0.2.11-clinical-trial-query-metadata-consistency-offline-smoke`
+Current completed release: `v0.2.12-mvp-live-acceptance-validation`
 
 ---
 
 ## 1. Current Status
 
-The repository is currently at a clean post-v0.2.11 checkpoint after the ClinicalTrials.gov-style clinical trial query metadata consistency offline smoke example was merged.
+The repository is currently at a clean post-v0.2.12 checkpoint after MVP live acceptance validation was completed and documented.
 
 Latest confirmed main commit:
 
 ```text
-99532d2 Add clinical trial query metadata consistency offline smoke (#66)
+b7c6102 Add v0.2.12 live acceptance validation record (#71)
 ```
 
 Latest confirmed release tag:
 
 ```text
-v0.2.11-clinical-trial-query-metadata-consistency-offline-smoke
+v0.2.12-mvp-live-acceptance-validation
 ```
 
-Important correction note:
+Important release status:
 
-The v0.2.5 tag was initially created after a duplicated root `PROJECT_STATE.md` commit appeared on `main`. The duplicate root file was removed in PR #55, and the v0.2.5 tag was corrected to point to the cleaned post-v0.2.5 main state.
+- v0.2.12 is accepted for controlled MVP use with known limitations.
+- FDA live source was unavailable during validation and must be treated as `BLOCKED_SOURCE`, not as zero FDA results.
+- TFDA-only regulatory search is now isolated from FDA source failure after PR #69 and PR #70.
+- ClinicalTrials.gov search and company comparison returned structured MVP outputs.
+- Digest generation returned structured output for TFDA + ClinicalTrials.gov without `source_errors`.
+- Digest output remains rule-based and requires human review before regulatory, clinical, legal, medical, or competitive decisions.
 
 ---
 
@@ -472,6 +477,58 @@ This offline smoke validates ClinicalTrials.gov-style clinical trial query metad
 
 ---
 
+
+### v0.2.12 — MVP live acceptance validation
+
+PR: #71 Add v0.2.12 live acceptance validation record
+
+Main commit: b7c6102 Add v0.2.12 live acceptance validation record (#71)
+
+Release tag: v0.2.12-mvp-live-acceptance-validation
+
+Scope:
+- Added MVP live acceptance validation runbook and results template.
+- Ran live source health validation for FDA, TFDA, and ClinicalTrials.gov.
+- Confirmed FDA live source was unavailable during validation and recorded it as a source health limitation.
+- Confirmed TFDA and ClinicalTrials.gov source health paths were available.
+- Fixed `search_regulatory_updates(agencies=["TFDA"])` agency isolation so TFDA-only search is not blocked by FDA source failure.
+- Exposed `agencies` through the stdio MCP wrapper for `search_regulatory_updates`.
+- Added focused regression tests for agency isolation and stdio wrapper forwarding.
+- Added live acceptance validation record documenting final `ACCEPT_WITH_KNOWN_LIMITATIONS` decision.
+- Preserved MVP source scope: FDA, TFDA, ClinicalTrials.gov only.
+
+Files added or updated:
+- docs/mvp_live_acceptance_validation_runbook.md
+- docs/mvp_live_acceptance_validation_results_template.md
+- docs/validation_records/mvp_live_acceptance_validation_2026-06-03.md
+- src/mcp_server/tools_regulatory.py
+- src/mcp_server/stdio_server.py
+- tests/test_regulatory_search_agency_isolation.py
+- tests/test_stdio_regulatory_agencies_wrapper.py
+- tests/test_readme_documentation_index.py
+- README.md
+- .ai/PROJECT_STATE.md
+
+Validation result after PR #70 merge and main sync:
+- `pytest tests/test_stdio_regulatory_agencies_wrapper.py -q`: 1 passed.
+- `pytest tests/test_regulatory_search_agency_isolation.py -q`: 2 passed.
+- `pytest -q`: 192 passed.
+
+Live validation result:
+- Tool registry loaded all 8 MVP tools.
+- `check_source_health` returned degraded status because FDA was unavailable.
+- `list_source_failures` reported one open high FDA source failure.
+- Direct Python TFDA-only regulatory search with `agencies=["TFDA"]` returned a structured TFDA-scoped response with no FDA `SOURCE_UNAVAILABLE` error.
+- stdio wrapper TFDA-only regulatory search with `agencies=["TFDA"]` returned a structured TFDA-scoped response with no FDA `SOURCE_UNAVAILABLE` error.
+- ClinicalTrials.gov indication search returned structured trial records.
+- Company comparison by indication returned structured comparison output with known non-superiority limitations.
+- Final digest validation for TFDA + ClinicalTrials.gov returned structured output with `sources_searched` including TFDA and ClinicalTrials.gov, empty `source_errors`, 0 regulatory update(s), 5 clinical trial update(s), and source health warning due to one open FDA source failure.
+
+Important interpretation:
+v0.2.12 validates the controlled MVP live acceptance path under known source-health limitations. It does not claim complete FDA availability, complete TFDA recall, complete ClinicalTrials.gov recall, final regulatory assessment, final clinical assessment, legal advice, medical advice, or competitive superiority.
+
+---
+
 ## 3. Important Workflow Correction
 
 Use this workflow for future PRs:
@@ -540,14 +597,16 @@ Current classifier priority is determined by the order of labels in `config/taxo
 Recommended next version:
 
 ```text
-v0.2.12 — Add company clinical trial comparison metadata consistency offline smoke
+v0.2.13 — Post-live validation cleanup and release hardening
 ```
 
 Recommended options:
 
-- Add a small offline smoke focused on `compare_companies_by_indication` company-comparison output consistency.
-- Add regression checks for `landscape_summary`, `company_comparison`, `key_trials`, `data_gaps`, and non-superiority interpretation text.
-- Add a documentation-only note linking trial activity comparisons to the manual-review checklist if needed.
+- Add a small regression test that ensures project-state and validation-record release status remain consistent.
+- Add a documentation-only note clarifying `BLOCKED_SOURCE` versus zero-result interpretation.
+- Review whether the validation runbook should explicitly state the correct import path for `generate_regulatory_digest`.
+- Clean up merged local/remote branches after v0.2.12 tag is created.
+- Drop obsolete local stash entries only after confirming validation record and main state are safely merged.
 
 Keep the next step small and phase-controlled.
 
