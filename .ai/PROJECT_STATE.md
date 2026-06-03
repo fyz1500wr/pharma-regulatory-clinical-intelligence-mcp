@@ -21,14 +21,15 @@ Latest confirmed main commit:
 Latest confirmed release tag:
 
 ```text
-v0.2.13-post-live-validation-release-hardening
+v0.2.12-mvp-live-acceptance-validation
 ```
 
 Important release status:
 
-- v0.2.13 is accepted as a clean documentation-only post-live-validation release-hardening checkpoint.
+- v0.2.13 is accepted as a clean documentation-only post-live-validation release-hardening checkpoint, but its final release tag is still intended/pending until the tag is actually created.
 - v0.2.13 hardened the live validation runbook and release handoff checklist after v0.2.12 live acceptance validation.
 - PR #73 has been merged into `main`, and the full test suite passed on main.
+- The latest confirmed release tag remains `v0.2.12-mvp-live-acceptance-validation` until the intended v0.2.13 tag is created.
 - ClinicalTrials.gov search and company comparison returned structured MVP outputs.
 - Digest validation guidance now distinguishes the FDA + TFDA primary path from the TFDA-only fallback path when FDA is `BLOCKED_SOURCE`.
 - Digest output remains working intelligence and requires human review before regulatory, clinical, legal, medical, competitive, or commercial decisions.
@@ -535,7 +536,7 @@ PR: #73 Harden v0.2.13 live validation and release handoff docs
 
 Main commit: 429d11d Harden v0.2.13 live validation and release handoff docs (#73)
 
-Release tag: v0.2.13-post-live-validation-release-hardening
+Intended release tag: v0.2.13-post-live-validation-release-hardening
 
 Scope:
 - Documentation-only hardening.
@@ -558,7 +559,7 @@ Validation:
 - pytest -q: 192 passed
 
 Important interpretation:
-v0.2.13 does not add sources, tools, runtime behavior, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, .mcp.json, or GitHub automation. It only hardens documentation and release handoff guidance after v0.2.12 live acceptance validation.
+v0.2.13 does not add sources, tools, runtime behavior, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, .mcp.json, or GitHub automation. It only hardens documentation and release handoff guidance after v0.2.12 live acceptance validation. Its final release tag remains intended/pending until tag creation is completed.
 
 ---
 
