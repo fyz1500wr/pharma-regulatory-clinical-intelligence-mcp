@@ -10,12 +10,12 @@ Current completed release: `v0.2.12-mvp-live-acceptance-validation`
 
 ## 1. Current Status
 
-The repository is currently at a clean post-v0.2.12 checkpoint after MVP live acceptance validation was completed and documented.
+The repository is currently at a clean post-v0.2.12 tagged-release checkpoint. PR #73 has been merged on main for v0.2.13 live validation runbook hardening and release handoff checklist hardening, but the v0.2.13 release tag remains intended/pending until it is actually created.
 
 Latest confirmed main commit:
 
 ```text
-b7c6102 Add v0.2.12 live acceptance validation record (#71)
+429d11d Harden v0.2.13 live validation and release handoff docs (#73)
 ```
 
 Latest confirmed release tag:
@@ -26,12 +26,13 @@ v0.2.12-mvp-live-acceptance-validation
 
 Important release status:
 
-- v0.2.12 is accepted for controlled MVP use with known limitations.
-- FDA live source was unavailable during validation and must be treated as `BLOCKED_SOURCE`, not as zero FDA results.
-- TFDA-only regulatory search is now isolated from FDA source failure after PR #69 and PR #70.
+- v0.2.12 remains the latest confirmed completed and tagged release.
+- Pending v0.2.13 documentation-only release hardening has been merged on main, but its final release tag is still intended/pending until the tag is actually created.
+- PR #73 has been merged into `main`, and the full test suite passed on main after that documentation-only hardening.
+- The latest confirmed release tag remains `v0.2.12-mvp-live-acceptance-validation` until the intended v0.2.13 tag is created.
 - ClinicalTrials.gov search and company comparison returned structured MVP outputs.
-- Digest generation returned structured output for TFDA + ClinicalTrials.gov without `source_errors`.
-- Digest output remains rule-based and requires human review before regulatory, clinical, legal, medical, or competitive decisions.
+- Digest validation guidance now distinguishes the FDA + TFDA primary path from the TFDA-only fallback path when FDA is `BLOCKED_SOURCE`.
+- Digest output remains working intelligence and requires human review before regulatory, clinical, legal, medical, competitive, or commercial decisions.
 
 ---
 
@@ -529,6 +530,41 @@ v0.2.12 validates the controlled MVP live acceptance path under known source-hea
 
 ---
 
+### Pending release / intended next tag — v0.2.13 post-live validation cleanup and release hardening
+
+PR: #73 Harden v0.2.13 live validation and release handoff docs
+
+Main commit: 429d11d Harden v0.2.13 live validation and release handoff docs (#73)
+
+Pending release tag: v0.2.13-post-live-validation-release-hardening
+
+Status: intended/pending until the v0.2.13 tag is actually created; not the latest confirmed release tag yet.
+
+Scope:
+- Documentation-only hardening.
+- Updated MVP live acceptance validation runbook Step 8.
+- Added primary digest validation path for FDA + TFDA when FDA is reachable.
+- Added fallback digest validation path for TFDA-only when FDA is BLOCKED_SOURCE.
+- Clarified BLOCKED_SOURCE is a source-health limitation, not a zero-result regulatory finding.
+- Clarified digest output remains working intelligence, not final regulatory, clinical, legal, medical, competitive, or commercial assessment.
+- Updated release handoff checklist to clarify project-state-before-tag flow.
+- Added explicit warning not to ask for merge again after a PR has already been merged.
+- Preserved MVP source scope: FDA, TFDA, ClinicalTrials.gov only.
+
+Files updated:
+- docs/mvp_live_acceptance_validation_runbook.md
+- docs/release_handoff_checklist.md
+- .ai/PROJECT_STATE.md
+
+Validation:
+- pytest tests/test_readme_documentation_index.py -q: 5 passed
+- pytest -q: 192 passed
+
+Important interpretation:
+v0.2.13 does not add sources, tools, runtime behavior, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, .mcp.json, or GitHub automation. It only hardens documentation and release handoff guidance after v0.2.12 live acceptance validation. Its final release tag remains intended/pending until tag creation is completed.
+
+---
+
 ## 3. Important Workflow Correction
 
 Use this workflow for future PRs:
@@ -597,16 +633,16 @@ Current classifier priority is determined by the order of labels in `config/taxo
 Recommended next version:
 
 ```text
-v0.2.13 — Post-live validation cleanup and release hardening
+v0.2.14 — FDA blocked-source interpretation and source resilience investigation
 ```
 
 Recommended options:
 
-- Add a small regression test that ensures project-state and validation-record release status remain consistent.
-- Add a documentation-only note clarifying `BLOCKED_SOURCE` versus zero-result interpretation.
-- Review whether the validation runbook should explicitly state the correct import path for `generate_regulatory_digest`.
-- Clean up merged local/remote branches after v0.2.12 tag is created.
-- Drop obsolete local stash entries only after confirming validation record and main state are safely merged.
+- Keep this small and controlled.
+- Do not add new agencies or sources.
+- Investigate FDA `BLOCKED_SOURCE` behavior without changing source scope.
+- Consider a mock-based regression check that blocked source failures are not presented as zero results.
+- Consider documenting fallback strategy before changing runtime behavior.
 
 Keep the next step small and phase-controlled.
 
