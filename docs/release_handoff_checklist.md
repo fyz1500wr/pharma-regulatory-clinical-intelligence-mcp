@@ -141,17 +141,27 @@ No .mcp.json changes.
 
 Do not tag before the PR is merged.
 
-Recommended order:
+Use one of these two release orders, depending on whether `.ai/PROJECT_STATE.md` needs to change for the release.
+
+When no project-state update is needed:
 
 ```text
 Open PR → review diff → confirm mergeable → resolve comments → merge → pull main → validate → tag
 ```
 
+When a project-state update is needed:
+
+```text
+Open PR → review diff → confirm mergeable → resolve comments → merge → pull main → validate → update project state PR → merge project state PR → pull main → final tests/checks → tag final main commit
+```
+
+Do not ask to merge a PR again after it has already been merged. After merge, switch to post-merge validation, project-state handling if needed, and tagging.
+
 For small documentation-only PRs, squash merge is preferred unless repository policy requires another method.
 
 ## 8. Post-merge main sync
 
-After merge:
+After each merge:
 
 ```bash
 git checkout main
@@ -164,12 +174,13 @@ Expected result:
 
 - Local `main` is updated to the merged PR commit.
 - Working tree is clean.
+- If project-state update is needed, `.ai/PROJECT_STATE.md` is updated in a follow-up PR before tagging.
 
 ## 9. Tagging rule
 
-The release tag should point to the final clean main state for that release.
+The release tag should point to the final clean main state for that release, usually the post-project-state main commit when a project-state update is needed.
 
-If a separate project-state PR is used after the functional or documentation PR, the final release tag should usually point to the post-project-state main commit.
+If project-state update is needed, update `.ai/PROJECT_STATE.md` before tagging.
 
 Create the tag only after confirming the intended final commit:
 
@@ -195,38 +206,39 @@ Do not move a tag casually. Move a tag only to correct a documented release-stat
 
 ## 10. Project-state update rule
 
-After a release is merged and tagged, update `.ai/PROJECT_STATE.md` so a future conversation can continue safely.
+If a release requires project-state continuity, update `.ai/PROJECT_STATE.md` after the release PR is merged and validated, but before the final release tag is created.
 
 At minimum, update:
 
 - Current completed release
 - Current status
 - Latest confirmed main commit
-- Latest confirmed release tag
+- Latest confirmed release tag, if the tag already exists; otherwise record the intended tag in the handoff notes and update the confirmed tag after tagging
 - Completed work section for the release
 - Recommended next version
 - Guardrails, if they changed
 
-Do not mark a release as completed before the PR is merged and tagged.
+Do not mark a release as completed before the release PR is merged and the intended final main commit is known.
 
 ## 11. Final verification
 
-Run final checks after merge, tag, and project-state update:
+Run final checks after the release PR is merged, after any required project-state PR is merged, and before or immediately after tagging as appropriate for the release order:
 
 ```bash
 git checkout main
 git pull --ff-only origin main
-git log -1 --oneline
 git status --short
+git log -1 --oneline
+git tag --points-at HEAD
 git show --no-patch --oneline <release-tag>
 grep -n "Current completed release" .ai/PROJECT_STATE.md
 ```
 
 Expected result:
 
-- `main` points to the latest project-state commit.
-- Release tag points to the intended final release commit.
-- Project state names the completed release.
+- `main` points to the latest intended release commit, usually the post-project-state commit when project state was required.
+- Release tag points to the intended final clean main state.
+- Project state names the completed release when a project-state update was required.
 - Working tree is clean.
 
 ## 12. Branch cleanup
