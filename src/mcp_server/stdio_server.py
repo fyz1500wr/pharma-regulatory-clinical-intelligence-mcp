@@ -28,7 +28,8 @@ def _call_tool(tool_name: str, **kwargs: Any) -> dict[str, Any]:
 
 @MCP_SERVER.tool()
 def search_regulatory_updates(
-    agency: str = "FDA",
+    agency: str | None = None,
+    agencies: list[str] | str | None = None,
     query: str | None = None,
     product_modality: list[str] | str | None = None,
     date_range: str | None = None,
@@ -43,6 +44,7 @@ def search_regulatory_updates(
     return _call_tool(
         "search_regulatory_updates",
         agency=agency,
+        agencies=agencies,
         query=query,
         product_modality=product_modality,
         date_range=date_range,
