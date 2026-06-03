@@ -236,19 +236,52 @@ def _filter_records(records: list[dict], *, document_status: str | None, date_fr
     return filtered
 
 
-def search_regulatory_updates(**kwargs):
-    agency = kwargs.get("agency")
-    query = kwargs.get("query")
-    if agency is None:
+def _parse_search_agency(agency, agencies) -> str | dict:
+    if agency not in (None, "") and agencies not in (None, ""):
+        return build_error(
+            ErrorCode.INVALID_PARAMETER,
+            "Use either agency or agencies, not both",
+            suggested_next_action="Pass agency='TFDA' or agencies=['TFDA'], but not both.",
+        )
+
+    if agencies not in (None, ""):
+        if isinstance(agencies, str):
+            values = [agencies]
+        elif isinstance(agencies, list) and all(isinstance(item, str) for item in agencies):
+            values = agencies
+        else:
+            return build_error(ErrorCode.INVALID_PARAMETER, "agencies must be a string or list of strings")
+
+        normalized = [item.strip().upper() for item in values if item.strip()]
+        if not normalized:
+            return build_error(ErrorCode.INVALID_PARAMETER, "agencies must include FDA or TFDA")
+        if len(normalized) != 1:
+            return build_error(
+                ErrorCode.INVALID_PARAMETER,
+                "search_regulatory_updates currently supports exactly one agency",
+                suggested_next_action="Use compare_regulatory_updates for multi-agency comparisons.",
+            )
+
+        agency = normalized[0]
+
+    if agency in (None, ""):
         agency = "FDA"
 
     if not isinstance(agency, str):
         return build_error(ErrorCode.INVALID_PARAMETER, "agency must be a string")
 
-    agency = agency.strip().upper()
+    normalized_agency = agency.strip().upper()
 
-    if agency not in {"FDA", "TFDA"}:
-        return build_error(ErrorCode.INVALID_PARAMETER, f"Unsupported agency: {agency}")
+    if normalized_agency not in {"FDA", "TFDA"}:
+        return build_error(ErrorCode.INVALID_PARAMETER, f"Unsupported agency: {normalized_agency}")
+
+    return normalized_agency
+
+def search_regulatory_updates(**kwargs):
+    agency = _parse_search_agency(kwargs.get("agency"), kwargs.get("agencies"))
+    query = kwargs.get("query")
+    if isinstance(agency, dict) and "error" in agency:
+        return agency
 
     limit = _parse_limit(kwargs.get("limit", 20))
     if isinstance(limit, dict) and "error" in limit:
