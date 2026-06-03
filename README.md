@@ -218,6 +218,8 @@ These documents make MVP v1 easier to use, review, and govern. They are not sour
 | `docs/offline_smoke_example_conventions.md` | Defines naming, documentation, pytest wrapper, README index, and scope-control conventions for offline smoke examples. |
 | `docs/query_metadata_consistency_smoke_example.md` | Documents the offline smoke example for validating normalized regulatory search query metadata consistency across mocked FDA/TFDA records. |
 | `docs/clinical_trial_query_metadata_consistency_smoke_example.md` | Documents the offline smoke example for validating ClinicalTrials.gov-style clinical trial query metadata consistency across mocked records. |
+| `docs/mvp_live_acceptance_validation_runbook.md` | Defines the controlled live-source acceptance validation workflow for the current FDA, TFDA, and ClinicalTrials.gov MVP tools. |
+| `docs/mvp_live_acceptance_validation_results_template.md` | Provides the results template for recording MVP live acceptance validation evidence, blockers, and final decision. |
 | `docs/release_handoff_checklist.md` | Defines the merge, tag, project-state, branch cleanup, and final verification checklist for controlled release handoff. |
 | `.ai/PROJECT_STATE.md` | Internal AI/project continuation checkpoint for current version, tags, validation results, guardrails, and recommended next step. |
 

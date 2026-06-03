@@ -24,6 +24,8 @@ EXPECTED_INDEX_ENTRIES = [
     "docs/offline_smoke_example_conventions.md",
     "docs/query_metadata_consistency_smoke_example.md",
     "docs/clinical_trial_query_metadata_consistency_smoke_example.md",
+    "docs/mvp_live_acceptance_validation_runbook.md",
+    "docs/mvp_live_acceptance_validation_results_template.md",
     "docs/release_handoff_checklist.md",
     ".ai/PROJECT_STATE.md",
 ]
