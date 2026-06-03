@@ -4,24 +4,24 @@ Last updated: 2026-06-02
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
-Current completed release: `v0.2.10-query-metadata-consistency-offline-smoke`
+Current completed release: `v0.2.11-clinical-trial-query-metadata-consistency-offline-smoke`
 
 ---
 
 ## 1. Current Status
 
-The repository is currently at a clean post-v0.2.10 checkpoint after the query metadata consistency offline smoke example was merged.
+The repository is currently at a clean post-v0.2.11 checkpoint after the ClinicalTrials.gov-style clinical trial query metadata consistency offline smoke example was merged.
 
 Latest confirmed main commit:
 
 ```text
-92ffc82 Add query metadata consistency offline smoke (#64)
+99532d2 Add clinical trial query metadata consistency offline smoke (#66)
 ```
 
 Latest confirmed release tag:
 
 ```text
-v0.2.10-query-metadata-consistency-offline-smoke
+v0.2.11-clinical-trial-query-metadata-consistency-offline-smoke
 ```
 
 Important correction note:
@@ -425,6 +425,53 @@ This offline smoke validates normalized regulatory search metadata consistency a
 
 ---
 
+### v0.2.11 — Clinical trial query metadata consistency offline smoke
+
+PR: #66 Add clinical trial query metadata consistency offline smoke
+
+Main commit: 99532d2 Add clinical trial query metadata consistency offline smoke (#66)
+
+Release tag: v0.2.11-clinical-trial-query-metadata-consistency-offline-smoke
+
+Scope:
+- Added an offline ClinicalTrials.gov-style clinical trial query metadata consistency smoke example.
+- Added pytest wrapper for the smoke example.
+- Added documentation for the clinical trial query metadata consistency smoke example.
+- Added README Post-MVP Documentation Index entry.
+- Updated README documentation index consistency test expected entries.
+- Preserved scope control: offline example/docs/tests only.
+
+Files added or updated:
+- examples/offline_clinical_trial_query_metadata_consistency_smoke.py
+- tests/test_offline_clinical_trial_query_metadata_consistency_smoke_example.py
+- docs/clinical_trial_query_metadata_consistency_smoke_example.md
+- README.md
+- tests/test_readme_documentation_index.py
+- .ai/PROJECT_STATE.md
+
+Validation result after PR #66 merge and main sync:
+- Offline smoke script passed.
+- Focused smoke test passed: 1 passed.
+- README documentation index test passed: 5 passed.
+- Project-state release/tag consistency test passed: 5 passed.
+- Full test suite passed: 189 passed.
+
+Validated behavior:
+- ClinicalTrials.gov normalized trial metadata contract.
+- Clinical trial indication query metadata contract.
+- Clinical trial sponsor/company query metadata contract.
+- Clinical trial `date_range` metadata recorded but not applied.
+- Clinical trial `product_modality` filter metadata contract.
+- Clinical trial `phase` filter metadata contract.
+- Clinical trial `include_completed_trials` metadata contract.
+- Clinical trial `include_results` metadata contract.
+- Clinical trial `official_url` and `results_available` fields.
+
+Important interpretation:
+This offline smoke validates ClinicalTrials.gov-style clinical trial query metadata consistency across mocked records. It does not validate live ClinicalTrials.gov source availability and does not add source scope, MCP tools, `.mcp.json` changes, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, GitHub issue automation, EMA/NMPA/PMDA/WHO ICTRP/EU CTIS, literature, patent, or finance integrations.
+
+---
+
 ## 3. Important Workflow Correction
 
 Use this workflow for future PRs:
@@ -493,14 +540,14 @@ Current classifier priority is determined by the order of labels in `config/taxo
 Recommended next version:
 
 ```text
-v0.2.11 — Add clinical trial query metadata consistency offline smoke
+v0.2.12 — Add company clinical trial comparison metadata consistency offline smoke
 ```
 
 Recommended options:
 
-- Add a small offline smoke for ClinicalTrials.gov-style query metadata consistency across mocked indication / sponsor / status queries.
-- Add a documentation-only note linking regulatory query metadata expectations to clinical trial query metadata expectations.
-- Add a small project-state/README cross-reference consistency test only if needed.
+- Add a small offline smoke focused on `compare_companies_by_indication` company-comparison output consistency.
+- Add regression checks for `landscape_summary`, `company_comparison`, `key_trials`, `data_gaps`, and non-superiority interpretation text.
+- Add a documentation-only note linking trial activity comparisons to the manual-review checklist if needed.
 
 Keep the next step small and phase-controlled.
 
