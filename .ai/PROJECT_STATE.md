@@ -4,13 +4,13 @@ Last updated: 2026-06-03
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
-Current completed release: `v0.2.13-post-live-validation-release-hardening`
+Current completed release: `v0.2.12-mvp-live-acceptance-validation`
 
 ---
 
 ## 1. Current Status
 
-The repository is currently at a clean post-v0.2.13 checkpoint after v0.2.13 live validation runbook hardening, release handoff checklist hardening, PR #73 merge, and full test suite passing on main.
+The repository is currently at a clean post-v0.2.12 tagged-release checkpoint. PR #73 has been merged on main for v0.2.13 live validation runbook hardening and release handoff checklist hardening, but the v0.2.13 release tag remains intended/pending until it is actually created.
 
 Latest confirmed main commit:
 
@@ -26,9 +26,9 @@ v0.2.12-mvp-live-acceptance-validation
 
 Important release status:
 
-- v0.2.13 is accepted as a clean documentation-only post-live-validation release-hardening checkpoint, but its final release tag is still intended/pending until the tag is actually created.
-- v0.2.13 hardened the live validation runbook and release handoff checklist after v0.2.12 live acceptance validation.
-- PR #73 has been merged into `main`, and the full test suite passed on main.
+- v0.2.12 remains the latest confirmed completed and tagged release.
+- Pending v0.2.13 documentation-only release hardening has been merged on main, but its final release tag is still intended/pending until the tag is actually created.
+- PR #73 has been merged into `main`, and the full test suite passed on main after that documentation-only hardening.
 - The latest confirmed release tag remains `v0.2.12-mvp-live-acceptance-validation` until the intended v0.2.13 tag is created.
 - ClinicalTrials.gov search and company comparison returned structured MVP outputs.
 - Digest validation guidance now distinguishes the FDA + TFDA primary path from the TFDA-only fallback path when FDA is `BLOCKED_SOURCE`.
@@ -530,13 +530,15 @@ v0.2.12 validates the controlled MVP live acceptance path under known source-hea
 
 ---
 
-### v0.2.13 — Post-live validation cleanup and release hardening
+### Pending release / intended next tag — v0.2.13 post-live validation cleanup and release hardening
 
 PR: #73 Harden v0.2.13 live validation and release handoff docs
 
 Main commit: 429d11d Harden v0.2.13 live validation and release handoff docs (#73)
 
-Intended release tag: v0.2.13-post-live-validation-release-hardening
+Pending release tag: v0.2.13-post-live-validation-release-hardening
+
+Status: intended/pending until the v0.2.13 tag is actually created; not the latest confirmed release tag yet.
 
 Scope:
 - Documentation-only hardening.
