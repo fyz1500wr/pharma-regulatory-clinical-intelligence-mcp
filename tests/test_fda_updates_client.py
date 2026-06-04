@@ -239,6 +239,62 @@ def test_fetch_rss_feed_preserves_fda_abuse_detection_details(monkeypatch):
     assert details["redirected_to_abuse_detection"] is True
 
 
+def test_fetch_guidance_documents_treats_http_200_abuse_page_as_source_unavailable(monkeypatch):
+    class FakeResponse:
+        url = "https://www.fda.gov/apology_objects/abuse-detection-apology.html"
+        status_code = 200
+        text = "<html><body id='abuse-detection-apology'>FDA abuse detection apology page</body></html>"
+
+        def raise_for_status(self):
+            return None
+
+    class FakeRequests:
+        @staticmethod
+        def get(*args, **kwargs):
+            return FakeResponse()
+
+    import sys
+
+    monkeypatch.setitem(sys.modules, "requests", FakeRequests)
+    result = FDAUpdatesClient().fetch_guidance_documents()
+
+    assert result["error"]["code"] == "SOURCE_UNAVAILABLE"
+    assert "NO_MATCHING_RECORDS" not in str(result)
+    details = result["error"]["details"]
+    assert details["status_code"] == 200
+    assert details["detected_source_block"] is True
+    assert details["redirected_to_abuse_detection"] is True
+
+
+def test_fetch_rss_feed_treats_http_200_abuse_page_as_source_unavailable(monkeypatch):
+    class FakeResponse:
+        url = "https://www.fda.gov/apology_objects/abuse-detection-apology.html"
+        status_code = 200
+        text = "<html><script>window.apology_objects = [];</script>abuse detection</html>"
+
+        def raise_for_status(self):
+            return None
+
+    class FakeRequests:
+        @staticmethod
+        def get(*args, **kwargs):
+            return FakeResponse()
+
+    import sys
+
+    feed_url = "https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/whats-new-drug-rss-feed"
+    monkeypatch.setitem(sys.modules, "requests", FakeRequests)
+    result = FDAUpdatesClient().fetch_rss_feed(feed_url)
+
+    assert result["error"]["code"] == "SOURCE_UNAVAILABLE"
+    assert "NO_MATCHING_RECORDS" not in str(result)
+    details = result["error"]["details"]
+    assert details["requested_url"] == feed_url
+    assert details["status_code"] == 200
+    assert details["detected_source_block"] is True
+    assert details["redirected_to_abuse_detection"] is True
+
+
 def test_search_updates_preserves_source_unavailable_when_fda_abuse_detection_blocks_all_sources(monkeypatch):
     client = FDAUpdatesClient()
     failure = {
