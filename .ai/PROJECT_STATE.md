@@ -685,6 +685,10 @@ python -m pip install -e ".[dev]"
 
 Do not commit generated or accidental dependency files such as `poetry.lock` unless dependency management is explicitly approved as part of the task.
 
+### Direction calibration rule
+
+After a sequence of similar PRs, the assistant/project workflow must pause for direction calibration before proposing or executing the next same-type PR. This rule is intended to prevent uncontrolled scope drift and over-narrowing around local documents.
+
 ### Product modality classifier behavior
 
 The current classifier is keyword mapping driven. v0.2.4 expanded the mapping and tests without changing core classifier logic.
@@ -703,6 +707,7 @@ v0.2.15 — Source-health terminology alignment and operator interpretation guid
 
 Recommended options:
 
+- Perform direction calibration before starting another v0.2.15 follow-up PR.
 - Keep this small and controlled.
 - Do not add new agencies or sources.
 - Keep the next step small and controlled.

@@ -252,6 +252,32 @@ git push origin --delete <branch-name>
 
 If GitHub already deleted the remote branch, remote deletion may report that the branch does not exist. That is acceptable.
 
+## Direction calibration after a sequence of similar PRs
+
+After completing a sequence of similar PRs, the assistant/project workflow must pause before continuing.
+
+For this rule, similar PRs include repeated documentation-only PRs, repeated project-state PRs, repeated source-health/source-resilience PRs, repeated test-only regressions, or repeated release housekeeping PRs.
+
+Before proposing the next PR, perform a direction calibration checkpoint. The checkpoint must ask:
+
+1. Are we still solving the original project objective, or only extending the latest local document?
+2. Has the work become too narrow, too repetitive, or too documentation-heavy?
+3. Are we drifting from MVP value, user workflow, or actual regulatory/clinical intelligence utility?
+4. Is the next step better as planning, implementation, testing, documentation cleanup, or stopping?
+5. Should the next increment be paused until the user confirms the direction?
+
+The assistant should summarize:
+
+- what was just completed
+- what pattern the recent PRs followed
+- what risks of drift or over-narrowing exist
+- recommended next direction options
+- one preferred next step
+
+The assistant must not automatically continue into another same-type PR unless the user explicitly approves that direction after calibration.
+
+This rule is intended to prevent both scope drift and scope tunnel vision. It does not block urgent fixes, user-requested specific changes, or safety/compliance corrections, but even those should be summarized afterward.
+
 ## 13. Handoff note for next work
 
 End each release by recording the next recommended version in `.ai/PROJECT_STATE.md`.
