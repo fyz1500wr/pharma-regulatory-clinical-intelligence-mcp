@@ -537,9 +537,9 @@ PR: #74 Update project state after v0.2.13
 
 Related PR: #73 Harden v0.2.13 live validation and release handoff docs
 
-Main commit: 0c85043 Merge PR #76 Add v0.2.14 FDA blocked-source interpretation regression
+Main commit: 152e091 Update project state after v0.2.13 (#74)
 
-Release checkpoint commit: 0c85043 Merge PR #76 Add v0.2.14 FDA blocked-source interpretation regression
+Release checkpoint commit: 152e091 Update project state after v0.2.13 (#74)
 
 Release tag: v0.2.13-post-live-validation-release-hardening
 
