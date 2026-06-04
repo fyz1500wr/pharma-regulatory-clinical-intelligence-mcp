@@ -719,6 +719,14 @@ Do not commit generated or accidental dependency files such as `poetry.lock` unl
 
 After a sequence of similar PRs, the assistant/project workflow must pause for direction calibration before proposing or executing the next same-type PR. This rule is intended to prevent uncontrolled scope drift and over-narrowing around local documents.
 
+### Long-context continuation checkpoint rule
+
+If the conversation becomes long, slow, or context-heavy, or after a completed PR/tag/release sequence, the assistant should proactively remind the user to create `PROJECT_STATE_CONTINUATION.md`.
+
+The continuation file should capture repo state, latest commits/tags, completed and pending PRs, validation results, guardrails, workflow preferences, and the recommended next step.
+
+This rule is intended to make new-chat continuation reliable and prevent duplicated status checks or incorrect release-state assumptions.
+
 ### Product modality classifier behavior
 
 The current classifier is keyword mapping driven. v0.2.4 expanded the mapping and tests without changing core classifier logic.
@@ -732,15 +740,15 @@ Current classifier priority is determined by the order of labels in `config/taxo
 Recommended next version:
 
 ```text
-v0.2.16 — direction calibration pause after completed v0.2.15 tag verification
+v0.2.16 — direction calibration and next product-value checkpoint
 ```
 
 Recommended options:
 
-- Post-tag verification is complete for `v0.2.15-fda-abuse-detection-source-failure-diagnostics`.
-- Pause for direction calibration before starting another same-type PR.
-- Keep any follow-up small and controlled.
-- Preserve the interpretation that blocked FDA source access is a source-health limitation, not a zero-result finding.
+- Confirm whether to proceed with a product-value/functionality check, source-health operator guidance, or another small governance cleanup.
+- Do not start another same-type documentation/project-state PR without explicit direction.
+- Keep the next increment small and controlled.
+- Preserve MVP source scope: FDA, TFDA, ClinicalTrials.gov only.
 
 Keep the next step small and phase-controlled.
 
