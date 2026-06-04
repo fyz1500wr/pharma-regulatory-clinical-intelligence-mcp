@@ -118,5 +118,5 @@ def test_compare_regulatory_updates_preserves_fda_blocked_source_as_limitation(m
     assert "FDA: 0 matching update(s)" not in major_differences
 
     follow_up = " ".join(result["comparison_summary"]["recommended_follow_up"])
-    assert "source failure" in follow_up
+    assert "partial lookup failures" in follow_up
     assert "manual regulatory review" in follow_up
