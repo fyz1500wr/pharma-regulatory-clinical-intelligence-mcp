@@ -28,6 +28,7 @@ def _looks_like_fda_abuse_detection(*values: object) -> bool:
         )
     )
 
+
 def _normalize_status(value: object) -> str:
     text = _clean(value).lower()
     if "draft" in text:
@@ -198,6 +199,14 @@ class FDAUpdatesClient:
             details["exception_message"] = str(exception)
         return details
 
+    def _build_abuse_detection_error(self, *, source_name: str, requested_url: str, response: Any) -> dict:
+        return build_error(
+            ErrorCode.SOURCE_UNAVAILABLE,
+            f"FDA {source_name} fetch blocked by FDA abuse-detection/apology response",
+            details=self._request_failure_details(requested_url=requested_url, response=response),
+            suggested_next_action="Retry later from an allowed network or verify FDA source access before treating this as no matching records.",
+        )
+
     def _build_guidance_record(
         self,
         *,
@@ -253,6 +262,12 @@ class FDAUpdatesClient:
                 timeout=self.timeout,
             )
             resp.raise_for_status()
+            if _looks_like_fda_abuse_detection(getattr(resp, "url", None), getattr(resp, "text", "")):
+                return self._build_abuse_detection_error(
+                    source_name="guidance",
+                    requested_url=requested_url,
+                    response=resp,
+                )
             return {"html": resp.text, "retrieved_at": self._now(), "source_type": "official_html", "limit": limit, "query": query}
         except Exception as exc:
             return build_error(
@@ -344,6 +359,12 @@ class FDAUpdatesClient:
         try:
             resp = requests.get(feed_url, timeout=self.timeout)
             resp.raise_for_status()
+            if _looks_like_fda_abuse_detection(getattr(resp, "url", None), getattr(resp, "text", "")):
+                return self._build_abuse_detection_error(
+                    source_name="RSS",
+                    requested_url=feed_url,
+                    response=resp,
+                )
             return {"xml": resp.text, "retrieved_at": self._now(), "source_type": "RSS", "limit": limit}
         except Exception as exc:
             return build_error(
