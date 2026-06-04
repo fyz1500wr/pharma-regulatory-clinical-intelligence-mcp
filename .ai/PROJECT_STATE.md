@@ -1,6 +1,6 @@
 # Project State — Pharma Regulatory Clinical Intelligence MCP
 
-Last updated: 2026-06-03
+Last updated: 2026-06-04
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
@@ -10,12 +10,12 @@ Current completed release: `v0.2.13-post-live-validation-release-hardening`
 
 ## 1. Current Status
 
-The repository is now at a clean post-v0.2.13 tagged-release checkpoint after PR #73 merged, PR #74 merged, the `v0.2.13-post-live-validation-release-hardening` tag was created and pushed, and the full test suite passed on main before tag creation.
+The repository is now at a post-PR #76 checkpoint after the small v0.2.14 FDA blocked-source interpretation regression was merged into `main`. v0.2.13 remains the latest confirmed tagged release; v0.2.14 is not tagged yet.
 
 Latest confirmed main commit:
 
 ```text
-152e091 Update project state after v0.2.13 (#74)
+0c85043 Merge PR #76 Add v0.2.14 FDA blocked-source interpretation regression
 ```
 
 Latest confirmed release tag:
@@ -570,6 +570,38 @@ v0.2.13 does not add sources, tools, runtime behavior, scheduler, alerts, persis
 
 ---
 
+### Post-v0.2.13 checkpoint — v0.2.14 FDA blocked-source interpretation regression
+
+PR: #76 Add v0.2.14 FDA blocked-source interpretation regression
+
+Main commit: 0c85043 Merge PR #76 Add v0.2.14 FDA blocked-source interpretation regression
+
+Status: merged into `main`; not tagged yet.
+
+Scope:
+- Test-only source-resilience regression.
+- Added deterministic offline comparison regression for FDA `BLOCKED_SOURCE` / `SOURCE_UNAVAILABLE`.
+- Added deterministic offline digest regression for FDA source failure plus usable TFDA/ClinicalTrials.gov output.
+- Confirmed FDA source failure remains visible in `partial_lookup_failures` or `query_metadata.source_errors`.
+- Confirmed FDA failure is not silently converted into `FDA: 0 matching update(s)`.
+- Confirmed TFDA zero-result behavior remains distinguishable from FDA source failure.
+- Preserved MVP source scope: FDA, TFDA, ClinicalTrials.gov only.
+
+Files added or updated:
+- tests/test_regulatory_search_agency_isolation.py
+- tests/test_digest_fda_blocked_source_interpretation.py
+
+Validation:
+- pytest tests/test_regulatory_search_agency_isolation.py -q: 3 passed
+- pytest tests/test_digest_fda_blocked_source_interpretation.py -q: 1 passed
+- pytest tests/test_project_state_release_tag_consistency.py -q: 5 passed
+- pytest -q: 194 passed
+
+Important interpretation:
+This is a test-only regression checkpoint. It does not add new source agencies, MCP tools, runtime behavior, `.mcp.json` changes, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, GitHub automation, EMA/NMPA/PMDA/WHO ICTRP/EU CTIS, literature, patent, or finance integrations.
+
+---
+
 ## 3. Important Workflow Correction
 
 Use this workflow for future PRs:
@@ -638,16 +670,17 @@ Current classifier priority is determined by the order of labels in `config/taxo
 Recommended next version:
 
 ```text
-v0.2.14 — FDA blocked-source interpretation and source resilience investigation
+v0.2.14 — Project-state finalization and release tagging decision
 ```
 
 Recommended options:
 
 - Keep this small and controlled.
 - Do not add new agencies or sources.
-- Investigate FDA `BLOCKED_SOURCE` behavior without changing source scope.
-- Consider a mock-based regression check that blocked source failures are not presented as zero results.
-- Consider documenting fallback strategy before changing runtime behavior.
+- Merge this project-state update PR if checks pass.
+- Pull latest `main` after merge.
+- Run the focused project-state consistency test and full test suite again.
+- Only after final intended `main` is confirmed, decide whether to create the v0.2.14 release tag.
 
 Keep the next step small and phase-controlled.
 
