@@ -4,35 +4,35 @@ Last updated: 2026-06-04
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
-Current completed release: `v0.2.13-post-live-validation-release-hardening`
+Current completed release: `v0.2.14-fda-blocked-source-interpretation-regression`
 
 ---
 
 ## 1. Current Status
 
-The repository is now at a post-PR #76 checkpoint after the small v0.2.14 FDA blocked-source interpretation regression was merged into `main`. v0.2.13 remains the latest confirmed tagged release; v0.2.14 is not tagged yet.
+The repository is now at a completed v0.2.14 tagged-release checkpoint after PR #76 merged the FDA blocked-source interpretation regression, PR #77 finalized project state, and the v0.2.14 tag was created and pushed.
 
 Latest confirmed main commit:
 
 ```text
-0c85043 Merge PR #76 Add v0.2.14 FDA blocked-source interpretation regression
+2ce8ac8 Update project state after v0.2.14 regression (#77)
 ```
 
 Latest confirmed release tag:
 
 ```text
-v0.2.13-post-live-validation-release-hardening
+v0.2.14-fda-blocked-source-interpretation-regression
 ```
 
 Important release status:
 
-- v0.2.13 is the latest confirmed completed and tagged release.
-- PR #73 has been merged into `main` for documentation-only live validation and release handoff hardening.
-- PR #74 has been merged into `main` as the project-state release checkpoint.
-- The `v0.2.13-post-live-validation-release-hardening` tag has been created and pushed.
-- The full test suite passed on main before v0.2.13 tag creation.
-- ClinicalTrials.gov search and company comparison returned structured MVP outputs.
-- Digest validation guidance now distinguishes the FDA + TFDA primary path from the TFDA-only fallback path when FDA is `BLOCKED_SOURCE`.
+- v0.2.14 is the latest confirmed completed and tagged release.
+- PR #76 has been merged into `main` for the FDA blocked-source interpretation regression.
+- PR #77 has been merged into `main` as the post-v0.2.14 project-state checkpoint.
+- The `v0.2.14-fda-blocked-source-interpretation-regression` tag has been created and pushed.
+- The tag points to `2ce8ac8`, the PR #77 merge commit.
+- The full test suite passed on main before v0.2.14 tag creation.
+- FDA `BLOCKED_SOURCE` / `SOURCE_UNAVAILABLE` is preserved as a source limitation, not zero FDA regulatory results.
 - Digest output remains working intelligence and requires human review before regulatory, clinical, legal, medical, competitive, or commercial decisions.
 
 ---
@@ -570,13 +570,19 @@ v0.2.13 does not add sources, tools, runtime behavior, scheduler, alerts, persis
 
 ---
 
-### Post-v0.2.13 checkpoint — v0.2.14 FDA blocked-source interpretation regression
+### v0.2.14 — FDA blocked-source interpretation regression
 
-PR: #76 Add v0.2.14 FDA blocked-source interpretation regression
+PR: #77 Update project state after v0.2.14 regression
 
-Main commit: 0c85043 Merge PR #76 Add v0.2.14 FDA blocked-source interpretation regression
+Related PR: #76 Add v0.2.14 FDA blocked-source interpretation regression
 
-Status: merged into `main`; not tagged yet.
+Main commit: 2ce8ac8 Update project state after v0.2.14 regression (#77)
+
+Release checkpoint commit: 2ce8ac8 Update project state after v0.2.14 regression (#77)
+
+Release tag: v0.2.14-fda-blocked-source-interpretation-regression
+
+Status: confirmed tagged release after PR #76 and PR #77 were merged into `main`.
 
 Scope:
 - Test-only source-resilience regression.
@@ -670,17 +676,17 @@ Current classifier priority is determined by the order of labels in `config/taxo
 Recommended next version:
 
 ```text
-v0.2.14 — Project-state finalization and release tagging decision
+v0.2.15 — Next controlled source-resilience follow-up
 ```
 
 Recommended options:
 
 - Keep this small and controlled.
 - Do not add new agencies or sources.
-- Merge this project-state update PR if checks pass.
-- Pull latest `main` after merge.
-- Run the focused project-state consistency test and full test suite again.
-- Only after final intended `main` is confirmed, decide whether to create the v0.2.14 release tag.
+- Keep the next step small and controlled.
+- Do not add new agencies or sources without explicit approval.
+- Consider whether any additional FDA source-health documentation or tests are needed.
+- Preserve the interpretation that blocked source access is a source-health limitation, not a zero-result finding.
 
 Keep the next step small and phase-controlled.
 
