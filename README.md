@@ -221,6 +221,7 @@ These documents make MVP v1 easier to use, review, and govern. They are not sour
 | `docs/mvp_live_acceptance_validation_runbook.md` | Defines the controlled live-source acceptance validation workflow for the current FDA, TFDA, and ClinicalTrials.gov MVP tools. |
 | `docs/mvp_live_acceptance_validation_results_template.md` | Provides the results template for recording MVP live acceptance validation evidence, blockers, and final decision. |
 | `docs/release_handoff_checklist.md` | Defines the merge, tag, project-state, branch cleanup, and final verification checklist for controlled release handoff. |
+| `docs/v0.2.15_source_resilience_scope_plan.md` | Defines the controlled v0.2.15 source-resilience planning scope for terminology alignment and operator interpretation guidance after v0.2.14. |
 | `.ai/PROJECT_STATE.md` | Internal AI/project continuation checkpoint for current version, tags, validation results, guardrails, and recommended next step. |
 
 ---
