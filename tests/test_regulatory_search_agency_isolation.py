@@ -113,9 +113,9 @@ def test_compare_regulatory_updates_preserves_fda_blocked_source_as_limitation(m
     assert result["comparison"][0]["record_count"] == 0
     assert "no matching normalized updates" in result["comparison"][0]["agency_specific_notes"][0]
 
-    major_differences = " ".join(result["comparison_summary"]["major_differences"])
+    major_differences = result["comparison_summary"]["major_differences"]
     assert "TFDA: 0 matching update(s)" in major_differences
-    assert "FDA: 0 matching update(s)" not in major_differences
+    assert all(not item.startswith("FDA: 0 matching update(s)") for item in major_differences)
 
     follow_up = " ".join(result["comparison_summary"]["recommended_follow_up"])
     assert "partial lookup failures" in follow_up
