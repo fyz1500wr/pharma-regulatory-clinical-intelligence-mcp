@@ -278,6 +278,28 @@ The assistant must not automatically continue into another same-type PR unless t
 
 This rule is intended to prevent both scope drift and scope tunnel vision. It does not block urgent fixes, user-requested specific changes, or safety/compliance corrections, but even those should be summarized afterward.
 
+## Long-context continuation checkpoint
+
+When a conversation becomes long, response latency noticeably increases, multiple PR/tag/release steps have accumulated, or the user may need to continue in a new chat, the assistant/project workflow should proactively recommend creating `PROJECT_STATE_CONTINUATION.md`.
+
+This checkpoint is intended to preserve continuity and reduce repeated context reconstruction.
+
+The continuation file should summarize:
+
+- repository name and branch
+- latest main commit
+- latest release tag and tag target
+- completed PRs and merged commits
+- open/stale PRs and recommended handling
+- latest validation commands and results
+- current guardrails / non-expansion rules
+- recommended next step
+- any workflow preferences or active user instructions
+
+The assistant should prefer this checkpoint before the conversation becomes too slow or too difficult to audit.
+
+This is workflow guidance only and does not add runtime behavior or automation.
+
 ## 13. Handoff note for next work
 
 End each release by recording the next recommended version in `.ai/PROJECT_STATE.md`.
