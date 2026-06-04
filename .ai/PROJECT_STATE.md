@@ -608,6 +608,28 @@ This is a test-only regression checkpoint. It does not add new source agencies, 
 
 ---
 
+
+### v0.2.15 — Source resilience scope planning checkpoint
+
+Status: planning PR in progress; not a completed release.
+
+Scope:
+- Documentation-only planning for the next controlled source-resilience increment.
+- Preserves MVP source scope: FDA, TFDA, ClinicalTrials.gov only.
+- Reinforces FDA `BLOCKED_SOURCE` / `SOURCE_UNAVAILABLE` as a source-health limitation, not zero FDA regulatory results.
+- Establishes the recommended next work item as source-health terminology alignment and operator interpretation guidance.
+
+Files added or updated:
+- docs/v0.2.15_source_resilience_scope_plan.md
+- README.md
+- tests/test_readme_documentation_index.py
+- .ai/PROJECT_STATE.md
+
+Explicit non-expansion statement:
+This planning checkpoint does not change runtime behavior, add new sources, add new MCP tools, change `.mcp.json`, add scheduler, alerts, persistence, dashboard, HTTP/SSE transport, GitHub automation, EMA/NMPA/PMDA/WHO ICTRP/EU CTIS, literature, patent, or finance integrations.
+
+---
+
 ## 3. Important Workflow Correction
 
 Use this workflow for future PRs:
@@ -676,7 +698,7 @@ Current classifier priority is determined by the order of labels in `config/taxo
 Recommended next version:
 
 ```text
-v0.2.15 — Next controlled source-resilience follow-up
+v0.2.15 — Source-health terminology alignment and operator interpretation guidance
 ```
 
 Recommended options:

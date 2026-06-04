@@ -27,6 +27,7 @@ EXPECTED_INDEX_ENTRIES = [
     "docs/mvp_live_acceptance_validation_runbook.md",
     "docs/mvp_live_acceptance_validation_results_template.md",
     "docs/release_handoff_checklist.md",
+    "docs/v0.2.15_source_resilience_scope_plan.md",
     ".ai/PROJECT_STATE.md",
 ]
 
