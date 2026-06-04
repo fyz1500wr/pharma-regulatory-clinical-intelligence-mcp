@@ -4,7 +4,7 @@ Last updated: 2026-06-04
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
-Current completed release: `v0.2.15-fda-abuse-detection-source-failure-diagnostics`
+Current completed release: `v0.2.14-fda-blocked-source-interpretation-regression`
 
 ---
 
@@ -21,12 +21,13 @@ b125447fbb54f42d2814bf891b5ec376995b6166
 Latest confirmed release tag:
 
 ```text
-v0.2.15-fda-abuse-detection-source-failure-diagnostics
+v0.2.14-fda-blocked-source-interpretation-regression
 ```
 
 Important release status:
 
-- v0.2.15 is the latest completed main checkpoint after PR #82 merged.
+- v0.2.15 is the latest completed main checkpoint after PR #82 merged, but it is not yet tagged.
+- v0.2.14 remains the latest confirmed release tag until the v0.2.15 tag is created.
 - PR #82 has been merged into `main` for FDA abuse-detection source failure diagnostics.
 - Related PR #83 has been merged into the PR #82 branch to detect FDA abuse pages on successful HTTP 200 responses.
 - The main checkpoint commit is `b125447fbb54f42d2814bf891b5ec376995b6166`.
@@ -620,9 +621,9 @@ Main commit: b125447fbb54f42d2814bf891b5ec376995b6166 Improve FDA abuse-detectio
 
 Release checkpoint commit: b125447fbb54f42d2814bf891b5ec376995b6166 Improve FDA abuse-detection source failure diagnostics (#82)
 
-Release tag: v0.2.15-fda-abuse-detection-source-failure-diagnostics
+Pending release tag: v0.2.15-fda-abuse-detection-source-failure-diagnostics
 
-Release tag status: pending, suggested `v0.2.15-fda-abuse-detection-source-failure-diagnostics`
+Suggested release tag: `v0.2.15-fda-abuse-detection-source-failure-diagnostics`
 
 Status: completed main checkpoint; tag not yet created
 
