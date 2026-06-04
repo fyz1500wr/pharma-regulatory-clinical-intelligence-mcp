@@ -4,37 +4,38 @@ Last updated: 2026-06-04
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
-Current completed release: `v0.2.14-fda-blocked-source-interpretation-regression`
+Current completed release: `v0.2.15-fda-abuse-detection-source-failure-diagnostics`
 
 ---
 
 ## 1. Current Status
 
-The repository is now at a completed v0.2.15 main checkpoint after PR #82 merged FDA source-health diagnostics hardening into `main`. PR #83 was first merged into the PR #82 branch to address the HTTP 200 FDA abuse/apology-page feedback before the final PR #82 merge.
+The repository is now at a completed and tagged v0.2.15 release after PR #84 merged post-PR #82 FDA source-health diagnostics project-state bookkeeping into `main`. v0.2.15 is now the latest confirmed completed and tagged release.
 
 Latest confirmed main commit:
 
 ```text
-b125447fbb54f42d2814bf891b5ec376995b6166
+c940a4f70bd3017b02c133712a2e2608baa9e098
 ```
 
 Latest confirmed release tag:
 
 ```text
-v0.2.14-fda-blocked-source-interpretation-regression
+v0.2.15-fda-abuse-detection-source-failure-diagnostics
 ```
 
 Important release status:
 
-- v0.2.15 is the latest completed main checkpoint after PR #82 merged, but it is not yet tagged.
-- v0.2.14 remains the latest confirmed release tag until the v0.2.15 tag is created.
-- PR #82 has been merged into `main` for FDA abuse-detection source failure diagnostics.
-- Related PR #83 has been merged into the PR #82 branch to detect FDA abuse pages on successful HTTP 200 responses.
-- The main checkpoint commit is `b125447fbb54f42d2814bf891b5ec376995b6166`.
-- The release checkpoint commit is `b125447fbb54f42d2814bf891b5ec376995b6166`.
-- The suggested release tag is `v0.2.15-fda-abuse-detection-source-failure-diagnostics`, but the tag has not yet been created.
-- Final Codespaces validation on `main` passed with 202 tests.
-- FDA abuse-detection/apology redirects remain source-access limitations surfaced as `SOURCE_UNAVAILABLE`, not zero FDA regulatory results.
+- v0.2.15 is the latest confirmed completed and tagged release.
+- The v0.2.15 tag has been created and pushed.
+- The latest confirmed release tag is `v0.2.15-fda-abuse-detection-source-failure-diagnostics`.
+- The tag points to `c940a4f70bd3017b02c133712a2e2608baa9e098`.
+- PR #84 has been merged into `main` for post-v0.2.15 project-state bookkeeping after PR #82 and related PR #83.
+- PR #82 merged FDA abuse-detection source failure diagnostics.
+- Related PR #83 detected FDA abuse pages on successful HTTP 200 responses.
+- Final pre-tag Codespaces validation on `main` passed with 202 tests.
+- FDA abuse-detection/apology responses are source-access limitations surfaced as `SOURCE_UNAVAILABLE`, not `NO_MATCHING_RECORDS`.
+- No FDA source bypass or scraping workaround was added.
 - Digest output remains working intelligence and requires human review before regulatory, clinical, legal, medical, competitive, or commercial decisions.
 
 ---
@@ -613,19 +614,19 @@ This is a test-only regression checkpoint. It does not add new source agencies, 
 
 ### v0.2.15 — FDA abuse-detection source failure diagnostics
 
-PR: #82 Improve FDA abuse-detection source failure diagnostics
+PR: #84 Update project state after v0.2.15 FDA diagnostics hardening
+
+Related PR: #82 Improve FDA abuse-detection source failure diagnostics
 
 Related PR: #83 Detect FDA abuse pages on successful responses
 
-Main commit: b125447fbb54f42d2814bf891b5ec376995b6166 Improve FDA abuse-detection source failure diagnostics (#82)
+Main commit: c940a4f70bd3017b02c133712a2e2608baa9e098 Update project state after v0.2.15 FDA diagnostics hardening (#84)
 
-Release checkpoint commit: b125447fbb54f42d2814bf891b5ec376995b6166 Improve FDA abuse-detection source failure diagnostics (#82)
+Release checkpoint commit: c940a4f70bd3017b02c133712a2e2608baa9e098 Update project state after v0.2.15 FDA diagnostics hardening (#84)
 
-Pending release tag: v0.2.15-fda-abuse-detection-source-failure-diagnostics
+Release tag: v0.2.15-fda-abuse-detection-source-failure-diagnostics
 
-Suggested release tag: `v0.2.15-fda-abuse-detection-source-failure-diagnostics`
-
-Status: completed main checkpoint; tag not yet created
+Status: completed and tagged release; tag created and pushed
 
 Scope:
 - Source-health diagnostics hardening.
@@ -731,18 +732,16 @@ Current classifier priority is determined by the order of labels in `config/taxo
 Recommended next version:
 
 ```text
-v0.2.15 — release tag creation — v0.2.15-fda-abuse-detection-source-failure-diagnostics
+v0.2.16 — direction calibration pause after completed v0.2.15 tag verification
 ```
 
 Recommended options:
 
-- Create the v0.2.15 tag after the project-state PR merges.
-- Then run final tag verification.
-- Then pause for direction calibration before another same-type PR.
+- Post-tag verification is complete for `v0.2.15-fda-abuse-detection-source-failure-diagnostics`.
+- Pause for direction calibration before starting another same-type PR.
 - Keep any follow-up small and controlled.
-- Do not add new agencies or sources without explicit approval.
 - Preserve the interpretation that blocked FDA source access is a source-health limitation, not a zero-result finding.
 
 Keep the next step small and phase-controlled.
 
-Do not add new source scope, MCP tools, `.mcp.json` changes, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, GitHub issue automation, EMA/NMPA/PMDA/WHO ICTRP/EU CTIS, literature, patent, or finance integrations.
+Do not add new agencies, sources, tools, scheduler, alerts, dashboard, persistence, HTTP/SSE transport, `.mcp.json`, GitHub automation, literature, patent, or finance integrations without explicit approval.
