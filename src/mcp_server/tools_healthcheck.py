@@ -55,6 +55,23 @@ _SUPPORTED_SOURCE_VALUES = [
     "ClinicalTrialsGov_API",
 ]
 
+_FDA_ABUSE_DETECTION_PATTERNS = (
+    "apology_objects",
+    "abuse-detection-apology",
+    "abuse detection",
+)
+
+_FDA_ABUSE_DETECTION_SUSPECTED_CAUSE = (
+    "The FDA request was redirected to an FDA abuse-detection/apology path or source-access block. "
+    "This is not proof that FDA has no records, and it is not a no matching records signal. "
+    "Rerun in another approved runtime or manually verify FDA official sources before interpreting FDA coverage."
+)
+
+_FDA_ABUSE_DETECTION_KNOWN_LIMITATION = (
+    "FDA abuse-detection/apology redirects are source-access failures; they MUST NOT be interpreted as "
+    "NO_MATCHING_RECORDS or as FDA having zero matching regulatory updates."
+)
+
 _EGRESS_POLICY_PATTERNS = (
     "Host not in allowlist",
     "not in allowlist",
@@ -145,17 +162,27 @@ def _iter_strings(value: Any):
     yield str(value)
 
 
-def _looks_like_egress_policy(item: dict[str, Any]) -> bool:
-    text = " ".join(
+def _diagnostic_text(item: dict[str, Any]) -> str:
+    return " ".join(
         [
             *list(_iter_strings(item.get("message"))),
             *list(_iter_strings(item.get("error_message"))),
             *list(_iter_strings(item.get("error_details"))),
             *list(_iter_strings(item.get("suggested_next_action"))),
             *list(_iter_strings(item.get("suggested_fix"))),
+            *list(_iter_strings(item.get("known_limitations"))),
         ]
     ).lower()
+
+
+def _looks_like_egress_policy(item: dict[str, Any]) -> bool:
+    text = _diagnostic_text(item)
     return any(pattern.lower() in text for pattern in _EGRESS_POLICY_PATTERNS)
+
+
+def _looks_like_fda_abuse_detection(item: dict[str, Any]) -> bool:
+    text = _diagnostic_text(item)
+    return any(pattern in text for pattern in _FDA_ABUSE_DETECTION_PATTERNS)
 
 
 def _failure_type_for_contract(item: dict[str, Any]) -> str:
@@ -186,6 +213,11 @@ def _severity_for_contract(item: dict[str, Any]) -> str:
 
 
 def _suggested_fix_for_contract(item: dict[str, Any]) -> str:
+    if _looks_like_fda_abuse_detection(item):
+        return (
+            "Rerun FDA validation in another approved runtime or manually verify FDA official sources; "
+            "do not treat the abuse-detection/apology redirect as no matching FDA records."
+        )
     if _looks_like_egress_policy(item):
         return _EGRESS_POLICY_SUGGESTED_FIX
     return item.get("suggested_next_action", "")
@@ -193,6 +225,8 @@ def _suggested_fix_for_contract(item: dict[str, Any]) -> str:
 
 def _known_limitations_for_contract(item: dict[str, Any]) -> list[str]:
     limitations = list(item.get("known_limitations", []))
+    if _looks_like_fda_abuse_detection(item) and _FDA_ABUSE_DETECTION_KNOWN_LIMITATION not in limitations:
+        limitations.append(_FDA_ABUSE_DETECTION_KNOWN_LIMITATION)
     if _looks_like_egress_policy(item) and _EGRESS_POLICY_KNOWN_LIMITATION not in limitations:
         limitations.append(_EGRESS_POLICY_KNOWN_LIMITATION)
     return limitations
@@ -371,6 +405,8 @@ def _status_for_failure(item: dict[str, Any]) -> str:
 
 def _suspected_cause_for_failure(item: dict[str, Any]) -> str:
     failure_type = item.get("failure_type") or "unknown"
+    if _looks_like_fda_abuse_detection(item):
+        return _FDA_ABUSE_DETECTION_SUSPECTED_CAUSE
     if failure_type == "egress_policy":
         return (
             "Health check call was blocked by the runtime/network egress allowlist "

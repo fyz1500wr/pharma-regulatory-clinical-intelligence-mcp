@@ -17,6 +17,18 @@ def _clean(value: object) -> str:
     return " ".join(str(value or "").split())
 
 
+def _looks_like_fda_abuse_detection(*values: object) -> bool:
+    text = " ".join(_clean(value).lower() for value in values if value is not None)
+    return any(
+        pattern in text
+        for pattern in (
+            "apology_objects",
+            "abuse-detection-apology",
+            "abuse detection",
+        )
+    )
+
+
 def _normalize_status(value: object) -> str:
     text = _clean(value).lower()
     if "draft" in text:
@@ -160,6 +172,41 @@ class FDAUpdatesClient:
         date, limitations = _normalize_date(date_value)
         return status, date, limitations
 
+    def _request_failure_details(
+        self,
+        *,
+        requested_url: str,
+        response: Any | None = None,
+        exception: Exception | None = None,
+    ) -> dict[str, Any]:
+        response = response or getattr(exception, "response", None)
+        final_url = getattr(response, "url", None)
+        status_code = getattr(response, "status_code", None)
+        body = getattr(response, "text", "") if response is not None else ""
+        detected_source_block = _looks_like_fda_abuse_detection(final_url, body, exception)
+
+        details: dict[str, Any] = {"requested_url": requested_url}
+        if final_url:
+            details["final_url"] = final_url
+        if status_code is not None:
+            details["status_code"] = status_code
+        if detected_source_block:
+            details["detected_source_block"] = True
+            details["redirected_to_abuse_detection"] = True
+            details["source_block_reason"] = "FDA abuse-detection/apology path indicated by final URL or response body."
+        if exception is not None:
+            details["exception_type"] = type(exception).__name__
+            details["exception_message"] = str(exception)
+        return details
+
+    def _build_abuse_detection_error(self, *, source_name: str, requested_url: str, response: Any) -> dict:
+        return build_error(
+            ErrorCode.SOURCE_UNAVAILABLE,
+            f"FDA {source_name} fetch blocked by FDA abuse-detection/apology response",
+            details=self._request_failure_details(requested_url=requested_url, response=response),
+            suggested_next_action="Retry later from an allowed network or verify FDA source access before treating this as no matching records.",
+        )
+
     def _build_guidance_record(
         self,
         *,
@@ -206,15 +253,32 @@ class FDAUpdatesClient:
             import requests
         except ImportError:
             return build_error(ErrorCode.SOURCE_UNAVAILABLE, "requests dependency unavailable")
+
+        requested_url = urljoin(self.base_url + "/", "/drugs/guidance-compliance-regulatory-information")
+        resp = None
         try:
             resp = requests.get(
-                urljoin(self.base_url + "/", "/drugs/guidance-compliance-regulatory-information"),
+                requested_url,
                 timeout=self.timeout,
             )
             resp.raise_for_status()
+            if _looks_like_fda_abuse_detection(getattr(resp, "url", None), getattr(resp, "text", "")):
+                return self._build_abuse_detection_error(
+                    source_name="guidance",
+                    requested_url=requested_url,
+                    response=resp,
+                )
             return {"html": resp.text, "retrieved_at": self._now(), "source_type": "official_html", "limit": limit, "query": query}
         except Exception as exc:
-            return build_error(ErrorCode.SOURCE_UNAVAILABLE, f"FDA guidance fetch failed: {exc}")
+            return build_error(
+                ErrorCode.SOURCE_UNAVAILABLE,
+                f"FDA guidance fetch failed: {exc}",
+                details=self._request_failure_details(
+                    requested_url=requested_url,
+                    response=resp,
+                    exception=exc,
+                ),
+            )
 
     def parse_guidance_documents(self, payload_or_html) -> list[dict]:
         try:
@@ -290,12 +354,28 @@ class FDAUpdatesClient:
             import requests
         except ImportError:
             return build_error(ErrorCode.SOURCE_UNAVAILABLE, "requests dependency unavailable")
+
+        resp = None
         try:
             resp = requests.get(feed_url, timeout=self.timeout)
             resp.raise_for_status()
+            if _looks_like_fda_abuse_detection(getattr(resp, "url", None), getattr(resp, "text", "")):
+                return self._build_abuse_detection_error(
+                    source_name="RSS",
+                    requested_url=feed_url,
+                    response=resp,
+                )
             return {"xml": resp.text, "retrieved_at": self._now(), "source_type": "RSS", "limit": limit}
         except Exception as exc:
-            return build_error(ErrorCode.SOURCE_UNAVAILABLE, f"FDA RSS fetch failed: {exc}")
+            return build_error(
+                ErrorCode.SOURCE_UNAVAILABLE,
+                f"FDA RSS fetch failed: {exc}",
+                details=self._request_failure_details(
+                    requested_url=feed_url,
+                    response=resp,
+                    exception=exc,
+                ),
+            )
 
     def parse_rss_items(self, xml_text: str) -> list[dict]:
         if not xml_text or not isinstance(xml_text, str):
