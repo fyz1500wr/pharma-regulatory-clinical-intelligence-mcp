@@ -100,3 +100,54 @@ def test_generate_regulatory_digest_preserves_fda_blocked_source_error(monkeypat
     assert "source query error" in executive_summary
     assert "not a final regulatory or clinical assessment" in executive_summary
     assert "Included 0 regulatory update(s)" in executive_summary
+
+
+def test_list_source_failures_interprets_fda_abuse_detection_as_source_unavailable(monkeypatch) -> None:
+    from src.mcp_server import tools_healthcheck
+
+    def fake_check_source_health_impl(source, mode):
+        assert source == "FDA"
+        return {
+            "overall_status": "degraded",
+            "sources": [
+                {
+                    "source": "FDA",
+                    "source_type": "regulatory",
+                    "available": False,
+                    "status": "unavailable",
+                    "error_code": "SOURCE_UNAVAILABLE",
+                    "message": "All requested FDA sources are unavailable",
+                    "error_details": {
+                        "source_failures": [
+                            {
+                                "code": "SOURCE_UNAVAILABLE",
+                                "message": "FDA guidance fetch failed: 404 Client Error",
+                                "details": {
+                                    "requested_url": "https://www.fda.gov/drugs/guidance-compliance-regulatory-information",
+                                    "final_url": "https://www.fda.gov/apology_objects/abuse-detection-apology.html",
+                                    "status_code": 404,
+                                    "redirected_to_abuse_detection": True,
+                                },
+                            }
+                        ]
+                    },
+                    "retrieved_at": "2026-06-04T00:00:00+00:00",
+                    "suggested_next_action": "Check FDA source availability and connector fetch methods.",
+                    "known_limitations": [],
+                }
+            ],
+            "query_metadata": {"known_limitations": []},
+        }
+
+    monkeypatch.setattr(tools_healthcheck, "_check_source_health_impl", fake_check_source_health_impl)
+
+    result = tools_healthcheck.list_source_failures(sources="FDA")
+    assert "error" not in result
+    failure = result["failures"][0]
+    assert failure["failure_type"] == "api_status"
+    assert "abuse-detection/apology" in failure["suspected_cause"]
+    assert "not proof that FDA has no records" in failure["suspected_cause"]
+    assert "not a no matching records signal" in failure["suspected_cause"]
+    assert "Rerun in another approved runtime" in failure["suspected_cause"]
+    assert all("FDA: 0 matching update(s)" not in text for text in failure["known_limitations"])
+    assert all("NO_MATCHING_RECORDS" not in text or "MUST NOT" in text for text in failure["known_limitations"])
