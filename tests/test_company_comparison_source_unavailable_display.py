@@ -43,12 +43,15 @@ def test_company_comparison_marks_source_unavailable_as_not_evaluable(monkeypatc
         assert item["display_trial_count"] == "Not evaluable — ClinicalTrials.gov source unavailable"
         assert item["display_active_trial_count"] == "Not evaluable"
         assert item["display_completed_trial_count"] == "Not evaluable"
+        assert item["modalities"] == ["unknown"]
         assert "must not be interpreted as zero trial activity" in item["summary"]
         assert any("not evaluable" in limitation.lower() for limitation in item["known_limitations"])
 
     assert len(result["query_metadata"]["source_errors"]) == 2
-    assert "0 matching ClinicalTrials.gov trial record(s)" in result["landscape_summary"]["overall_trends"][1]
-    assert "2 company(ies) not evaluable" in result["landscape_summary"]["overall_trends"][2]
+    overall_trends = result["landscape_summary"]["overall_trends"]
+    assert "No company-level ClinicalTrials.gov trial activity total is reported" in overall_trends[1]
+    assert "0 matching ClinicalTrials.gov trial record(s)" not in "\n".join(overall_trends)
+    assert "2 company(ies) not evaluable" in overall_trends[2]
     assert any("not evaluable must not be interpreted as zero trial activity" in gap for gap in result["landscape_summary"]["data_gaps"])
 
 
@@ -84,3 +87,4 @@ def test_company_comparison_keeps_zero_records_evaluable_when_source_succeeds(mo
     assert item["trial_count"] == 0
     assert item["display_trial_count"] == "0"
     assert result["query_metadata"]["source_errors"] == []
+    assert "0 matching ClinicalTrials.gov trial record(s) included among 1 evaluable company(ies)" in result["landscape_summary"]["overall_trends"][1]
