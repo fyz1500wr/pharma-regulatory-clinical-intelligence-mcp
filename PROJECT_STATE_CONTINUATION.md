@@ -12,9 +12,9 @@ Canonical detailed status remains in `.ai/PROJECT_STATE.md`.
 ## Current checkpoint
 
 - Stable branch: `main`
-- Latest confirmed main checkpoint: PR #92 merged into `main`
-- PR #92 merge commit: `51b388d2db5304f2fda8e35df8cd7b8d59b4a056`
-- Latest completed workstream: product-value / usability calibration and company-comparison association hardening
+- Latest confirmed main checkpoint: PR #94 merged into `main`
+- PR #94 merge commit: `5144cfc3b282206a8840091f8716eb6399b2aae2`
+- Latest completed workstream: source-limitation / usability hardening for company comparison and digest outputs
 - Open PRs at this checkpoint: none confirmed before this continuation update
 
 ## Recent PR sequence
@@ -68,6 +68,25 @@ Interpretation rule:
 - They must not be described as confirmed sponsor-level company activity unless sponsor identity is reviewed.
 - Records with `association_basis = returned_by_clinicaltrials_gov_query_requires_manual_review` require manual sponsor or product-association review.
 
+### PR #93
+
+Updated this continuation file from the prior PR #88 checkpoint to the PR #92 usability checkpoint.
+
+### PR #94
+
+Clarified digest source coverage wording and added regression tests.
+
+Changed areas:
+
+- `src/mcp_server/tools_digest.py`
+- `tests/test_digest_source_coverage_wording.py`
+
+Interpretation rule:
+
+- If requested sources return query errors, digest output must state that coverage is partial.
+- Zero returned regulatory updates must not be interpreted as no updates for unavailable requested sources.
+- If there are global source-health failures but no query errors for the requested digest sources, digest output must say that no source query errors occurred for the requested sources.
+
 ## Post-PR #92 usability re-test
 
 Scenario used:
@@ -90,7 +109,7 @@ Interpretation:
 - FDA failure is a source-access limitation.
 - It must not be interpreted as FDA having zero matching regulatory updates.
 
-### Digest result
+### Digest result before PR #94
 
 Digest status: `PARTIAL`
 
@@ -99,7 +118,8 @@ Reason:
 - Digest generated 0 regulatory updates and 5 clinical trial updates.
 - FDA had 1 source query error.
 - Source health reported 1 open failure.
-- Digest correctly warned that it is rule-based aggregation, not final regulatory or clinical assessment.
+- Digest warned that it is rule-based aggregation, not final regulatory or clinical assessment.
+- Usability gap: executive summary did not directly state that FDA source unavailability makes requested-source coverage partial.
 
 ### Company comparison result
 
@@ -117,20 +137,64 @@ Observed results:
 - Merck: 5 returned records; 1 sponsor-name match; 4 records require manual association review.
 - Landscape summary explicitly stated that 5 returned records do not have sponsor names matching the requested company and require manual association review.
 
-Remaining limitations:
+## Post-PR #94 digest re-test
 
-- Date range is recorded in query metadata only; date-based trial filtering is not applied in MVP v1.
-- ClinicalTrials.gov-only comparison does not include EU CTIS, WHO ICTRP, literature, patent, finance, or commercial intelligence sources.
-- Company matching is sponsor-name based and does not infer corporate family relationships.
+Scenario used:
+
+- Indication: gastric cancer
+- Companies: AstraZeneca, Merck
+- Clean digest sources: TFDA + ClinicalTrials.gov
+- Partial digest sources: FDA + TFDA + ClinicalTrials.gov
+- Date range: 1y
+
+### Clean scenario result
+
+Clean scenario status: `PASS_WITH_GLOBAL_HEALTH_WARNING`
+
+Observed behavior:
+
+- Digest generated 0 regulatory updates and 5 clinical trial updates.
+- `source_errors_count` was 0.
+- Executive summary stated that 1 open source failure was reported by source health tools, but no source query errors occurred for the requested sources in this digest.
+- Known limitations stated that open source failures may include sources outside the requested digest source set and that `query_metadata.source_errors` identifies requested source query failures.
+
+Interpretation:
+
+- This avoids implying that TFDA or ClinicalTrials.gov failed when the open failure comes from global source health.
+
+### Partial scenario result
+
+Partial scenario status: `PASS_WITH_SOURCE_LIMITATION`
+
+Observed behavior:
+
+- Digest generated 0 regulatory updates and 5 clinical trial updates.
+- FDA returned `SOURCE_UNAVAILABLE`.
+- `source_errors_count` was 1.
+- Executive summary stated: `Coverage is partial for requested source(s): FDA`.
+- Executive summary also stated that zero returned updates must not be interpreted as no updates for unavailable sources.
+- Known limitations repeated that coverage is partial because FDA returned query errors.
+
+Interpretation:
+
+- This directly addresses the prior PM/RA misreading risk.
 
 ## Current overall usability status
 
-Overall status: `PARTIAL_PASS`
+Overall status: `PASS_WITH_SOURCE_LIMITATIONS`
 
 Reason:
 
-- Company comparison association ambiguity was materially improved and is now usable with clear caveats.
-- Digest remains partial because FDA source access is unavailable in the current runtime.
+- Company comparison association ambiguity is now clearly labeled.
+- Digest partial-source coverage is now clearly labeled.
+- FDA remains unavailable in the current runtime, so live FDA coverage is still not complete.
+
+Remaining limitations:
+
+- FDA source access may be blocked by abuse-detection/apology path in current runtime.
+- Date range is recorded in company-comparison query metadata only; date-based trial filtering is not applied in MVP v1 company comparison.
+- ClinicalTrials.gov-only comparison does not include EU CTIS, WHO ICTRP, literature, patent, finance, or commercial intelligence sources.
+- Company matching is sponsor-name based and does not infer corporate family relationships.
 
 ## Current guardrails
 
@@ -147,21 +211,18 @@ Do not immediately add new sources or new tools.
 
 Recommended next discussion checkpoint:
 
-`post-PR #92 — digest output usability calibration before feature expansion`
+`post-PR #94 — direction calibration before any feature expansion`
 
 Direction options:
 
-1. Evaluate `generate_regulatory_digest` output wording, especially:
-   - `source_errors` visibility
-   - partial source success
-   - FDA unavailable handling in executive summary
-   - whether regulatory update count could be misread when FDA is unavailable
-2. Run a TFDA + ClinicalTrials.gov-only digest scenario to separate source-access limitation from digest wording issues.
-3. Update digest documentation or runtime wording only if a concrete usability gap is confirmed.
+1. Stop and treat PR #89–#94 as a completed source-limitation/usability hardening phase.
+2. Run a final `main` status check and review whether `.ai/PROJECT_STATE.md` also needs a compact checkpoint update.
+3. If continuing runtime work, prioritize only concrete MVP interpretation gaps; do not add new data sources yet.
+4. Defer company alias database, corporate-family mapping, product ownership inference, dashboard, scheduler, alerts, persistence, and external source expansion until explicitly approved.
 
 Preferred next action:
 
-Discuss whether the next practical test should focus on digest output wording while preserving the no-expansion guardrails.
+Hold direction calibration before further implementation.
 
 ## New-chat opening prompt
 
