@@ -7,194 +7,267 @@ Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 
 This file is a compact continuation handoff for starting a new chat.
 
-Canonical detailed status remains in `.ai/PROJECT_STATE.md`.
+Canonical detailed status remains in `.ai/PROJECT_STATE.md` when it is updated. This file is the preferred short handoff when chat context becomes slow or too long.
 
 ## Current checkpoint
 
 - Stable branch: `main`
-- Latest confirmed main checkpoint: PR #94 merged into `main`
-- PR #94 merge commit: `5144cfc3b282206a8840091f8716eb6399b2aae2`
-- Latest completed workstream: source-limitation / usability hardening for company comparison and digest outputs
-- Open PRs at this checkpoint: none confirmed before this continuation update
+- Latest confirmed merged PR: PR #99
+- PR #99 merge commit: `4b2f60d0e7dfbbc8e3c6d09b2061d72f5d8de3df`
+- Latest completed workstream: PM/RA regulatory-clinical digest report workflow, prompt pack, example memo, and memo validation dry-run
+- Latest dry-run validation status: `PASS_WITH_LIMITATIONS`
+- Current tagged release: remains the prior MVP release tag; no new release tag was created for PR #97–#99 docs/product workflow work
+- Open PRs at this checkpoint: none known after PR #99 merge
 
-## Recent PR sequence
+## Current project phase
 
-### PR #89
+The project is still MVP v1 and must remain source- and scope-controlled.
 
-Added validation traceability metadata.
+Approved MVP source scope remains:
 
-### PR #90
+```text
+FDA
+TFDA
+ClinicalTrials.gov
+```
 
-Clarified `compare_companies_by_indication` behavior when ClinicalTrials.gov sponsor lookups return `SOURCE_UNAVAILABLE`.
+Do not add EMA, PMDA, NMPA, CTIS, WHO ICTRP, literature, patent, finance, news, company-alias database, corporate-family mapping, product ownership inference, dashboard, scheduler, alerting, persistence, HTTP/SSE transport, `.mcp.json`, or other integrations unless explicitly approved.
 
-Interpretation rule:
+## Recent PR sequence after PR #94
 
-- Source unavailable is not zero activity.
-- A company row with unavailable source must be marked not evaluable.
+### PR #95
 
-### PR #91
-
-Added `docs/product_value_usability_calibration.md`.
+Updated project continuation/state after PR #94 digest source-coverage wording work.
 
 Purpose:
 
-- Provide a product-value / usability calibration workflow.
-- Help users test whether MVP outputs are readable, source-aware, and not misleading.
+- Preserve the PR #94 source-limitation re-test result.
+- Record that digest output now distinguishes requested-source query errors from global source-health warnings.
 
-### PR #92
+### PR #96
 
-Clarified company comparison association labels and synchronized contract documentation.
+Updated `.ai/PROJECT_STATE.md` after the post-PR #95 usability hardening checkpoint.
 
-Changed areas:
+Purpose:
 
-- `src/mcp_server/tools_clinical_trials.py`
-- `tests/test_company_comparison_source_unavailable_display.py`
-- `docs/mcp_tool_contract.md`
-- `CLAUDE.md`
+- Keep project-state handoff aligned with the source-limitation and usability-hardening phase.
+- Confirm that future work should pause for direction calibration before adding new product features.
 
-Key added or clarified fields:
+### PR #97 — Regulatory-clinical digest report workflow
 
-- `association_mode`
-- `sponsor_name_match_count`
-- `non_sponsor_record_count`
-- `requested_company`
-- `record_sponsor`
-- `sponsor_matches_requested_company`
-- `association_basis`
+Added:
 
-Interpretation rule:
+```text
+docs/regulatory_clinical_digest_report_workflow.md
+```
 
-- Returned ClinicalTrials.gov query records are MVP query results.
-- They must not be described as confirmed sponsor-level company activity unless sponsor identity is reviewed.
-- Records with `association_basis = returned_by_clinicaltrials_gov_query_requires_manual_review` require manual sponsor or product-association review.
+Also updated README documentation index and README index test.
 
-### PR #93
+Purpose:
 
-Updated this continuation file from the prior PR #88 checkpoint to the PR #92 usability checkpoint.
+- Define how MVP tool outputs should be turned into a PM/RA-facing regulatory-clinical intelligence memo.
+- Require source coverage status, regulatory findings, clinical trial findings, company/sponsor association review, risks/caveats, PM/RA follow-up actions, human review checklist, and raw MCP traceability.
+- Preserve the rule that unavailable sources are not zero-result sources.
 
-### PR #94
+### PR #98 — Digest example memo and prompt pack
 
-Clarified digest source coverage wording and added regression tests.
+Added:
 
-Changed areas:
+```text
+docs/regulatory_clinical_digest_example_memo.md
+docs/regulatory_clinical_digest_prompt_pack.md
+```
 
-- `src/mcp_server/tools_digest.py`
-- `tests/test_digest_source_coverage_wording.py`
+Also updated README documentation index and README index test.
 
-Interpretation rule:
+Purpose:
 
-- If requested sources return query errors, digest output must state that coverage is partial.
-- Zero returned regulatory updates must not be interpreted as no updates for unavailable requested sources.
-- If there are global source-health failures but no query errors for the requested digest sources, digest output must say that no source query errors occurred for the requested sources.
+- Provide a controlled example PM/RA digest memo.
+- Provide copy-paste prompts for turning MVP tool outputs into controlled PM/RA memo drafts.
+- Add prompts for clean requested-source scenarios, partial requested-source coverage, company/sponsor association review, executive summary only, human review checklist, red flag review, and minimal one-page memo.
 
-## Post-PR #92 usability re-test
+### PR #99 — Digest memo validation exercise
 
-Scenario used:
+Added:
 
-- Indication: gastric cancer
-- Companies: AstraZeneca, Merck
-- Regulatory sources: FDA, TFDA
-- Registry: ClinicalTrials.gov
-- Digest date range: 1y
-- Company comparison date range: 3y
+```text
+docs/regulatory_clinical_digest_memo_validation_exercise.md
+```
+
+Also updated README documentation index and README index test.
+
+Purpose:
+
+- Define a dry-run validation exercise before designing any runtime generator.
+- Validate whether generated memos are readable, source-aware, and safe for PM/RA review.
+- Require explicit query scope, source coverage interpretation, regulatory finding validation, clinical trial finding validation, company/sponsor association validation, risk/caveat validation, PM/RA follow-up validation, and red-flag sentence review.
+
+## Latest dry-run validation performed after PR #99
+
+Scenario:
+
+```text
+Purpose: regulatory-clinical digest memo dry-run
+Indication: gastric cancer
+Companies: AstraZeneca, Merck
+Regulatory sources: FDA, TFDA
+Clinical registry: ClinicalTrials.gov
+Date range: 1y
+Limit: 5
+```
+
+Generated output package included:
+
+```text
+check_source_health
+list_source_failures
+generate_regulatory_digest
+compare_companies_by_indication
+```
 
 ### Source health result
 
-Overall source health was degraded because FDA returned `SOURCE_UNAVAILABLE` through an abuse-detection/apology path.
+Overall source health: `degraded`
 
-TFDA and ClinicalTrials.gov were available.
+Source-specific result:
+
+```text
+FDA: failed / SOURCE_UNAVAILABLE / high severity
+TFDA: pass
+ClinicalTrials.gov: pass
+```
+
+FDA details:
+
+- FDA guidance and RSS fetches redirected to FDA abuse-detection/apology path.
+- Final URL included `https://www.fda.gov/apology_objects/abuse-detection-apology.html`.
+- Status code was 404.
+- `detected_source_block` was true.
 
 Interpretation:
 
 - FDA failure is a source-access limitation.
 - It must not be interpreted as FDA having zero matching regulatory updates.
+- Manual FDA verification is required before PM/RA or management-facing conclusions.
 
-### Digest result before PR #94
+### Source failure result
 
-Digest status: `PARTIAL`
+`list_source_failures` returned:
 
-Reason:
+```text
+open_failure_count: 1
+high_failure_count: 1
+critical_failure_count: 0
+open failure: FDA_openFDA-api_status-open
+```
 
-- Digest generated 0 regulatory updates and 5 clinical trial updates.
-- FDA had 1 source query error.
-- Source health reported 1 open failure.
-- Digest warned that it is rule-based aggregation, not final regulatory or clinical assessment.
-- Usability gap: executive summary did not directly state that FDA source unavailability makes requested-source coverage partial.
+Interpretation:
+
+- FDA has an open high-severity source-access failure in the current runtime.
+- This is a current source-health snapshot, not a historical failure database.
+
+### Digest result
+
+`generate_regulatory_digest` returned:
+
+```text
+regulatory update count: 1
+clinical trial update count: 5
+source query errors: 1
+open source failures: 1
+```
+
+Key digest behavior:
+
+- Executive summary stated: `Coverage is partial for requested source(s): FDA`.
+- Executive summary stated that zero returned updates must not be interpreted as no updates for unavailable sources.
+- Digest returned 1 TFDA regulatory update.
+- Digest returned 5 ClinicalTrials.gov trial records.
+
+Important interpretation:
+
+- Correct wording is not `No FDA updates`.
+- Correct wording is: `The digest returned 1 TFDA regulatory update and 5 ClinicalTrials.gov trial update records, while FDA coverage was unavailable and requires manual verification.`
 
 ### Company comparison result
 
-Company comparison status: `PASS_WITH_LIMITATIONS`
+`compare_companies_by_indication` returned activity-evaluable rows for both AstraZeneca and Merck because ClinicalTrials.gov was available.
+
+Observed company rows:
+
+```text
+AstraZeneca:
+- returned records: 5
+- sponsor-name matches: 4
+- non-sponsor records requiring manual review: 1
+- active trial count: 2
+- completed/terminated/suspended/withdrawn group: 3
+- highest phase: PHASE3
+
+Merck:
+- returned records: 5
+- sponsor-name matches: 1
+- non-sponsor records requiring manual review: 4
+- active trial count: 2
+- completed/terminated/suspended/withdrawn group: 3
+- highest phase: PHASE3
+```
+
+Interpretation rule:
+
+- These are ClinicalTrials.gov query results.
+- Sponsor-name matches must be separated from non-sponsor returned records.
+- The counts do not establish company superiority, product ownership, clinical success, approval probability, or commercial strength.
+- Non-sponsor returned records require manual sponsor/product association review.
+
+### Dry-run memo validation result
+
+Final dry-run decision:
+
+```text
+PASS_WITH_LIMITATIONS
+```
 
 Reason:
 
-- ClinicalTrials.gov was available.
-- Both AstraZeneca and Merck were activity-evaluable.
-- Output exposed sponsor-name matches and non-sponsor returned records.
+- The memo can be produced in a PM/RA-readable and source-aware format.
+- The memo preserves FDA source-access limitation.
+- The memo separates sponsor-name matches from non-sponsor returned records.
+- The memo avoids company superiority, ownership, approval probability, and commercial-strength claims.
+- Limitation remains: FDA was unavailable, so source coverage is partial.
 
-Observed results:
+Generated local artifact in the prior chat:
 
-- AstraZeneca: 5 returned records; 4 sponsor-name matches; 1 record requires manual association review.
-- Merck: 5 returned records; 1 sponsor-name match; 4 records require manual association review.
-- Landscape summary explicitly stated that 5 returned records do not have sponsor names matching the requested company and require manual association review.
+```text
+/mnt/data/regulatory_clinical_digest_dry_run_memo_validation.md
+```
 
-## Post-PR #94 digest re-test
+This file was a chat artifact, not necessarily committed to the repository.
 
-Scenario used:
+## Current overall product status
 
-- Indication: gastric cancer
-- Companies: AstraZeneca, Merck
-- Clean digest sources: TFDA + ClinicalTrials.gov
-- Partial digest sources: FDA + TFDA + ClinicalTrials.gov
-- Date range: 1y
+Status:
 
-### Clean scenario result
+```text
+Digest report workflow is usable for controlled PM/RA dry-run memo generation, with limitations.
+```
 
-Clean scenario status: `PASS_WITH_GLOBAL_HEALTH_WARNING`
+What is now working:
 
-Observed behavior:
+- The workflow can guide memo structure.
+- The prompt pack can generate controlled memo sections.
+- The validation exercise can detect overstatement risk.
+- FDA source unavailability is preserved as partial coverage.
+- ClinicalTrials.gov company comparison is interpreted conservatively.
 
-- Digest generated 0 regulatory updates and 5 clinical trial updates.
-- `source_errors_count` was 0.
-- Executive summary stated that 1 open source failure was reported by source health tools, but no source query errors occurred for the requested sources in this digest.
-- Known limitations stated that open source failures may include sources outside the requested digest source set and that `query_metadata.source_errors` identifies requested source query failures.
+What remains intentionally not implemented:
 
-Interpretation:
-
-- This avoids implying that TFDA or ClinicalTrials.gov failed when the open failure comes from global source health.
-
-### Partial scenario result
-
-Partial scenario status: `PASS_WITH_SOURCE_LIMITATION`
-
-Observed behavior:
-
-- Digest generated 0 regulatory updates and 5 clinical trial updates.
-- FDA returned `SOURCE_UNAVAILABLE`.
-- `source_errors_count` was 1.
-- Executive summary stated: `Coverage is partial for requested source(s): FDA`.
-- Executive summary also stated that zero returned updates must not be interpreted as no updates for unavailable sources.
-- Known limitations repeated that coverage is partial because FDA returned query errors.
-
-Interpretation:
-
-- This directly addresses the prior PM/RA misreading risk.
-
-## Current overall usability status
-
-Overall status: `PASS_WITH_SOURCE_LIMITATIONS`
-
-Reason:
-
-- Company comparison association ambiguity is now clearly labeled.
-- Digest partial-source coverage is now clearly labeled.
-- FDA remains unavailable in the current runtime, so live FDA coverage is still not complete.
-
-Remaining limitations:
-
-- FDA source access may be blocked by abuse-detection/apology path in current runtime.
-- Date range is recorded in company-comparison query metadata only; date-based trial filtering is not applied in MVP v1 company comparison.
-- ClinicalTrials.gov-only comparison does not include EU CTIS, WHO ICTRP, literature, patent, finance, or commercial intelligence sources.
-- Company matching is sponsor-name based and does not infer corporate family relationships.
+- Runtime report generator.
+- Template renderer.
+- MCP-side report generation helper.
+- Persistent source-failure event store.
+- Dashboard, scheduler, alerting, or external integration.
+- Additional source expansion.
 
 ## Current guardrails
 
@@ -203,31 +276,89 @@ Remaining limitations:
 - Keep future work small and phase-controlled.
 - Use Traditional Chinese for user-facing discussion.
 - Avoid accidental Japanese output.
-- After repeated similar PRs, pause for direction calibration before continuing.
+- After repeated related PRs, pause for direction calibration before continuing.
+- Repo is not a GMP, QA, EDMS, eCTD publishing, or official system of record.
+- Do not store confidential, signed, GMP raw, QA-approved, or official submission records in this repo.
 
 ## Recommended next step
 
-Do not immediately add new sources or new tools.
+Do not immediately build a runtime generator.
 
-Recommended next discussion checkpoint:
+Recommended next PR:
 
-`post-PR #94 — direction calibration before any feature expansion`
+```text
+PR #100 — Add report template contract
+```
 
-Direction options:
+Recommended scope of PR #100:
 
-1. Stop and treat PR #89–#94 as a completed source-limitation/usability hardening phase.
-2. Run a final `main` status check and review whether `.ai/PROJECT_STATE.md` also needs a compact checkpoint update.
-3. If continuing runtime work, prioritize only concrete MVP interpretation gaps; do not add new data sources yet.
-4. Defer company alias database, corporate-family mapping, product ownership inference, dashboard, scheduler, alerts, persistence, and external source expansion until explicitly approved.
+- Docs/spec only.
+- Define fixed memo sections.
+- Define required input fields.
+- Define required output fields.
+- Define source coverage status labels.
+- Define company/sponsor association fields.
+- Define acceptance criteria before runtime implementation.
 
-Preferred next action:
+Do not implement runtime generator in PR #100.
 
-Hold direction calibration before further implementation.
+Recommended file candidate:
+
+```text
+docs/regulatory_clinical_digest_report_template_contract.md
+```
+
+Likely README/test updates:
+
+```text
+README.md
+tests/test_readme_documentation_index.py
+```
+
+## Direction options for the next chat
+
+Option A — recommended:
+
+```text
+Create PR #100: Add regulatory-clinical digest report template contract.
+```
+
+Option B:
+
+```text
+Run another dry-run memo with a clean requested-source scenario, e.g. TFDA + ClinicalTrials.gov only, to validate clean-source behavior.
+```
+
+Option C:
+
+```text
+Pause product workflow and update `.ai/PROJECT_STATE.md` to align with PR #97–#99 and dry-run validation.
+```
+
+Option D — defer until later:
+
+```text
+Design runtime report generator.
+```
+
+This should be deferred until the report template contract is accepted.
 
 ## New-chat opening prompt
 
 請根據 GitHub repo `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`、`.ai/PROJECT_STATE.md`、以及 `PROJECT_STATE_CONTINUATION.md` 繼續。
 
-請先確認 `main`、latest tag、open PR、測試狀態，再做 direction calibration。
+請用繁體中文回覆，不要輸出日文。
 
-除非我明確批准，不要新增來源、工具、scheduler、alerts、dashboard、persistence、HTTP/SSE、`.mcp.json`、GitHub automation、literature/patent/finance integration。
+請先確認：
+
+1. `main` 是否已包含 PR #99；
+2. `PROJECT_STATE_CONTINUATION.md` 是否已記錄 PR #97–#99 和 dry-run validation；
+3. 是否有 open PR；
+4. 最新測試狀態；
+5. 是否需要先做 direction calibration。
+
+目前建議下一步是：
+
+`PR #100 — Add regulatory-clinical digest report template contract`
+
+請維持 docs/spec-only，不要新增 runtime generator、MCP tool、source、scheduler、dashboard、alerts、persistence、HTTP/SSE、`.mcp.json`、company alias database、corporate-family mapping、product ownership inference、literature/patent/finance/news integration，除非我明確批准。
