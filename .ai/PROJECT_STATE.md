@@ -1,21 +1,22 @@
 # Project State — Pharma Regulatory Clinical Intelligence MCP
 
-Last updated: 2026-06-04
+Last updated: 2026-06-05
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
 Current completed release: `v0.2.15-fda-abuse-detection-source-failure-diagnostics`
+Latest post-release main checkpoint: PR #95 source-limitation / usability hardening phase
 
 ---
 
 ## 1. Current Status
 
-The repository is now at a completed and tagged v0.2.15 release after PR #84 merged post-PR #82 FDA source-health diagnostics project-state bookkeeping into `main`. v0.2.15 is now the latest confirmed completed and tagged release.
+The repository remains at completed tagged release `v0.2.15-fda-abuse-detection-source-failure-diagnostics`, with post-release main checkpoint PR #95 merged after the PR #89–#95 source-limitation / usability hardening phase. The current post-release baseline focuses on preventing PM/RA misinterpretation of source-unavailable results, ClinicalTrials.gov company-association query results, and partial digest coverage.
 
 Latest confirmed main commit:
 
 ```text
-c940a4f70bd3017b02c133712a2e2608baa9e098
+57a3478e43445ca6f8e56e2636b9067943d491a2
 ```
 
 Latest confirmed release tag:
@@ -37,6 +38,9 @@ Important release status:
 - FDA abuse-detection/apology responses are source-access limitations surfaced as `SOURCE_UNAVAILABLE`, not `NO_MATCHING_RECORDS`.
 - No FDA source bypass or scraping workaround was added.
 - Digest output remains working intelligence and requires human review before regulatory, clinical, legal, medical, competitive, or commercial decisions.
+- Post-release PR #89–#95 source-limitation / usability hardening phase has been completed on `main`.
+- PR #95 merge commit is `57a3478e43445ca6f8e56e2636b9067943d491a2`.
+- Final post-PR #95 baseline validation passed: digest wording tests 2 passed, company comparison source-unavailable display tests 3 passed, project-state consistency tests 5 passed, and full suite 207 passed.
 
 ---
 
@@ -660,6 +664,76 @@ Important interpretation:
 
 ---
 
+### Post-v0.2.15 main checkpoint — PR #89–#95 source-limitation / usability hardening phase
+
+PR sequence:
+
+```text
+#89 Add validation traceability metadata
+#90 Clarify source-unavailable company comparison behavior
+#91 Add product-value usability calibration runbook
+#92 Clarify company comparison association labels
+#93 Update continuation checkpoint after usability calibration
+#94 Clarify digest source coverage wording
+#95 Update continuation checkpoint after digest re-test
+```
+
+Latest main checkpoint commit:
+
+```text
+57a3478e43445ca6f8e56e2636b9067943d491a2
+```
+
+Status: completed post-release main checkpoint; no new release tag has been created for this post-v0.2.15 checkpoint.
+
+Scope:
+
+- Added traceability and usability calibration records.
+- Clarified that source unavailable is not zero activity.
+- Clarified ClinicalTrials.gov company comparison records as query results requiring sponsor/product association review when sponsor names do not match.
+- Clarified digest source coverage wording so requested-source query failures are visibly partial coverage.
+- Confirmed clean TFDA + ClinicalTrials.gov digest output distinguishes global source-health failures from requested-source query errors.
+- Confirmed FDA + TFDA + ClinicalTrials.gov digest output states FDA requested-source coverage is partial.
+- Preserved MVP source scope: FDA, TFDA, ClinicalTrials.gov only.
+
+Files added or updated in this phase include:
+
+```text
+PROJECT_STATE_CONTINUATION.md
+CLAUDE.md
+docs/mcp_tool_contract.md
+docs/product_value_usability_calibration.md
+src/mcp_server/tools_clinical_trials.py
+src/mcp_server/tools_digest.py
+tests/test_company_comparison_source_unavailable_display.py
+tests/test_digest_source_coverage_wording.py
+```
+
+Final baseline validation after PR #95:
+
+```text
+pytest tests/test_digest_source_coverage_wording.py -q
+2 passed
+
+pytest tests/test_company_comparison_source_unavailable_display.py -q
+3 passed
+
+pytest tests/test_project_state_release_tag_consistency.py -q
+5 passed
+
+pytest -q
+207 passed
+```
+
+Important interpretation:
+
+- This checkpoint does not restore FDA live access when FDA blocks the runtime.
+- This checkpoint does not bypass FDA source controls.
+- This checkpoint does not add new source agencies, MCP tools, `.mcp.json` changes, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, GitHub automation, EMA/NMPA/PMDA/WHO ICTRP/EU CTIS, literature, patent, finance, or commercial intelligence integrations.
+- This checkpoint improves output interpretation so FDA source unavailability, global source-health failures, ClinicalTrials.gov company-association query results, and partial digest coverage are less likely to be misread by PM/RA users.
+
+---
+
 ## 3. Important Workflow Correction
 
 Use this workflow for future PRs:
@@ -740,14 +814,15 @@ Current classifier priority is determined by the order of labels in `config/taxo
 Recommended next version:
 
 ```text
-v0.2.16 — direction calibration and next product-value checkpoint
+v0.2.16 — direction calibration and next product workflow selection
 ```
 
 Recommended options:
 
-- Confirm whether to proceed with a product-value/functionality check, source-health operator guidance, or another small governance cleanup.
-- Do not start another same-type documentation/project-state PR without explicit direction.
-- Keep the next increment small and controlled.
+- Treat PR #89–#95 as a completed source-limitation / usability hardening phase.
+- Pause for direction calibration before starting another implementation PR.
+- Select the next product workflow explicitly before adding runtime features.
+- Candidate next workflows: regulatory-clinical digest report workflow, CMC/IND readiness mapping workflow, source-health operator workflow, or company/trial intelligence workflow.
 - Preserve MVP source scope: FDA, TFDA, ClinicalTrials.gov only.
 
 Keep the next step small and phase-controlled.
