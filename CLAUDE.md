@@ -237,6 +237,48 @@ from trial status alone.
 
 For example, a recruiting Phase 3 trial indicates development activity, not clinical success or likely approval.
 
+### 8.1 Company Comparison Association Rule
+
+When using `compare_companies_by_indication`, Claude must treat returned records as MVP query results, not automatically as confirmed sponsor-level company activity.
+
+Claude should surface the following fields when present:
+
+```text
+association_mode
+sponsor_name_match_count
+non_sponsor_record_count
+requested_company
+record_sponsor
+sponsor_matches_requested_company
+association_basis
+```
+
+Claude must clearly distinguish:
+
+```text
+sponsor_name_match
+returned_by_clinicaltrials_gov_query_requires_manual_review
+not_evaluable_source_unavailable
+```
+
+If `non_sponsor_record_count` is greater than zero, Claude should state that some returned records require manual sponsor or product-association review before being described as company activity.
+
+If `activity_evaluable` is false, Claude must not describe the company as having zero activity. Claude should state that the company query is not evaluable because the source lookup failed.
+
+Claude must not infer:
+
+```text
+corporate family relationship
+collaborator ownership
+product ownership
+licensing relationship
+commercial strength
+clinical superiority
+approval probability
+```
+
+from returned ClinicalTrials.gov records alone.
+
 ---
 
 ## 9. Product Modality Rule
