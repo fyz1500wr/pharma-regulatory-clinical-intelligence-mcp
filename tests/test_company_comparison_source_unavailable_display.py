@@ -37,6 +37,9 @@ def test_company_comparison_marks_source_unavailable_as_not_evaluable(monkeypatc
         assert item["activity_evaluable"] is False
         assert item["source_status"] == "unavailable"
         assert item["source_error_code"] == ErrorCode.SOURCE_UNAVAILABLE.value
+        assert item["association_mode"] == "not_evaluable_source_unavailable"
+        assert item["sponsor_name_match_count"] is None
+        assert item["non_sponsor_record_count"] is None
         assert item["trial_count"] is None
         assert item["active_trial_count"] is None
         assert item["completed_trial_count"] is None
@@ -84,7 +87,79 @@ def test_company_comparison_keeps_zero_records_evaluable_when_source_succeeds(mo
     assert item["activity_evaluable"] is True
     assert item["source_status"] == "available"
     assert item["source_error_code"] is None
+    assert item["association_mode"] == "clinicaltrials_gov_query_result_mvp"
+    assert item["sponsor_name_match_count"] == 0
+    assert item["non_sponsor_record_count"] == 0
     assert item["trial_count"] == 0
     assert item["display_trial_count"] == "0"
     assert result["query_metadata"]["source_errors"] == []
-    assert "0 matching ClinicalTrials.gov trial record(s) included among 1 evaluable company(ies)" in result["landscape_summary"]["overall_trends"][1]
+    assert "0 matching ClinicalTrials.gov trial record(s) included among 1 evaluable company query/queries" in result["landscape_summary"]["overall_trends"][1]
+
+
+def test_company_comparison_marks_returned_records_requiring_manual_association_review(monkeypatch) -> None:
+    def fake_search_clinical_trials_by_indication(indication, *, sponsor=None, page_size=20):
+        return {
+            "trials": [
+                {
+                    "trial_id": "NCT-SPONSOR",
+                    "title": "Sponsor matched study",
+                    "phase": "PHASE3",
+                    "status": "COMPLETED",
+                    "sponsor": sponsor,
+                    "intervention_names": ["Example drug"],
+                    "product_modality": ["small_molecule"],
+                    "official_url": "https://clinicaltrials.gov/study/NCT-SPONSOR",
+                },
+                {
+                    "trial_id": "NCT-OTHER",
+                    "title": "Returned study requiring manual review",
+                    "phase": "PHASE2",
+                    "status": "RECRUITING",
+                    "sponsor": "Other Sponsor Inc.",
+                    "intervention_names": ["Example drug"],
+                    "product_modality": ["small_molecule"],
+                    "official_url": "https://clinicaltrials.gov/study/NCT-OTHER",
+                },
+            ],
+            "query_metadata": {"indication": indication, "registries_searched": ["ClinicalTrials.gov"]},
+        }
+
+    monkeypatch.setattr(
+        tools_clinical_trials,
+        "search_clinical_trials_by_indication",
+        fake_search_clinical_trials_by_indication,
+    )
+
+    result = tools_clinical_trials.compare_companies_by_indication(
+        indication="gastric cancer",
+        companies=["Merck"],
+        registries=["ClinicalTrials.gov"],
+        page_size=5,
+    )
+
+    assert "error" not in result
+    item = result["company_comparison"][0]
+    assert item["company"] == "Merck"
+    assert item["association_mode"] == "clinicaltrials_gov_query_result_mvp"
+    assert item["sponsor_name_match_count"] == 1
+    assert item["non_sponsor_record_count"] == 1
+    assert "returned 2 trial record(s)" in item["summary"]
+    assert "1 record(s) have sponsor names matching" in item["summary"]
+    assert "1 record(s) require manual review" in item["summary"]
+    assert "confirmed product ownership" in item["summary"]
+
+    sponsor_matched = item["key_trials"][0]
+    manual_review = item["key_trials"][1]
+    assert sponsor_matched["requested_company"] == "Merck"
+    assert sponsor_matched["record_sponsor"] == "Merck"
+    assert sponsor_matched["sponsor_matches_requested_company"] is True
+    assert sponsor_matched["association_basis"] == "sponsor_name_match"
+    assert manual_review["requested_company"] == "Merck"
+    assert manual_review["record_sponsor"] == "Other Sponsor Inc."
+    assert manual_review["sponsor_matches_requested_company"] is False
+    assert manual_review["association_basis"] == "returned_by_clinicaltrials_gov_query_requires_manual_review"
+
+    overall_trends = result["landscape_summary"]["overall_trends"]
+    assert "1 returned record(s) do not have sponsor names matching" in overall_trends[2]
+    assert any("product ownership require manual review" in gap for gap in result["landscape_summary"]["data_gaps"])
+    assert result["query_metadata"]["association_mode"] == "clinicaltrials_gov_query_result_mvp"

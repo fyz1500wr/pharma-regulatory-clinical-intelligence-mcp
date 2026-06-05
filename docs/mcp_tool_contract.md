@@ -575,11 +575,29 @@ Claude may use this tool to generate competitor trial landscape summaries.
   "company_comparison": [
     {
       "company": "Roche",
+      "activity_evaluable": true,
+      "source_status": "available | unavailable",
+      "source_error_code": "string | null",
+      "association_mode": "clinicaltrials_gov_query_result_mvp | not_evaluable_source_unavailable",
+      "sponsor_name_match_count": 8,
+      "non_sponsor_record_count": 2,
       "trial_count": 10,
       "active_trial_count": 6,
       "completed_trial_count": 4,
+      "display_trial_count": "10 | Not evaluable — ClinicalTrials.gov source unavailable",
+      "display_active_trial_count": "6 | Not evaluable",
+      "display_completed_trial_count": "4 | Not evaluable",
       "modalities": ["antibody", "adc"],
       "highest_phase": "Phase 3",
+      "phase_distribution": {
+        "Phase 1": 1,
+        "Phase 2": 3,
+        "Phase 3": 6
+      },
+      "status_distribution": {
+        "RECRUITING": 3,
+        "COMPLETED": 4
+      },
       "key_trials": [
         {
           "trial_id": "NCT00000000",
@@ -589,7 +607,12 @@ Claude may use this tool to generate competitor trial landscape summaries.
           "intervention_names": ["string"],
           "last_update_date": "YYYY-MM-DD",
           "official_url": "string",
-          "results_available": false
+          "results_available": false,
+          "sponsor": "string",
+          "requested_company": "Roche",
+          "record_sponsor": "string",
+          "sponsor_matches_requested_company": true,
+          "association_basis": "sponsor_name_match | returned_by_clinicaltrials_gov_query_requires_manual_review"
         }
       ],
       "summary": "string",
@@ -599,8 +622,14 @@ Claude may use this tool to generate competitor trial landscape summaries.
   "landscape_summary": {
     "indication": "NSCLC",
     "companies_compared": ["Roche", "Merck", "BMS", "AstraZeneca"],
+    "registries_searched": ["ClinicalTrials.gov"],
     "overall_trends": ["string"],
     "data_gaps": ["string"]
+  },
+  "query_metadata": {
+    "lookup_mode": "clinicaltrials_gov_sponsor_activity_mvp",
+    "association_mode": "clinicaltrials_gov_query_result_mvp",
+    "source_errors": []
   }
 }
 ```
@@ -610,6 +639,10 @@ Claude may use this tool to generate competitor trial landscape summaries.
 - Do not rank companies by superiority unless evidence supports it.
 - Do not treat all trials as comparable without considering phase, status, endpoints, and population.
 - Clearly mark data gaps.
+- Do not describe returned ClinicalTrials.gov query records as confirmed sponsor-level company activity unless `sponsor_matches_requested_company` is true and the sponsor name has been manually reviewed.
+- Do not infer corporate family relationships, collaborator ownership, product ownership, licensing relationships, commercial strength, clinical success, or approval probability from returned records.
+- When `non_sponsor_record_count` is greater than zero, Claude-facing summaries must state that some records require manual sponsor or product-association review.
+- When `activity_evaluable` is false, do not report activity counts as zero; state that the company query was not evaluable due to source limitation.
 
 ---
 

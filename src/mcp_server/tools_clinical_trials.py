@@ -182,6 +182,22 @@ def _as_list(value: Any) -> list:
     return [value]
 
 
+def _normalized_text(value: Any) -> str:
+    return str(value or "").strip().lower()
+
+
+def _sponsor_matches_requested_company(trial: dict[str, Any], requested_company: str) -> bool:
+    sponsor = _normalized_text(trial.get("sponsor"))
+    company = _normalized_text(requested_company)
+    return bool(sponsor and company and company in sponsor)
+
+
+def _association_basis(trial: dict[str, Any], requested_company: str) -> str:
+    if _sponsor_matches_requested_company(trial, requested_company):
+        return "sponsor_name_match"
+    return "returned_by_clinicaltrials_gov_query_requires_manual_review"
+
+
 def _trial_matches_filters(
     trial: dict[str, Any],
     *,
@@ -208,8 +224,8 @@ def _trial_matches_filters(
     return True
 
 
-def _trial_summary(trial: dict[str, Any]) -> dict[str, Any]:
-    return {
+def _trial_summary(trial: dict[str, Any], *, requested_company: str | None = None) -> dict[str, Any]:
+    summary = {
         "trial_id": trial.get("trial_id", ""),
         "title": trial.get("title", ""),
         "phase": trial.get("phase", "unknown"),
@@ -220,6 +236,18 @@ def _trial_summary(trial: dict[str, Any]) -> dict[str, Any]:
         "results_available": trial.get("results_available"),
         "sponsor": trial.get("sponsor", ""),
     }
+    if requested_company is not None:
+        sponsor = trial.get("sponsor", "")
+        sponsor_matches = _sponsor_matches_requested_company(trial, requested_company)
+        summary.update(
+            {
+                "requested_company": requested_company,
+                "record_sponsor": sponsor,
+                "sponsor_matches_requested_company": sponsor_matches,
+                "association_basis": _association_basis(trial, requested_company),
+            }
+        )
+    return summary
 
 
 def _source_error_code(error: dict[str, Any]) -> str:
@@ -234,6 +262,9 @@ def _company_not_evaluable_summary(company: str, error: dict[str, Any]) -> dict[
         "activity_evaluable": False,
         "source_status": "unavailable",
         "source_error_code": code,
+        "association_mode": "not_evaluable_source_unavailable",
+        "sponsor_name_match_count": None,
+        "non_sponsor_record_count": None,
         "trial_count": None,
         "active_trial_count": None,
         "completed_trial_count": None,
@@ -266,6 +297,8 @@ def _company_summary(company: str, trials: list[dict[str, Any]], *, page_size: i
 
     active_trial_count = sum(status_counter.get(status, 0) for status in _ACTIVE_STATUSES)
     completed_trial_count = sum(status_counter.get(status, 0) for status in _COMPLETED_STATUSES)
+    sponsor_name_match_count = sum(1 for trial in trials if _sponsor_matches_requested_company(trial, company))
+    non_sponsor_record_count = len(trials) - sponsor_name_match_count
 
     key_trials = sorted(
         trials,
@@ -278,6 +311,9 @@ def _company_summary(company: str, trials: list[dict[str, Any]], *, page_size: i
         "activity_evaluable": True,
         "source_status": "available",
         "source_error_code": None,
+        "association_mode": "clinicaltrials_gov_query_result_mvp",
+        "sponsor_name_match_count": sponsor_name_match_count,
+        "non_sponsor_record_count": non_sponsor_record_count,
         "trial_count": len(trials),
         "active_trial_count": active_trial_count,
         "completed_trial_count": completed_trial_count,
@@ -288,15 +324,18 @@ def _company_summary(company: str, trials: list[dict[str, Any]], *, page_size: i
         "highest_phase": highest_phase,
         "phase_distribution": dict(Counter(phases)),
         "status_distribution": dict(status_counter),
-        "key_trials": [_trial_summary(trial) for trial in key_trials],
+        "key_trials": [_trial_summary(trial, requested_company=company) for trial in key_trials],
         "summary": (
-            f"{company} has {len(trials)} ClinicalTrials.gov trial record(s) matching the requested indication and filters. "
-            "This is trial activity only and should not be interpreted as clinical superiority or approval probability."
+            f"The MVP ClinicalTrials.gov query for {company} returned {len(trials)} trial record(s) matching the requested indication and filters. "
+            f"{sponsor_name_match_count} record(s) have sponsor names matching the requested company; "
+            f"{non_sponsor_record_count} record(s) require manual review of sponsor or product association. "
+            "This is trial activity only and should not be interpreted as clinical superiority, approval probability, or confirmed product ownership."
         ),
         "known_limitations": [
             "MVP v1 compares ClinicalTrials.gov trial activity only.",
             "Sponsor search depends on ClinicalTrials.gov sponsor naming and may miss subsidiaries, collaborators, or spelling variants.",
-            "Trial counts do not imply clinical success, regulatory approval probability, or commercial strength.",
+            "Returned records may require manual review of sponsor or product association before being described as company activity.",
+            "Trial counts do not imply clinical success, regulatory approval probability, commercial strength, or confirmed product ownership.",
         ],
     }
 
@@ -370,6 +409,7 @@ def compare_companies_by_indication(indication: str | None = None, **kwargs):
         "MVP v1 uses ClinicalTrials.gov only; no EU CTIS, WHO ICTRP, literature, patent, finance, or commercial intelligence sources are included.",
         "date_range is recorded in query metadata only; date-based trial filtering is not applied in MVP v1.",
         "Company matching is sponsor-name based and does not infer corporate family relationships.",
+        "Company association is query-result metadata only; sponsor identity and product ownership require manual review.",
         "This output compares trial activity only and does not rank company superiority.",
     ]
     if source_errors:
@@ -379,12 +419,19 @@ def compare_companies_by_indication(indication: str | None = None, **kwargs):
     evaluable_count = sum(1 for item in company_comparison if item.get("activity_evaluable", True))
     not_evaluable_count = len(company_comparison) - evaluable_count
     total_trials = sum((item["trial_count"] or 0) for item in company_comparison if item.get("activity_evaluable", True))
+    non_sponsor_record_count = sum(
+        (item.get("non_sponsor_record_count") or 0) for item in company_comparison if item.get("activity_evaluable", True)
+    )
 
-    overall_trends = [f"{len(companies)} company(ies) compared for {clean_indication}."]
+    overall_trends = [f"{len(companies)} company query/queries compared for {clean_indication}."]
     if evaluable_count:
         overall_trends.append(
-            f"{total_trials} matching ClinicalTrials.gov trial record(s) included among {evaluable_count} evaluable company(ies) after MVP filters."
+            f"{total_trials} matching ClinicalTrials.gov trial record(s) included among {evaluable_count} evaluable company query/queries after MVP filters."
         )
+        if non_sponsor_record_count:
+            overall_trends.append(
+                f"{non_sponsor_record_count} returned record(s) do not have sponsor names matching the requested company and require manual association review."
+            )
     else:
         overall_trends.append(
             "No company-level ClinicalTrials.gov trial activity total is reported because all sponsor lookups were not evaluable."
@@ -414,6 +461,7 @@ def compare_companies_by_indication(indication: str | None = None, **kwargs):
             "phase": phase_filter,
             "include_completed_trials": include_completed_trials,
             "include_results": include_results,
+            "association_mode": "clinicaltrials_gov_query_result_mvp",
             "source_errors": source_errors,
             "known_limitations": data_gaps,
         },
