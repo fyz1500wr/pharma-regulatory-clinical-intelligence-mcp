@@ -222,6 +222,42 @@ def _trial_summary(trial: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _source_error_code(error: dict[str, Any]) -> str:
+    code = error.get("code") if isinstance(error, dict) else None
+    return str(code or ErrorCode.SOURCE_UNAVAILABLE.value)
+
+
+def _company_not_evaluable_summary(company: str, error: dict[str, Any]) -> dict[str, Any]:
+    code = _source_error_code(error)
+    return {
+        "company": company,
+        "activity_evaluable": False,
+        "source_status": "unavailable",
+        "source_error_code": code,
+        "trial_count": None,
+        "active_trial_count": None,
+        "completed_trial_count": None,
+        "display_trial_count": "Not evaluable — ClinicalTrials.gov source unavailable",
+        "display_active_trial_count": "Not evaluable",
+        "display_completed_trial_count": "Not evaluable",
+        "modalities": ["not_evaluable"],
+        "highest_phase": "not_evaluable",
+        "phase_distribution": {},
+        "status_distribution": {},
+        "key_trials": [],
+        "summary": (
+            f"{company} trial activity is not evaluable because the ClinicalTrials.gov sponsor search returned {code}. "
+            "This is a source-access limitation and must not be interpreted as zero trial activity."
+        ),
+        "known_limitations": [
+            "ClinicalTrials.gov sponsor search returned a source error; activity counts are not evaluable.",
+            "Not evaluable is distinct from zero matching trial records.",
+            "Trial counts must not be interpreted when the source is unavailable.",
+            "MVP v1 compares ClinicalTrials.gov trial activity only when the registry source is reachable.",
+        ],
+    }
+
+
 def _company_summary(company: str, trials: list[dict[str, Any]], *, page_size: int) -> dict[str, Any]:
     status_counter = Counter(str(trial.get("status", "unknown")).upper() for trial in trials)
     phases = [str(trial.get("phase", "unknown")) for trial in trials]
@@ -239,9 +275,15 @@ def _company_summary(company: str, trials: list[dict[str, Any]], *, page_size: i
 
     return {
         "company": company,
+        "activity_evaluable": True,
+        "source_status": "available",
+        "source_error_code": None,
         "trial_count": len(trials),
         "active_trial_count": active_trial_count,
         "completed_trial_count": completed_trial_count,
+        "display_trial_count": str(len(trials)),
+        "display_active_trial_count": str(active_trial_count),
+        "display_completed_trial_count": str(completed_trial_count),
         "modalities": modalities or ["unknown"],
         "highest_phase": highest_phase,
         "phase_distribution": dict(Counter(phases)),
@@ -308,7 +350,7 @@ def compare_companies_by_indication(indication: str | None = None, **kwargs):
         )
         if isinstance(result, dict) and "error" in result:
             source_errors.append({"company": company, "error": result["error"]})
-            company_comparison.append(_company_summary(company, [], page_size=page_size))
+            company_comparison.append(_company_not_evaluable_summary(company, result["error"]))
             continue
 
         trials = result.get("trials", []) if isinstance(result, dict) else []
@@ -332,12 +374,18 @@ def compare_companies_by_indication(indication: str | None = None, **kwargs):
     ]
     if source_errors:
         data_gaps.append("One or more sponsor searches returned source errors; review query_metadata.source_errors.")
+        data_gaps.append("Companies with source errors are not evaluable; not evaluable must not be interpreted as zero trial activity.")
 
-    total_trials = sum(item["trial_count"] for item in company_comparison)
+    total_trials = sum(item["trial_count"] or 0 for item in company_comparison)
+    not_evaluable_count = sum(1 for item in company_comparison if not item.get("activity_evaluable", True))
     overall_trends = [
         f"{len(companies)} company(ies) compared for {clean_indication}.",
         f"{total_trials} matching ClinicalTrials.gov trial record(s) included after MVP filters.",
     ]
+    if not_evaluable_count:
+        overall_trends.append(
+            f"{not_evaluable_count} company(ies) not evaluable because one or more source lookups returned errors."
+        )
 
     return {
         "company_comparison": company_comparison,
