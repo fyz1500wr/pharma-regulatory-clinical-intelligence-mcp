@@ -2,7 +2,13 @@
 
 Status: ACCEPT_WITH_SOURCE_LIMITATIONS  
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`  
+Repository commit under validation: `3c9522d5014456f21d30c34dbf56c6c2c3a1572a`  
+Release/tag under validation: `v0.2.15-fda-abuse-detection-source-failure-diagnostics`  
+Release tag commit: `c940a4f70bd3017b02c133712a2e2608baa9e098`  
+Post-release main checkpoint under validation: PR #87 merge commit `3c9522d5014456f21d30c34dbf56c6c2c3a1572a`  
 Branch used for record: `docs/v0.2.16-mvp-live-acceptance-results`  
+Validation evidence PR: #88  
+Validation evidence PR merge commit: `8aecccce4fee51b70b06b2ed9e7a144d545b3ce2`  
 Validated from: GitHub Codespaces on `main`  
 Validation date: 2026-06-04
 
@@ -21,6 +27,12 @@ FDA + TFDA + ClinicalTrials.gov
 ```
 
 The validation followed the existing MVP live acceptance validation runbook and results-template intent.
+
+Traceability interpretation:
+
+- The executed live validation evidence applies to repository commit `3c9522d5014456f21d30c34dbf56c6c2c3a1572a` on `main`.
+- The latest completed release baseline at the time of validation was `v0.2.15-fda-abuse-detection-source-failure-diagnostics`, pointing to `c940a4f70bd3017b02c133712a2e2608baa9e098`.
+- PR #88 only recorded validation evidence after execution; it did not change runtime behavior.
 
 ---
 
