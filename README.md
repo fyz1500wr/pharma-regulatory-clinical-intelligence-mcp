@@ -216,6 +216,7 @@ These documents make MVP v1 easier to use, review, and govern. They are not sour
 | `docs/regulatory_clinical_digest_report_workflow.md` | Defines the PM/RA regulatory-clinical digest report workflow for turning MVP tool outputs into a source-aware intelligence memo. |
 | `docs/regulatory_clinical_digest_example_memo.md` | Provides a controlled example memo showing how to preserve source limitations and sponsor-association caveats. |
 | `docs/regulatory_clinical_digest_prompt_pack.md` | Provides copy-paste prompts for generating and reviewing controlled PM/RA digest memos from MVP tool outputs. |
+| `docs/regulatory_clinical_digest_memo_validation_exercise.md` | Defines the dry-run validation exercise for checking generated PM/RA digest memos before runtime generator design. |
 | `docs/product_modality_regulatory_search_smoke_example.md` | Documents the offline smoke example for validating product_modality regulatory search without live FDA/TFDA source access. |
 | `docs/regulatory_date_range_smoke_example.md` | Documents the offline smoke example for validating date_range regulatory search without live FDA/TFDA source access. |
 | `docs/tfda_bilingual_regulatory_search_smoke_example.md` | Documents the offline smoke example for validating TFDA-style bilingual regulatory search behavior without live TFDA source access. |
