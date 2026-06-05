@@ -22,6 +22,7 @@ EXPECTED_INDEX_ENTRIES = [
     "docs/regulatory_clinical_digest_report_workflow.md",
     "docs/regulatory_clinical_digest_example_memo.md",
     "docs/regulatory_clinical_digest_prompt_pack.md",
+    "docs/regulatory_clinical_digest_memo_validation_exercise.md",
     "docs/product_modality_regulatory_search_smoke_example.md",
     "docs/regulatory_date_range_smoke_example.md",
     "docs/tfda_bilingual_regulatory_search_smoke_example.md",
