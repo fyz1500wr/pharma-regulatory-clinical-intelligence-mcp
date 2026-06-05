@@ -18,6 +18,8 @@ EXPECTED_INDEX_ENTRIES = [
     "docs/claude_project_validation_workflow.md",
     "docs/claude_code_web_mcp_smoke_test_note.md",
     "docs/source_failure_diagnostic_runbook.md",
+    "docs/product_value_usability_calibration.md",
+    "docs/regulatory_clinical_digest_report_workflow.md",
     "docs/product_modality_regulatory_search_smoke_example.md",
     "docs/regulatory_date_range_smoke_example.md",
     "docs/tfda_bilingual_regulatory_search_smoke_example.md",
