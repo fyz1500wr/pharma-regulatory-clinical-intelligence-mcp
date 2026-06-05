@@ -220,6 +220,15 @@ def _source_health_summary(include_source_health_summary: bool) -> tuple[dict[st
     }, sorted(set(limitations))
 
 
+def _source_error_labels(source_errors: list[dict[str, Any]]) -> list[str]:
+    labels = []
+    for item in source_errors:
+        source = item.get("source") if isinstance(item, dict) else None
+        if source:
+            labels.append(str(source))
+    return sorted(set(labels))
+
+
 def _executive_summary(
     *,
     digest_type: str,
@@ -234,9 +243,20 @@ def _executive_summary(
     ]
 
     if source_errors:
+        failed_sources = _source_error_labels(source_errors)
+        failed_source_text = ", ".join(failed_sources) if failed_sources else "one or more requested sources"
+        parts.append(
+            f"Coverage is partial for requested source(s): {failed_source_text}; zero returned updates must not be interpreted as no updates for unavailable sources."
+        )
         parts.append(f"{len(source_errors)} source query error(s) were captured; review query_metadata.source_errors.")
+
     if open_failures:
-        parts.append(f"{open_failures} open source failure(s) were reported by source health tools.")
+        if source_errors:
+            parts.append(f"{open_failures} open source failure(s) were reported by source health tools.")
+        else:
+            parts.append(
+                f"{open_failures} open source failure(s) were reported by source health tools, but no source query errors occurred for the requested sources in this digest."
+            )
     else:
         parts.append("No open source failures were reported by source health tools.")
 
@@ -353,6 +373,15 @@ def generate_regulatory_digest(**kwargs):
 
     source_health_summary, health_limitations = _source_health_summary(include_source_health_summary)
     known_limitations.extend(health_limitations)
+    if source_errors:
+        failed_sources = ", ".join(_source_error_labels(source_errors)) or "one or more requested sources"
+        known_limitations.append(
+            f"Coverage is partial because requested source(s) returned query errors: {failed_sources}. Zero returned updates must not be interpreted as no updates for unavailable sources."
+        )
+    elif source_health_summary.get("open_failures"):
+        known_limitations.append(
+            "Open source failures may include sources outside the requested digest source set; query_metadata.source_errors identifies requested source query failures."
+        )
 
     impact_matrix = []
     if include_impact_matrix:
