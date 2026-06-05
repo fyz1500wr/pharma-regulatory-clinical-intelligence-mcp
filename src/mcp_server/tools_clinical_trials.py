@@ -240,7 +240,7 @@ def _company_not_evaluable_summary(company: str, error: dict[str, Any]) -> dict[
         "display_trial_count": "Not evaluable — ClinicalTrials.gov source unavailable",
         "display_active_trial_count": "Not evaluable",
         "display_completed_trial_count": "Not evaluable",
-        "modalities": ["not_evaluable"],
+        "modalities": ["unknown"],
         "highest_phase": "not_evaluable",
         "phase_distribution": {},
         "status_distribution": {},
@@ -376,12 +376,19 @@ def compare_companies_by_indication(indication: str | None = None, **kwargs):
         data_gaps.append("One or more sponsor searches returned source errors; review query_metadata.source_errors.")
         data_gaps.append("Companies with source errors are not evaluable; not evaluable must not be interpreted as zero trial activity.")
 
-    total_trials = sum(item["trial_count"] or 0 for item in company_comparison)
-    not_evaluable_count = sum(1 for item in company_comparison if not item.get("activity_evaluable", True))
-    overall_trends = [
-        f"{len(companies)} company(ies) compared for {clean_indication}.",
-        f"{total_trials} matching ClinicalTrials.gov trial record(s) included after MVP filters.",
-    ]
+    evaluable_count = sum(1 for item in company_comparison if item.get("activity_evaluable", True))
+    not_evaluable_count = len(company_comparison) - evaluable_count
+    total_trials = sum((item["trial_count"] or 0) for item in company_comparison if item.get("activity_evaluable", True))
+
+    overall_trends = [f"{len(companies)} company(ies) compared for {clean_indication}."]
+    if evaluable_count:
+        overall_trends.append(
+            f"{total_trials} matching ClinicalTrials.gov trial record(s) included among {evaluable_count} evaluable company(ies) after MVP filters."
+        )
+    else:
+        overall_trends.append(
+            "No company-level ClinicalTrials.gov trial activity total is reported because all sponsor lookups were not evaluable."
+        )
     if not_evaluable_count:
         overall_trends.append(
             f"{not_evaluable_count} company(ies) not evaluable because one or more source lookups returned errors."
