@@ -314,9 +314,19 @@ Do not store confidential, signed, GMP raw, QA-approved, official submission, or
 
 ---
 
-## 8. Testing Environment Notes
+## 8. Testing And Execution Environment Notes
 
-The Codespaces environment may not always have dev dependencies installed. If `pytest` is missing, install the project with dev dependencies first:
+Codespaces quota is near limit until July 2026. For upcoming code/test work, default to Claude Code Web and Codex Web workflows.
+
+Do not assume Codespaces is available unless the user explicitly confirms availability. When suggesting validation, prefer:
+
+```text
+Claude Code Web or Codex Web validation on the PR branch
+```
+
+Only provide Codespaces commands as an optional fallback or when the user confirms Codespaces is available again.
+
+If a Python environment is available and `pytest` is missing, install the project with dev dependencies first:
 
 ```bash
 python -m pip install -e ".[dev]"
@@ -328,11 +338,13 @@ Do not commit generated or accidental dependency files such as `poetry.lock` unl
 
 ## 9. Workflow Correction And Direction Calibration Rule
 
-Use this workflow for future PRs:
+Use this workflow for future PRs while Codespaces quota is limited:
 
 ```text
-Create branch → implement → run focused tests → run full tests → open PR → confirm mergeable/review comments → merge → pull main → rerun relevant tests → tag only when a release tag is explicitly needed
+Create branch → implement small docs/spec or code change → validate through Claude Code Web or Codex Web when available → open PR → confirm mergeable/review comments → merge → update state/handoff when needed → tag only when a release tag is explicitly needed
 ```
+
+When local or Codespaces validation is unavailable, clearly label validation as not run and provide copy-paste commands for the user or Codex Web to run.
 
 Do not tag before confirming that the PR has actually been merged into `main`.
 
