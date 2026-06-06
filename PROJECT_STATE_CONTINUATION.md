@@ -1,23 +1,26 @@
 # Project State Continuation
 
 Created: 2026-06-04  
-Updated: 2026-06-05
+Updated: 2026-06-06
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 
 This file is a compact continuation handoff for starting a new chat.
 
-Canonical detailed status remains in `.ai/PROJECT_STATE.md` when it is updated. This file is the preferred short handoff when chat context becomes slow or too long.
+Canonical detailed status is in `.ai/PROJECT_STATE.md`. This file is the preferred short handoff when chat context becomes slow or too long.
 
 ## Current checkpoint
 
 - Stable branch: `main`
-- Latest confirmed merged PR: PR #99
-- PR #99 merge commit: `4b2f60d0e7dfbbc8e3c6d09b2061d72f5d8de3df`
-- Latest completed workstream: PM/RA regulatory-clinical digest report workflow, prompt pack, example memo, and memo validation dry-run
-- Latest dry-run validation status: `PASS_WITH_LIMITATIONS`
-- Current tagged release: remains the prior MVP release tag; no new release tag was created for PR #97–#99 docs/product workflow work
-- Open PRs at this checkpoint: none known after PR #99 merge
+- Latest confirmed merged PR: PR #101
+- PR #101 merge commit: `6e058cd4dc5c3c4f32189af8acce09f9b2b05645`
+- Latest completed workstream: PM/RA regulatory-clinical digest report workflow, prompt pack, example memo, memo validation exercise, and report template contract
+- Latest validation status: `PASS`
+- Latest validation evidence:
+  - `python -m pytest tests/test_readme_documentation_index.py -q` → `6 passed in 0.03s`
+  - `python -m pytest -q` → `208 passed in 12.82s`
+- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag was created for PR #97–#101 docs/product workflow work
+- Open PRs at this checkpoint: none known after PR #101 merge
 
 ## Current project phase
 
@@ -31,7 +34,7 @@ TFDA
 ClinicalTrials.gov
 ```
 
-Do not add EMA, PMDA, NMPA, CTIS, WHO ICTRP, literature, patent, finance, news, company-alias database, corporate-family mapping, product ownership inference, dashboard, scheduler, alerting, persistence, HTTP/SSE transport, `.mcp.json`, or other integrations unless explicitly approved.
+Do not add EMA, PMDA, NMPA, CTIS, WHO ICTRP, literature, patent, finance, news, company-alias database, corporate-family mapping, product ownership inference, dashboard, scheduler, alerting, persistence, HTTP/SSE transport, `.mcp.json`, GitHub automation, or other integrations unless explicitly approved.
 
 ## Recent PR sequence after PR #94
 
@@ -102,6 +105,46 @@ Purpose:
 - Validate whether generated memos are readable, source-aware, and safe for PM/RA review.
 - Require explicit query scope, source coverage interpretation, regulatory finding validation, clinical trial finding validation, company/sponsor association validation, risk/caveat validation, PM/RA follow-up validation, and red-flag sentence review.
 
+### PR #100 — Continuation update after digest dry-run validation
+
+Updated:
+
+```text
+PROJECT_STATE_CONTINUATION.md
+```
+
+Purpose:
+
+- Record PR #97–#99 and the digest dry-run validation result.
+- Preserve the `PASS_WITH_LIMITATIONS` dry-run finding.
+- Recommend a report template contract before any runtime generator.
+
+### PR #101 — Regulatory-clinical digest report template contract
+
+Added:
+
+```text
+docs/regulatory_clinical_digest_report_template_contract.md
+```
+
+Also updated README documentation index and README index test.
+
+Purpose:
+
+- Define a fixed docs/spec-only contract for controlled digest memo templates.
+- Define required input object, required tool output inputs, required output object, source coverage labels, fixed memo sections, company/sponsor association fields, human review checklist, raw MCP traceability, and acceptance criteria before runtime implementation.
+- Preserve explicit non-goals: no runtime report generator, template renderer, MCP-side report helper, new source, scheduler, dashboard, alerts, persistence, HTTP/SSE transport, `.mcp.json`, company alias database, corporate-family mapping, product ownership inference, or literature/patent/finance/news integration.
+
+Validation:
+
+```text
+python -m pytest tests/test_readme_documentation_index.py -q
+6 passed in 0.03s
+
+python -m pytest -q
+208 passed in 12.82s
+```
+
 ## Latest dry-run validation performed after PR #99
 
 Scenario:
@@ -125,50 +168,22 @@ generate_regulatory_digest
 compare_companies_by_indication
 ```
 
-### Source health result
-
-Overall source health: `degraded`
-
-Source-specific result:
+Source health result:
 
 ```text
+Overall source health: degraded
 FDA: failed / SOURCE_UNAVAILABLE / high severity
 TFDA: pass
 ClinicalTrials.gov: pass
 ```
 
-FDA details:
-
-- FDA guidance and RSS fetches redirected to FDA abuse-detection/apology path.
-- Final URL included `https://www.fda.gov/apology_objects/abuse-detection-apology.html`.
-- Status code was 404.
-- `detected_source_block` was true.
-
-Interpretation:
+Key interpretation:
 
 - FDA failure is a source-access limitation.
 - It must not be interpreted as FDA having zero matching regulatory updates.
 - Manual FDA verification is required before PM/RA or management-facing conclusions.
 
-### Source failure result
-
-`list_source_failures` returned:
-
-```text
-open_failure_count: 1
-high_failure_count: 1
-critical_failure_count: 0
-open failure: FDA_openFDA-api_status-open
-```
-
-Interpretation:
-
-- FDA has an open high-severity source-access failure in the current runtime.
-- This is a current source-health snapshot, not a historical failure database.
-
-### Digest result
-
-`generate_regulatory_digest` returned:
+Digest result:
 
 ```text
 regulatory update count: 1
@@ -177,52 +192,13 @@ source query errors: 1
 open source failures: 1
 ```
 
-Key digest behavior:
-
-- Executive summary stated: `Coverage is partial for requested source(s): FDA`.
-- Executive summary stated that zero returned updates must not be interpreted as no updates for unavailable sources.
-- Digest returned 1 TFDA regulatory update.
-- Digest returned 5 ClinicalTrials.gov trial records.
-
-Important interpretation:
-
-- Correct wording is not `No FDA updates`.
-- Correct wording is: `The digest returned 1 TFDA regulatory update and 5 ClinicalTrials.gov trial update records, while FDA coverage was unavailable and requires manual verification.`
-
-### Company comparison result
-
-`compare_companies_by_indication` returned activity-evaluable rows for both AstraZeneca and Merck because ClinicalTrials.gov was available.
-
-Observed company rows:
+Correct wording:
 
 ```text
-AstraZeneca:
-- returned records: 5
-- sponsor-name matches: 4
-- non-sponsor records requiring manual review: 1
-- active trial count: 2
-- completed/terminated/suspended/withdrawn group: 3
-- highest phase: PHASE3
-
-Merck:
-- returned records: 5
-- sponsor-name matches: 1
-- non-sponsor records requiring manual review: 4
-- active trial count: 2
-- completed/terminated/suspended/withdrawn group: 3
-- highest phase: PHASE3
+The digest returned 1 TFDA regulatory update and 5 ClinicalTrials.gov trial update records, while FDA coverage was unavailable and requires manual verification.
 ```
 
-Interpretation rule:
-
-- These are ClinicalTrials.gov query results.
-- Sponsor-name matches must be separated from non-sponsor returned records.
-- The counts do not establish company superiority, product ownership, clinical success, approval probability, or commercial strength.
-- Non-sponsor returned records require manual sponsor/product association review.
-
-### Dry-run memo validation result
-
-Final dry-run decision:
+Dry-run memo validation result:
 
 ```text
 PASS_WITH_LIMITATIONS
@@ -236,20 +212,12 @@ Reason:
 - The memo avoids company superiority, ownership, approval probability, and commercial-strength claims.
 - Limitation remains: FDA was unavailable, so source coverage is partial.
 
-Generated local artifact in the prior chat:
-
-```text
-/mnt/data/regulatory_clinical_digest_dry_run_memo_validation.md
-```
-
-This file was a chat artifact, not necessarily committed to the repository.
-
 ## Current overall product status
 
 Status:
 
 ```text
-Digest report workflow is usable for controlled PM/RA dry-run memo generation, with limitations.
+Digest report workflow is usable for controlled PM/RA dry-run memo generation, with limitations, and now has a docs/spec-only template contract.
 ```
 
 What is now working:
@@ -257,6 +225,7 @@ What is now working:
 - The workflow can guide memo structure.
 - The prompt pack can generate controlled memo sections.
 - The validation exercise can detect overstatement risk.
+- The report template contract defines required inputs, outputs, coverage labels, sponsor association fields, and acceptance criteria.
 - FDA source unavailability is preserved as partial coverage.
 - ClinicalTrials.gov company comparison is interpreted conservatively.
 
@@ -272,7 +241,7 @@ What remains intentionally not implemented:
 ## Current guardrails
 
 - Keep MVP source scope limited to FDA, TFDA, and ClinicalTrials.gov.
-- Do not add new agencies, sources, MCP tools, transport modes, dashboards, schedulers, alerts, persistence, external integrations, or repository automation unless explicitly approved.
+- Do not add new agencies, sources, MCP tools, transport modes, dashboards, schedulers, alerts, persistence, external integrations, GitHub automation, or repository automation unless explicitly approved.
 - Keep future work small and phase-controlled.
 - Use Traditional Chinese for user-facing discussion.
 - Avoid accidental Japanese output.
@@ -284,64 +253,54 @@ What remains intentionally not implemented:
 
 Do not immediately build a runtime generator.
 
-Recommended next PR:
+Recommended next action:
 
 ```text
-PR #100 — Add report template contract
+Pause for direction calibration after PR #97–#101 digest/report docs-spec workstream.
 ```
 
-Recommended scope of PR #100:
+Recommended options:
 
-- Docs/spec only.
-- Define fixed memo sections.
-- Define required input fields.
-- Define required output fields.
-- Define source coverage status labels.
-- Define company/sponsor association fields.
-- Define acceptance criteria before runtime implementation.
-
-Do not implement runtime generator in PR #100.
-
-Recommended file candidate:
+### Option A — recommended
 
 ```text
-docs/regulatory_clinical_digest_report_template_contract.md
+Run one clean-source dry-run memo using TFDA + ClinicalTrials.gov only.
 ```
 
-Likely README/test updates:
+Purpose:
+
+- Validate clean requested-source behavior separately from FDA source-unavailable behavior.
+- Confirm the template contract works for a non-blocked source scenario.
+- Keep scope inside existing MVP sources.
+
+### Option B
 
 ```text
-README.md
-tests/test_readme_documentation_index.py
+Start CMC/IND readiness mapping workflow as docs/spec-only.
 ```
 
-## Direction options for the next chat
+Purpose:
 
-Option A — recommended:
+- Shift product workflow from digest memo formatting into CMC/IND readiness mapping.
+- Keep it documentation-only at first.
+
+### Option C
 
 ```text
-Create PR #100: Add regulatory-clinical digest report template contract.
+Create source-health operator workflow as docs/spec-only.
 ```
 
-Option B:
+Purpose:
 
-```text
-Run another dry-run memo with a clean requested-source scenario, e.g. TFDA + ClinicalTrials.gov only, to validate clean-source behavior.
-```
+- Help operators distinguish source block, egress/runtime problem, parser issue, query sensitivity, and true zero result.
 
-Option C:
-
-```text
-Pause product workflow and update `.ai/PROJECT_STATE.md` to align with PR #97–#99 and dry-run validation.
-```
-
-Option D — defer until later:
+### Option D — defer until later
 
 ```text
 Design runtime report generator.
 ```
 
-This should be deferred until the report template contract is accepted.
+This should be deferred until after explicit approval and after the clean-source dry-run validates the template contract in a non-blocked scenario.
 
 ## New-chat opening prompt
 
@@ -351,14 +310,16 @@ This should be deferred until the report template contract is accepted.
 
 請先確認：
 
-1. `main` 是否已包含 PR #99；
-2. `PROJECT_STATE_CONTINUATION.md` 是否已記錄 PR #97–#99 和 dry-run validation；
+1. `main` 是否已包含 PR #101；
+2. `PROJECT_STATE_CONTINUATION.md` 和 `.ai/PROJECT_STATE.md` 是否已記錄 PR #97–#101、digest dry-run validation、template contract、以及 208 passed validation；
 3. 是否有 open PR；
 4. 最新測試狀態；
 5. 是否需要先做 direction calibration。
 
 目前建議下一步是：
 
-`PR #100 — Add regulatory-clinical digest report template contract`
+```text
+Direction calibration after PR #97–#101 digest/report docs-spec workstream.
+```
 
 請維持 docs/spec-only，不要新增 runtime generator、MCP tool、source、scheduler、dashboard、alerts、persistence、HTTP/SSE、`.mcp.json`、company alias database、corporate-family mapping、product ownership inference、literature/patent/finance/news integration，除非我明確批准。
