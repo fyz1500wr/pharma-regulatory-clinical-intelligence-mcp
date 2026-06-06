@@ -21,6 +21,7 @@ Canonical detailed status is in `.ai/PROJECT_STATE.md`. This file is the preferr
   - `python -m pytest -q` → `208 passed in 12.82s`
 - Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag was created for PR #97–#101 docs/product workflow work
 - Open PRs at this checkpoint: none known after PR #101 merge
+- Execution environment note: Codespaces quota is near limit until July 2026. For upcoming code/test work, default to Claude Code Web and Codex Web workflows. Do not assume Codespaces is available unless the user explicitly says it is available again.
 
 ## Current project phase
 
@@ -248,6 +249,7 @@ What remains intentionally not implemented:
 - After repeated related PRs, pause for direction calibration before continuing.
 - Repo is not a GMP, QA, EDMS, eCTD publishing, or official system of record.
 - Do not store confidential, signed, GMP raw, QA-approved, or official submission records in this repo.
+- Due to Codespaces quota limits until July 2026, prefer Claude Code Web and Codex Web for upcoming code/test work. Provide Codespaces commands only as optional fallback or when the user confirms availability.
 
 ## Recommended next step
 
@@ -314,7 +316,8 @@ This should be deferred until after explicit approval and after the clean-source
 2. `PROJECT_STATE_CONTINUATION.md` 和 `.ai/PROJECT_STATE.md` 是否已記錄 PR #97–#101、digest dry-run validation、template contract、以及 208 passed validation；
 3. 是否有 open PR；
 4. 最新測試狀態；
-5. 是否需要先做 direction calibration。
+5. 是否需要先做 direction calibration；
+6. 後續 code/test 工作是否應優先使用 Claude Code Web / Codex Web，而不是 Codespaces。
 
 目前建議下一步是：
 
