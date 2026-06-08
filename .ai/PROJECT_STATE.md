@@ -1,22 +1,22 @@
 # Project State — Pharma Regulatory Clinical Intelligence MCP
 
-Last updated: 2026-06-06
+Last updated: 2026-06-08
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
 Current completed release: `v0.2.15-fda-abuse-detection-source-failure-diagnostics`
-Latest post-release main checkpoint: PR #101 digest report template contract
+Latest post-release main checkpoint: PR #104 CMC submission readiness mapping workflow
 
 ---
 
 ## 1. Current Status
 
-The repository remains at completed tagged release `v0.2.15-fda-abuse-detection-source-failure-diagnostics`. After that release, the main branch completed a post-release source-limitation / usability hardening phase and a PM/RA regulatory-clinical digest/report docs-spec workstream.
+The repository remains at completed tagged release `v0.2.15-fda-abuse-detection-source-failure-diagnostics`. After that release, the main branch completed source-limitation/usability hardening, PM/RA regulatory-clinical digest/report docs-spec work, a clean-source digest dry-run, and the first CMC submission readiness mapping workflow.
 
 Latest confirmed main commit:
 
 ```text
-6e058cd4dc5c3c4f32189af8acce09f9b2b05645
+bdabd104a86e4f0e32f13fe1013940bd6ed2363f
 ```
 
 Latest confirmed release tag:
@@ -29,11 +29,13 @@ Important release and checkpoint status:
 
 - v0.2.15 remains the latest confirmed completed and tagged release.
 - The latest confirmed release tag is `v0.2.15-fda-abuse-detection-source-failure-diagnostics`.
-- No new release tag was created for PR #97–#101 docs/product workflow work.
-- PR #101 has been merged into `main`.
-- PR #101 merge commit is `6e058cd4dc5c3c4f32189af8acce09f9b2b05645`.
-- Final PR #101 validation passed: README documentation index test 6 passed and full test suite 208 passed.
-- The current digest/report workstream remains docs/spec-only and does not add runtime report generation.
+- No new release tag was created for PR #97–#104 docs/product workflow work.
+- PR #103 has been merged into `main`.
+- PR #103 merge commit is `7b1c95ecb41dadb517718f3d2b431b7d776c0abb`.
+- PR #104 has been merged into `main`.
+- PR #104 merge commit is `bdabd104a86e4f0e32f13fe1013940bd6ed2363f`.
+- Final PR #104 validation passed: README documentation index test 7 passed and full test suite 209 passed.
+- The current digest/report and CMC readiness workstreams remain docs/spec-only and do not add runtime report generation.
 
 ---
 
@@ -191,13 +193,96 @@ python -m pytest -q
 208 passed in 12.82s
 ```
 
+### PR #102 — Project state update after digest template contract
+
+Updated:
+
+```text
+.ai/PROJECT_STATE.md
+PROJECT_STATE_CONTINUATION.md
+```
+
+Purpose:
+
+- Record the PR #97–#101 digest/report docs-spec workstream.
+- Record Codespaces quota limitation through July 2026.
+- Preserve the recommendation to pause for direction calibration before runtime generator work.
+
+### PR #103 — Clean-source digest dry-run memo
+
+Added:
+
+```text
+docs/regulatory_clinical_digest_clean_source_dry_run.md
+```
+
+Also updated:
+
+```text
+README.md
+tests/test_readme_documentation_index.py
+```
+
+Purpose:
+
+- Validate the digest report template contract under a clean requested-source scenario using TFDA and ClinicalTrials.gov.
+- Explicitly exclude FDA from the clean-source exercise so FDA unavailable-source behavior is not confused with zero-result behavior.
+- Preserve company/sponsor association caveats and working-intelligence labeling.
+
+Validation:
+
+```text
+python -m pytest tests/test_readme_documentation_index.py -q
+6 passed in 0.03s
+
+python -m pytest -q
+208 passed in 10.90s
+```
+
+Important caveat: the reported validation ran in a `work` checkout rather than a branch-name-confirmed `add-clean-source-digest-dry-run` checkout, but the working tree had no uncommitted changes.
+
 ---
 
-## 5. Latest Digest Dry-Run Validation Status
+## 5. CMC Submission Readiness Docs-Spec Workstream
 
-The latest documented dry-run validation was performed after PR #99.
+### PR #104 — CMC submission readiness mapping workflow
 
-Scenario:
+Added:
+
+```text
+docs/cmc_submission_readiness_mapping_workflow.md
+```
+
+Also updated:
+
+```text
+README.md
+tests/test_readme_documentation_index.py
+```
+
+Purpose:
+
+- Define a docs/spec-only workflow for mapping CMC project work into submission-readiness planning.
+- Cover Module 3 gap mapping, vendor dependencies, method/stability dependencies, critical path rules, PM follow-up actions, and human review checklist.
+- Preserve that the repository is not an official IND/eCTD submission system, eCTD publisher, GMP/QA record system, or EDMS.
+
+Validation:
+
+```text
+python -m pytest tests/test_readme_documentation_index.py -q
+7 passed
+
+python -m pytest -q
+209 passed
+```
+
+---
+
+## 6. Latest Digest Dry-Run Validation Status
+
+The latest documented digest dry-run sequence now includes both a partial-coverage FDA-unavailable scenario and a clean requested-source scenario.
+
+Partial-coverage scenario after PR #99:
 
 ```text
 Purpose: regulatory-clinical digest memo dry-run
@@ -218,15 +303,6 @@ TFDA: pass
 ClinicalTrials.gov: pass
 ```
 
-Digest result:
-
-```text
-regulatory update count: 1
-clinical trial update count: 5
-source query errors: 1
-open source failures: 1
-```
-
 Correct interpretation:
 
 ```text
@@ -239,32 +315,52 @@ Dry-run memo validation result:
 PASS_WITH_LIMITATIONS
 ```
 
-Reason:
+Clean-source scenario after PR #103:
 
-- The memo can be produced in a PM/RA-readable and source-aware format.
-- The memo preserves FDA source-access limitation.
-- The memo separates sponsor-name matches from non-sponsor returned records.
-- The memo avoids company superiority, ownership, approval probability, and commercial-strength claims.
-- Limitation remains: FDA was unavailable, so source coverage is partial.
+```text
+Purpose: clean requested-source digest memo dry-run
+Regulatory source: TFDA
+Clinical registry: ClinicalTrials.gov
+FDA: not requested
+```
+
+Clean-source validation result:
+
+```text
+PASS_WITH_CONTROLLED_LIMITATIONS
+```
+
+Important interpretation:
+
+- FDA not requested is not the same as FDA zero-result.
+- TFDA and ClinicalTrials.gov clean-source behavior is documented as a controlled dry-run, not a live-source evidence claim.
+- Company/sponsor association caveats remain required.
 
 ---
 
-## 6. Current Product Status
+## 7. Current Product Status
 
 Status:
 
 ```text
-Digest report workflow is usable for controlled PM/RA dry-run memo generation, with limitations, and now has a docs/spec-only template contract.
+Regulatory-clinical digest/report workflow is usable for controlled PM/RA dry-run memo generation, with limitations, and now has a docs/spec-only template contract and clean-source dry-run. CMC submission readiness mapping has started as docs/spec-only and needs a non-confidential mock inventory dry-run next.
+```
+
+Estimated progress against the user's broader target system:
+
+```text
+Overall CMC PM + regulatory-clinical intelligence system: about 55% complete.
+MVP regulatory-clinical intelligence prototype: about 70% complete.
 ```
 
 What is now working:
 
-- The workflow can guide memo structure.
-- The prompt pack can generate controlled memo sections.
-- The validation exercise can detect overstatement risk.
-- The report template contract defines required inputs, outputs, source coverage labels, sponsor association fields, human review checklist, raw MCP traceability, and acceptance criteria.
-- FDA source unavailability is preserved as partial coverage.
-- ClinicalTrials.gov company comparison is interpreted conservatively.
+- MVP source scope and guardrails are defined.
+- FDA / TFDA / ClinicalTrials.gov MVP tools and safety interpretation rules exist.
+- Source failure and source limitation wording is controlled.
+- Regulatory-clinical digest memo workflow, prompt pack, validation exercise, template contract, and clean-source dry-run now exist.
+- CMC submission readiness mapping workflow now exists as docs/spec-only.
+- README documentation index tests continue to pass.
 
 What remains intentionally not implemented:
 
@@ -272,12 +368,13 @@ What remains intentionally not implemented:
 - Template renderer.
 - MCP-side report generation helper.
 - Persistent source-failure event store.
-- Dashboard, scheduler, alerting, or external integration.
+- Dashboard, scheduler, alerting, external integration, or GitHub automation.
 - Additional source expansion.
+- Official eCTD publishing, EDMS, GMP/QA record, or submission record storage.
 
 ---
 
-## 7. Current Guardrails
+## 8. Current Guardrails
 
 MVP source scope remains limited to:
 
@@ -314,7 +411,7 @@ Do not store confidential, signed, GMP raw, QA-approved, official submission, or
 
 ---
 
-## 8. Testing And Execution Environment Notes
+## 9. Testing And Execution Environment Notes
 
 Codespaces quota is near limit until July 2026. For upcoming code/test work, default to Claude Code Web and Codex Web workflows.
 
@@ -336,7 +433,7 @@ Do not commit generated or accidental dependency files such as `poetry.lock` unl
 
 ---
 
-## 9. Workflow Correction And Direction Calibration Rule
+## 10. Workflow Correction And Direction Calibration Rule
 
 Use this workflow for future PRs while Codespaces quota is limited:
 
@@ -350,30 +447,46 @@ Do not tag before confirming that the PR has actually been merged into `main`.
 
 After a sequence of similar PRs, the assistant/project workflow must pause for direction calibration before proposing or executing the next same-type PR. This rule is intended to prevent uncontrolled scope drift and over-narrowing around local documents.
 
-PR #97–#101 should be treated as a completed digest/report docs-spec workstream. Do not proceed directly to runtime report generation without explicit approval.
+PR #97–#103 should be treated as a completed digest/report docs-spec workstream. Do not proceed directly to runtime report generation without explicit approval.
+
+PR #104 starts the CMC submission readiness docs/spec workstream. Before runtime automation, validate it with a non-confidential mock inventory and Module 3 gap matrix dry-run.
 
 ---
 
-## 10. Recommended Next Step
+## 11. Recommended Next Step
 
 Recommended next version:
 
 ```text
-v0.2.16 — direction calibration after digest report template contract
+v0.2.16 — CMC submission readiness mock inventory dry-run
 ```
 
 Recommended action:
 
 ```text
-Pause for direction calibration after PR #97–#101 digest/report docs-spec workstream.
+Create a non-confidential CMC mock inventory and Module 3 gap matrix dry-run.
 ```
 
-Recommended options:
+Recommended document:
 
-1. Run one clean-source dry-run memo using TFDA + ClinicalTrials.gov only.
-2. Start CMC/IND readiness mapping workflow as docs/spec-only.
-3. Create source-health operator workflow as docs/spec-only.
-4. Defer runtime report generator until explicitly approved and until the clean-source dry-run validates the template contract in a non-blocked scenario.
+```text
+docs/cmc_submission_readiness_mock_inventory.md
+```
+
+Purpose:
+
+- Use fake/non-confidential sample CMC tasks to validate the PR #104 readiness workflow.
+- Test whether the workflow can produce a PM-usable Module 3 gap matrix, vendor follow-up list, method/stability dependency map, and critical path summary.
+- Keep it documentation-only and avoid storing confidential/GMP/QA/submission records.
+
+Suggested mock items:
+
+- DP potency assay qualification pending.
+- DP stability report pending.
+- DS specification needs CMC/RA review.
+- Reference standard qualification status unknown.
+- Vendor COA delayed.
+- Excipient change rationale decision pending.
 
 Preserve MVP source scope: FDA, TFDA, ClinicalTrials.gov only.
 
