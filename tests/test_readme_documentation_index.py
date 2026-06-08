@@ -26,6 +26,7 @@ EXPECTED_INDEX_ENTRIES = [
     "docs/regulatory_clinical_digest_report_template_contract.md",
     "docs/regulatory_clinical_digest_clean_source_dry_run.md",
     "docs/cmc_submission_readiness_mapping_workflow.md",
+    "docs/cmc_submission_readiness_mock_inventory.md",
     "docs/product_modality_regulatory_search_smoke_example.md",
     "docs/regulatory_date_range_smoke_example.md",
     "docs/tfda_bilingual_regulatory_search_smoke_example.md",
@@ -130,6 +131,18 @@ def test_cmc_submission_readiness_mapping_workflow_is_indexed_with_expected_scop
         "| `docs/cmc_submission_readiness_mapping_workflow.md` | "
         "Defines the docs/spec-only CMC submission readiness mapping workflow "
         "for Module 3 gaps, vendor dependencies, critical path, and PM follow-up. |"
+    )
+
+    assert expected_row in section
+
+
+def test_cmc_submission_readiness_mock_inventory_is_indexed_with_expected_scope() -> None:
+    section = _post_mvp_index_section(_readme_text())
+
+    expected_row = (
+        "| `docs/cmc_submission_readiness_mock_inventory.md` | "
+        "Provides a non-confidential CMC readiness mock inventory and Module 3 "
+        "gap matrix dry-run for validating PM follow-up usefulness. |"
     )
 
     assert expected_row in section

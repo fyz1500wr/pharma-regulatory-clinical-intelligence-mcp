@@ -220,6 +220,7 @@ These documents make MVP v1 easier to use, review, and govern. They are not sour
 | `docs/regulatory_clinical_digest_report_template_contract.md` | Defines the fixed input, output, source coverage, sponsor association, and acceptance criteria contract for controlled digest memo templates. |
 | `docs/regulatory_clinical_digest_clean_source_dry_run.md` | Records a controlled clean-source dry-run memo validating TFDA and ClinicalTrials.gov memo behavior without FDA unavailable-source interference. |
 | `docs/cmc_submission_readiness_mapping_workflow.md` | Defines the docs/spec-only CMC submission readiness mapping workflow for Module 3 gaps, vendor dependencies, critical path, and PM follow-up. |
+| `docs/cmc_submission_readiness_mock_inventory.md` | Provides a docs/spec-only CMC readiness mock example for Module 3 gaps and PM follow-up. |
 | `docs/product_modality_regulatory_search_smoke_example.md` | Documents the offline smoke example for validating product_modality regulatory search without live FDA/TFDA source access. |
 | `docs/regulatory_date_range_smoke_example.md` | Documents the offline smoke example for validating date_range regulatory search without live FDA/TFDA source access. |
 | `docs/tfda_bilingual_regulatory_search_smoke_example.md` | Documents the offline smoke example for validating TFDA-style bilingual regulatory search behavior without live TFDA source access. |
