@@ -218,6 +218,7 @@ These documents make MVP v1 easier to use, review, and govern. They are not sour
 | `docs/regulatory_clinical_digest_prompt_pack.md` | Provides copy-paste prompts for generating and reviewing controlled PM/RA digest memos from MVP tool outputs. |
 | `docs/regulatory_clinical_digest_memo_validation_exercise.md` | Defines the dry-run validation exercise for checking generated PM/RA digest memos before runtime generator design. |
 | `docs/regulatory_clinical_digest_report_template_contract.md` | Defines the fixed input, output, source coverage, sponsor association, and acceptance criteria contract for controlled digest memo templates. |
+| `docs/regulatory_clinical_digest_clean_source_dry_run.md` | Records a controlled clean-source dry-run memo validating TFDA and ClinicalTrials.gov memo behavior without FDA unavailable-source interference. |
 | `docs/product_modality_regulatory_search_smoke_example.md` | Documents the offline smoke example for validating product_modality regulatory search without live FDA/TFDA source access. |
 | `docs/regulatory_date_range_smoke_example.md` | Documents the offline smoke example for validating date_range regulatory search without live FDA/TFDA source access. |
 | `docs/tfda_bilingual_regulatory_search_smoke_example.md` | Documents the offline smoke example for validating TFDA-style bilingual regulatory search behavior without live TFDA source access. |

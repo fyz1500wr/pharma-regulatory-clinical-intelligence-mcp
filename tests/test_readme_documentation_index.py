@@ -24,6 +24,7 @@ EXPECTED_INDEX_ENTRIES = [
     "docs/regulatory_clinical_digest_prompt_pack.md",
     "docs/regulatory_clinical_digest_memo_validation_exercise.md",
     "docs/regulatory_clinical_digest_report_template_contract.md",
+    "docs/regulatory_clinical_digest_clean_source_dry_run.md",
     "docs/product_modality_regulatory_search_smoke_example.md",
     "docs/regulatory_date_range_smoke_example.md",
     "docs/tfda_bilingual_regulatory_search_smoke_example.md",
@@ -104,6 +105,18 @@ def test_digest_report_template_contract_is_indexed_with_expected_scope() -> Non
         "| `docs/regulatory_clinical_digest_report_template_contract.md` | "
         "Defines the fixed input, output, source coverage, sponsor association, "
         "and acceptance criteria contract for controlled digest memo templates. |"
+    )
+
+    assert expected_row in section
+
+
+def test_clean_source_digest_dry_run_is_indexed_with_expected_scope() -> None:
+    section = _post_mvp_index_section(_readme_text())
+
+    expected_row = (
+        "| `docs/regulatory_clinical_digest_clean_source_dry_run.md` | "
+        "Records a controlled clean-source dry-run memo validating TFDA and "
+        "ClinicalTrials.gov memo behavior without FDA unavailable-source interference. |"
     )
 
     assert expected_row in section
