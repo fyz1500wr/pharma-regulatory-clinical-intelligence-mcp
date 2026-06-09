@@ -6,7 +6,12 @@ Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
 Current completed release: `v0.2.15-fda-abuse-detection-source-failure-diagnostics`
 Latest post-release main checkpoint: PR #107 CMC submission readiness input template and prompt pack
-Latest confirmed main commit: `8638e7ff2702986e840fe0488bef8f72d2b7fec8`
+
+Latest confirmed main commit:
+
+```text
+8638e7ff2702986e840fe0488bef8f72d2b7fec8
+```
 
 ---
 
@@ -51,17 +56,9 @@ Validation environment note: PR #107 was validated in Claude Code on branch `add
 
 PR: #82 Add FDA abuse-detection source failure diagnostics
 
-Main commit:
+Main commit: c940a4f70bd3017b02c133712a2e2608baa9e098 Add FDA abuse-detection source failure diagnostics (#82)
 
-```text
-c940a4f70bd3017b02c133712a2e2608baa9e098
-```
-
-Release tag:
-
-```text
-v0.2.15-fda-abuse-detection-source-failure-diagnostics
-```
+Release tag: v0.2.15-fda-abuse-detection-source-failure-diagnostics
 
 Scope:
 
@@ -320,6 +317,12 @@ The PR #104–#107 CMC readiness docs/spec set should be treated as a completed 
 ## 9. Recommended Next Step
 
 Do not immediately build runtime automation or add another CMC template document.
+
+Recommended next version:
+
+```text
+v0.2.16 — CMC management weekly report stress test
+```
 
 Recommended next action:
 
