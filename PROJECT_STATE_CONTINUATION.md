@@ -12,17 +12,20 @@ Canonical detailed status is in `.ai/PROJECT_STATE.md`. This file is the preferr
 ## Current checkpoint
 
 - Stable branch: `main`
-- Latest confirmed merged PR: PR #107
-- PR #107 merge commit: `8638e7ff2702986e840fe0488bef8f72d2b7fec8`
-- Latest completed workstream: CMC submission readiness docs/spec workflow through mapping workflow, mock inventory, and input template / prompt pack
+- Latest confirmed merged PR: PR #111
+- PR #111 merge commit: `605b2dc819852a90874ee8016ec64c37f87e5e7b`
+- Latest completed workstream: CMC submission readiness docs/spec workflow through mapping workflow, mock inventory, input template / prompt pack, management summary prompt revision, and second mock management weekly reporting stress test
 - Latest validation status: `PASS`
-- Latest validation evidence from Claude Code on PR #107 branch `add-cmc-readiness-input-template` at HEAD `8d56dbe`:
-  - `python -m pytest tests/test_readme_documentation_index.py -q` → `10 passed in 0.03s`
-  - `python -m pytest -q` → `212 passed in 3.47s`
+- Latest validation evidence from Claude Code on PR #111 branch `revise-cmc-readiness-management-summary-prompt` at HEAD `2dce4d1`:
+  - `python -m pytest tests/test_readme_documentation_index.py -q` → `10 passed in 0.02s`
+  - `python -m pytest -q` → `212 passed in 2.89s`
   - `git status --short` → clean / no output
-- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag was created for PR #97–#107 docs/product workflow work
+- Second Claude Project stress test after PR #111: `PASS`
+- Second stress-test repository action recommendation: `No repo change needed`
+- Current decision: do not create `docs/cmc_management_weekly_report_template.md` at this time
+- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag was created for PR #97–#111 docs/product workflow work
 - Duplicate PR handling: PR #108 and PR #109 were closed as superseded because their README-index wording change was absorbed into PR #107
-- Open PRs at this checkpoint: none known after PR #107 merge
+- Open PRs at this checkpoint: none known after PR #111 merge
 - Execution environment note: Codespaces quota is near limit until July 2026. For upcoming code/test work, default to Claude Code Web and Codex Web workflows. Do not assume Codespaces is available unless the user explicitly says it is available again.
 
 ## Current project phase
@@ -79,11 +82,6 @@ Purpose:
 ### PR #105 — Project state update after CMC readiness workflow
 
 Updated project-state handoff after PR #104.
-
-Purpose:
-
-- Preserve the post-PR #104 CMC readiness workflow checkpoint.
-- Keep the next step focused on a non-confidential CMC mock inventory dry-run.
 
 ### PR #106 — CMC submission readiness mock inventory
 
@@ -146,14 +144,75 @@ PR #108: closed as superseded, not merged
 PR #109: closed as superseded, not merged
 ```
 
+### PR #110 — Project state sync after CMC readiness input template
+
+Updated:
+
+```text
+.ai/PROJECT_STATE.md
+PROJECT_STATE_CONTINUATION.md
+```
+
+Purpose:
+
+- Synchronize state/handoff after PR #107.
+- Record CMC readiness input template completion and duplicate PR handling.
+- Preserve `.ai/PROJECT_STATE.md` test-contract fields.
+
+Validation recorded for PR #110:
+
+```text
+python -m pytest tests/test_project_state_release_tag_consistency.py -q → 5 passed in 0.03s
+python -m pytest tests/test_readme_documentation_index.py -q → 10 passed in 0.02s
+python -m pytest -q → 212 passed in 3.37s
+git status --short → clean / no output
+```
+
+### PR #111 — CMC readiness management summary prompt revision
+
+Updated:
+
+```text
+docs/cmc_submission_readiness_input_template.md
+```
+
+Purpose:
+
+- Revise Prompt 6 from a brief one-time management summary prompt into a controlled management summary and weekly reporting stress-test prompt.
+- Add required fields for report context, one-sentence executive summary, current/prior R/Y/G status, movement reason, top management concerns, critical path movement, decisions needed this week, vendor escalations, completed this week, next-week priorities, items not suitable for management escalation, assumptions/caveats, and template adequacy check.
+- Keep the correction inside the existing input template instead of immediately adding `docs/cmc_management_weekly_report_template.md`.
+
+Validation recorded for PR #111:
+
+```text
+python -m pytest tests/test_readme_documentation_index.py -q → 10 passed in 0.02s
+python -m pytest -q → 212 passed in 2.89s
+git status --short → clean / no output
+```
+
+### Second Claude Project stress test after PR #111
+
+Result:
+
+```text
+Prompt 6 adequacy assessment: PASS
+Repository action recommendation: No repo change needed
+```
+
+Interpretation:
+
+- Updated Prompt 6 is sufficient for recurring weekly management reporting under the current mock-case stress test.
+- No recurring structural gap was found that justifies creating `docs/cmc_management_weekly_report_template.md` at this time.
+- Do not create `docs/cmc_management_weekly_report_template.md` unless future repeated stress tests or real non-confidential/de-identified use show a structural gap that cannot reasonably fit in the existing input template.
+
 ## Current overall product status
 
 Estimated progress against the user's broader target system:
 
 ```text
-Overall CMC PM + regulatory-clinical intelligence system: about 60% complete.
+Overall CMC PM + regulatory-clinical intelligence system: about 62% complete.
 MVP regulatory-clinical intelligence prototype: about 70% complete.
-CMC readiness docs/spec workflow: usable for non-confidential dry-run and prompt-based assessment.
+CMC readiness docs/spec workflow: usable for non-confidential dry-run, prompt-based assessment, and mock weekly management reporting.
 ```
 
 What is now working:
@@ -165,7 +224,8 @@ What is now working:
 - CMC submission readiness mapping workflow exists as docs/spec-only.
 - CMC submission readiness mock inventory exists as docs/spec-only.
 - CMC submission readiness input template and prompt pack exist as docs/spec-only.
-- README documentation index tests pass after PR #107.
+- Prompt 6 now supports mock management weekly reporting stress-test output.
+- README documentation index tests pass after PR #111.
 
 What remains intentionally not implemented:
 
@@ -177,6 +237,7 @@ What remains intentionally not implemented:
 - Additional source expansion.
 - Official eCTD publishing, EDMS, GMP/QA record, or submission record storage.
 - Management decision automation.
+- Dedicated `docs/cmc_management_weekly_report_template.md`.
 
 ## Current guardrails
 
@@ -192,33 +253,22 @@ What remains intentionally not implemented:
 
 ## Recommended next step
 
-Do not immediately build runtime automation or add another CMC template document.
+Do not immediately build runtime automation, add another CMC template document, or create `docs/cmc_management_weekly_report_template.md`.
 
 Recommended next action:
 
 ```text
-Refresh Claude Project knowledge with the updated project/core/CMC docs, then run the simulated CMC management weekly report stress test.
+Pause for direction calibration. Choose the next workstream deliberately rather than adding more CMC weekly-report documents.
 ```
 
-Recommended Claude Project knowledge update order:
+Recommended options for direction calibration:
 
 ```text
-PROJECT_INSTRUCTION.md
-CLAUDE.md
-README.md
-.ai/PROJECT_STATE.md
-PROJECT_STATE_CONTINUATION.md
-docs/cmc_submission_readiness_mapping_workflow.md
-docs/cmc_submission_readiness_mock_inventory.md
-docs/cmc_submission_readiness_input_template.md
+1. Use the current CMC readiness workflow with future non-confidential/de-identified inputs without new repo changes.
+2. Return to regulatory-clinical digest workflow refinement only if a concrete recurring PM/RA use case is defined.
+3. Consider source expansion only through the documented decision matrix and only after explicit user approval.
+4. Consider runtime/report automation only after a separate approval decision covering workflow, fields, limitations, testing, and maintenance scope.
 ```
-
-Purpose:
-
-- Ensure Claude Project sees the completed PR #104–#107 CMC readiness workstream.
-- Avoid using stale state files that still recommend creating a mock inventory that already exists.
-- Test whether current CMC readiness prompts can generate a management-ready weekly report.
-- Add `docs/cmc_management_weekly_report_template.md` only if the stress test shows recurring weekly reporting needs a dedicated template.
 
 ## New-chat opening prompt
 
@@ -228,8 +278,8 @@ Purpose:
 
 請先確認：
 
-1. `main` 是否已包含 PR #107；
-2. `PROJECT_STATE_CONTINUATION.md` 和 `.ai/PROJECT_STATE.md` 是否已記錄 PR #104–#107、CMC readiness workflow / mock inventory / input template，以及 212 passed validation；
+1. `main` 是否已包含 PR #111；
+2. `PROJECT_STATE_CONTINUATION.md` 和 `.ai/PROJECT_STATE.md` 是否已記錄 PR #104–#111、PR #111 Prompt 6 revision、第二次 Claude Project stress test PASS、以及不需新增 `docs/cmc_management_weekly_report_template.md`；
 3. 是否有 open PR；
 4. 最新測試狀態；
 5. 後續 code/test 工作是否應優先使用 Claude Code Web / Codex Web，而不是 Codespaces。
@@ -237,7 +287,7 @@ Purpose:
 目前建議下一步是：
 
 ```text
-Refresh Claude Project knowledge with the updated project/core/CMC docs, then run the simulated CMC management weekly report stress test.
+Pause for direction calibration. Choose the next workstream deliberately rather than adding more CMC weekly-report documents.
 ```
 
 請維持 docs/spec-only，不要新增 runtime generator、MCP tool、source、scheduler、dashboard、alerts、persistence、HTTP/SSE、`.mcp.json`、company alias database、corporate-family mapping、product ownership inference、literature/patent/finance/news integration，除非我明確批准。
