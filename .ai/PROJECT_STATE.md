@@ -5,19 +5,19 @@ Last updated: 2026-06-09
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
 Current completed release: `v0.2.15-fda-abuse-detection-source-failure-diagnostics`
-Latest post-release main checkpoint: PR #107 CMC submission readiness input template and prompt pack
+Latest post-release main checkpoint: PR #111 CMC readiness management summary prompt revision
 
 Latest confirmed main commit:
 
 ```text
-8638e7ff2702986e840fe0488bef8f72d2b7fec8
+605b2dc819852a90874ee8016ec64c37f87e5e7b
 ```
 
 ---
 
 ## 1. Current Status
 
-The repository remains at completed tagged release `v0.2.15-fda-abuse-detection-source-failure-diagnostics`. After that release, the `main` branch completed source-limitation/usability hardening, PM/RA regulatory-clinical digest/report docs-spec work, a clean-source digest dry-run, and a CMC submission readiness docs-spec workstream through PR #107.
+The repository remains at completed tagged release `v0.2.15-fda-abuse-detection-source-failure-diagnostics`. After that release, the `main` branch completed source-limitation/usability hardening, PM/RA regulatory-clinical digest/report docs-spec work, a clean-source digest dry-run, and a CMC submission readiness docs/spec workstream through PR #111.
 
 No new release tag has been created for the post-release docs/product workflow work after v0.2.15.
 
@@ -30,23 +30,23 @@ v0.2.15-fda-abuse-detection-source-failure-diagnostics
 Latest completed CMC checkpoint:
 
 ```text
-PR #107 merge commit: 8638e7ff2702986e840fe0488bef8f72d2b7fec8
+PR #111 merge commit: 605b2dc819852a90874ee8016ec64c37f87e5e7b
 ```
 
-Latest validation recorded for PR #107:
+Latest validation recorded for PR #111:
 
 ```bash
 python -m pytest tests/test_readme_documentation_index.py -q
-# 10 passed in 0.03s
+# 10 passed in 0.02s
 
 python -m pytest -q
-# 212 passed in 3.47s
+# 212 passed in 2.89s
 
 git status --short
 # clean; no output
 ```
 
-Validation environment note: PR #107 was validated in Claude Code on branch `add-cmc-readiness-input-template` at HEAD `8d56dbe`. `pytest` and `mcp` were installed in the execution environment before running tests. No repository files were modified, no commit was created, no branch was created, and no pull request was created during validation.
+Validation environment note: PR #111 was validated in Claude Code on branch `revise-cmc-readiness-management-summary-prompt` at HEAD `2dce4d1`. `pytest` and `mcp` were installed only into the execution environment. No repository dependency files were modified, and no repository files, commits, branches, or pull requests were created during validation.
 
 ---
 
@@ -117,11 +117,6 @@ Purpose:
 
 Updated project-state handoff after the CMC readiness workflow checkpoint.
 
-Purpose:
-
-- Record the post-PR #104 CMC readiness workflow state.
-- Preserve the recommendation to validate the workflow with a non-confidential mock inventory before any runtime automation.
-
 ### PR #106 — CMC submission readiness mock inventory
 
 Added:
@@ -191,6 +186,81 @@ PR #108: closed as superseded, not merged
 PR #109: closed as superseded, not merged
 ```
 
+### PR #110 — Project state sync after CMC readiness input template
+
+Updated:
+
+```text
+.ai/PROJECT_STATE.md
+PROJECT_STATE_CONTINUATION.md
+```
+
+Purpose:
+
+- Synchronize the detailed and compact state files after the completed CMC readiness input template checkpoint.
+- Record PR #105, PR #106, PR #107, and closed duplicate PR #108 / PR #109.
+- Preserve test-contract fields in `.ai/PROJECT_STATE.md`.
+
+Validation recorded for PR #110:
+
+```bash
+python -m pytest tests/test_project_state_release_tag_consistency.py -q
+# 5 passed in 0.03s
+
+python -m pytest tests/test_readme_documentation_index.py -q
+# 10 passed in 0.02s
+
+python -m pytest -q
+# 212 passed in 3.37s
+
+git status --short
+# clean; no output
+```
+
+### PR #111 — CMC readiness management summary prompt revision
+
+Updated:
+
+```text
+docs/cmc_submission_readiness_input_template.md
+```
+
+Purpose:
+
+- Revise Prompt 6 from a brief one-time management summary prompt into a controlled management summary and weekly reporting stress-test prompt.
+- Add required fields for report context, one-sentence executive summary, current/prior R/Y/G status, status movement reason, top management concerns, critical path movement, decisions needed this week, vendor escalations, completed this week, next-week priorities, items not suitable for management escalation, assumptions/caveats, and template adequacy check.
+- Keep the correction inside the existing input template instead of immediately adding `docs/cmc_management_weekly_report_template.md`.
+
+Validation recorded for PR #111:
+
+```bash
+python -m pytest tests/test_readme_documentation_index.py -q
+# 10 passed in 0.02s
+
+python -m pytest -q
+# 212 passed in 2.89s
+
+git status --short
+# clean; no output
+```
+
+### Second Claude Project stress test after PR #111
+
+A second Claude Project stress test used the updated Prompt 6 and the non-confidential mock CMC readiness case.
+
+Result:
+
+```text
+Prompt 6 adequacy assessment: PASS
+Repository action recommendation: No repo change needed
+```
+
+Interpretation:
+
+- Updated Prompt 6 is sufficient for recurring weekly management reporting under the current mock-case stress test.
+- No recurring structural gap was found that justifies creating `docs/cmc_management_weekly_report_template.md` at this time.
+- Do not create `docs/cmc_management_weekly_report_template.md` unless future repeated stress tests or real non-confidential/de-identified use show a structural gap that cannot reasonably fit in the existing input template.
+
 ---
 
 ## 5. Current Product Status
@@ -198,9 +268,9 @@ PR #109: closed as superseded, not merged
 Estimated progress against the user's broader target system:
 
 ```text
-Overall CMC PM + regulatory-clinical intelligence system: about 60% complete
+Overall CMC PM + regulatory-clinical intelligence system: about 62% complete
 MVP regulatory-clinical intelligence prototype: about 70% complete
-CMC readiness docs/spec workflow: usable for non-confidential dry-run and prompt-based assessment
+CMC readiness docs/spec workflow: usable for non-confidential dry-run, prompt-based assessment, and mock weekly management reporting
 ```
 
 What is now working:
@@ -212,7 +282,8 @@ What is now working:
 - CMC submission readiness mapping workflow exists as docs/spec-only.
 - CMC submission readiness mock inventory exists as docs/spec-only.
 - CMC submission readiness input template and prompt pack exist as docs/spec-only.
-- README documentation index tests pass after PR #107.
+- Prompt 6 now supports mock management weekly reporting stress-test output.
+- README documentation index tests pass after PR #111.
 
 What remains intentionally not implemented:
 
@@ -224,6 +295,7 @@ What remains intentionally not implemented:
 - Additional source expansion.
 - Official eCTD publishing, EDMS, GMP/QA record, or submission record storage.
 - Management decision automation.
+- Dedicated `docs/cmc_management_weekly_report_template.md`.
 
 ---
 
@@ -310,50 +382,39 @@ Do not tag before confirming that the PR has actually been merged into `main`.
 
 After a sequence of similar PRs, pause for direction calibration before proposing or executing the next same-type PR. This rule is intended to prevent uncontrolled scope drift and over-narrowing around local documents.
 
-The PR #104–#107 CMC readiness docs/spec set should be treated as a completed small workstream. Do not add a dedicated management weekly report template unless the simulated stress test shows that the current input template and prompt pack are insufficient.
+The PR #104–#111 CMC readiness docs/spec set should be treated as a completed small workstream. Do not add a dedicated management weekly report template at this time because the updated Prompt 6 stress test returned PASS and recommended no repo change.
 
 ---
 
 ## 9. Recommended Next Step
 
-Do not immediately build runtime automation or add another CMC template document.
+Do not immediately build runtime automation, add another CMC template document, or create `docs/cmc_management_weekly_report_template.md`.
 
 Recommended next version:
 
 ```text
-v0.2.16 — CMC management weekly report stress test
+v0.2.16 — Direction calibration after CMC management summary prompt stress test
 ```
 
 Recommended next action:
 
 ```text
-Refresh Claude Project knowledge with the updated project/core/CMC docs, then run the simulated CMC management weekly report stress test.
+Pause for direction calibration. Choose the next workstream deliberately rather than adding more CMC weekly-report documents.
 ```
 
-Recommended Claude Project knowledge update order:
+Recommended options for direction calibration:
 
 ```text
-PROJECT_INSTRUCTION.md
-CLAUDE.md
-README.md
-.ai/PROJECT_STATE.md
-PROJECT_STATE_CONTINUATION.md
-docs/cmc_submission_readiness_mapping_workflow.md
-docs/cmc_submission_readiness_mock_inventory.md
-docs/cmc_submission_readiness_input_template.md
+1. Use the current CMC readiness workflow with future non-confidential/de-identified inputs without new repo changes.
+2. Return to regulatory-clinical digest workflow refinement only if a concrete recurring PM/RA use case is defined.
+3. Consider source expansion only through the documented decision matrix and only after explicit user approval.
+4. Consider runtime/report automation only after a separate approval decision covering workflow, fields, limitations, testing, and maintenance scope.
 ```
-
-Purpose:
-
-- Ensure Claude Project sees the updated PR #104–#107 CMC readiness workstream.
-- Avoid using stale state files that still recommend creating a mock inventory that already exists.
-- Test whether current CMC readiness prompts can generate a management-ready weekly report.
-- Add `docs/cmc_management_weekly_report_template.md` only if the stress test shows recurring weekly reporting needs a dedicated template.
 
 Explicit non-goal:
 
 ```text
-Do not add a management weekly report template before stress-test evidence shows it is needed.
+Do not add a management weekly report template because the current stress-test evidence does not justify it.
 ```
 
 Preserve MVP source scope: FDA, TFDA, ClinicalTrials.gov only.
