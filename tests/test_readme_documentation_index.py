@@ -142,8 +142,8 @@ def test_cmc_submission_readiness_mock_inventory_is_indexed_with_expected_scope(
 
     expected_row = (
         "| `docs/cmc_submission_readiness_mock_inventory.md` | "
-        "Provides a docs/spec-only CMC readiness mock example for Module 3 gaps "
-        "and PM follow-up. |"
+        "Provides a non-confidential CMC readiness mock inventory and Module 3 "
+        "gap matrix dry-run for validating PM follow-up usefulness. |"
     )
 
     assert expected_row in section
