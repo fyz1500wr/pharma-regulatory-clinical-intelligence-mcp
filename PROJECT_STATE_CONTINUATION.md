@@ -1,7 +1,7 @@
 # Project State Continuation
 
 Created: 2026-06-04  
-Updated: 2026-06-08
+Updated: 2026-06-09
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 
@@ -12,15 +12,17 @@ Canonical detailed status is in `.ai/PROJECT_STATE.md`. This file is the preferr
 ## Current checkpoint
 
 - Stable branch: `main`
-- Latest confirmed merged PR: PR #104
-- PR #104 merge commit: `bdabd104a86e4f0e32f13fe1013940bd6ed2363f`
-- Latest completed workstream: CMC submission readiness mapping workflow, after clean-source digest dry-run completion
+- Latest confirmed merged PR: PR #107
+- PR #107 merge commit: `8638e7ff2702986e840fe0488bef8f72d2b7fec8`
+- Latest completed workstream: CMC submission readiness docs/spec workflow through mapping workflow, mock inventory, and input template / prompt pack
 - Latest validation status: `PASS`
-- Latest validation evidence:
-  - `python -m pytest tests/test_readme_documentation_index.py -q` → `7 passed`
-  - `python -m pytest -q` → `209 passed`
-- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag was created for PR #97–#104 docs/product workflow work
-- Open PRs at this checkpoint: none known after PR #104 merge
+- Latest validation evidence from Claude Code on PR #107 branch `add-cmc-readiness-input-template` at HEAD `8d56dbe`:
+  - `python -m pytest tests/test_readme_documentation_index.py -q` → `10 passed in 0.03s`
+  - `python -m pytest -q` → `212 passed in 3.47s`
+  - `git status --short` → clean / no output
+- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag was created for PR #97–#107 docs/product workflow work
+- Duplicate PR handling: PR #108 and PR #109 were closed as superseded because their README-index wording change was absorbed into PR #107
+- Open PRs at this checkpoint: none known after PR #107 merge
 - Execution environment note: Codespaces quota is near limit until July 2026. For upcoming code/test work, default to Claude Code Web and Codex Web workflows. Do not assume Codespaces is available unless the user explicitly says it is available again.
 
 ## Current project phase
@@ -37,149 +39,28 @@ ClinicalTrials.gov
 
 Do not add EMA, PMDA, NMPA, CTIS, WHO ICTRP, literature, patent, finance, news, company-alias database, corporate-family mapping, product ownership inference, dashboard, scheduler, alerting, persistence, HTTP/SSE transport, `.mcp.json`, GitHub automation, or other integrations unless explicitly approved.
 
-The repository is not a GMP, QA, EDMS, eCTD publishing, official submission, clinical decision support, legal decision, medical decision, commercial intelligence, or management decision system. Do not store confidential, signed, GMP raw, QA-approved, official submission, or non-public company records in this repo.
+The repository is not a GMP, QA, EDMS, eCTD publishing, official submission, clinical decision support, legal decision, medical decision, commercial intelligence, or management decision system. Do not store confidential, signed, GMP raw, QA-approved, official submission, vendor confidential, or non-public company records in this repo.
 
-## Recent PR sequence after PR #94
+## Recent relevant PR sequence
 
-### PR #95
+### PR #97–#103 — Regulatory-clinical digest/report docs-spec workstream
 
-Updated project continuation/state after PR #94 digest source-coverage wording work.
-
-Purpose:
-
-- Preserve the PR #94 source-limitation re-test result.
-- Record that digest output now distinguishes requested-source query errors from global source-health warnings.
-
-### PR #96
-
-Updated `.ai/PROJECT_STATE.md` after the post-PR #95 usability hardening checkpoint.
-
-Purpose:
-
-- Keep project-state handoff aligned with the source-limitation and usability-hardening phase.
-- Confirm that future work should pause for direction calibration before adding new product features.
-
-### PR #97 — Regulatory-clinical digest report workflow
-
-Added:
+Completed a controlled PM/RA digest/report documentation workstream:
 
 ```text
 docs/regulatory_clinical_digest_report_workflow.md
-```
-
-Purpose:
-
-- Define how MVP tool outputs should be turned into a PM/RA-facing regulatory-clinical intelligence memo.
-- Require source coverage status, regulatory findings, clinical trial findings, company/sponsor association review, risks/caveats, PM/RA follow-up actions, human review checklist, and raw MCP traceability.
-- Preserve the rule that unavailable sources are not zero-result sources.
-
-### PR #98 — Digest example memo and prompt pack
-
-Added:
-
-```text
 docs/regulatory_clinical_digest_example_memo.md
 docs/regulatory_clinical_digest_prompt_pack.md
-```
-
-Purpose:
-
-- Provide a controlled example PM/RA digest memo.
-- Provide copy-paste prompts for turning MVP tool outputs into controlled PM/RA memo drafts.
-- Add prompts for clean requested-source scenarios, partial requested-source coverage, company/sponsor association review, executive summary only, human review checklist, red flag review, and minimal one-page memo.
-
-### PR #99 — Digest memo validation exercise
-
-Added:
-
-```text
 docs/regulatory_clinical_digest_memo_validation_exercise.md
-```
-
-Purpose:
-
-- Define a dry-run validation exercise before designing any runtime generator.
-- Validate whether generated memos are readable, source-aware, and safe for PM/RA review.
-- Require explicit query scope, source coverage interpretation, regulatory finding validation, clinical trial finding validation, company/sponsor association validation, risk/caveat validation, PM/RA follow-up validation, and red-flag sentence review.
-
-### PR #100 — Continuation update after digest dry-run validation
-
-Updated:
-
-```text
-PROJECT_STATE_CONTINUATION.md
-```
-
-Purpose:
-
-- Record PR #97–#99 and the digest dry-run validation result.
-- Preserve the `PASS_WITH_LIMITATIONS` dry-run finding.
-- Recommend a report template contract before any runtime generator.
-
-### PR #101 — Regulatory-clinical digest report template contract
-
-Added:
-
-```text
 docs/regulatory_clinical_digest_report_template_contract.md
-```
-
-Purpose:
-
-- Define a fixed docs/spec-only contract for controlled digest memo templates.
-- Define required input object, required tool output inputs, required output object, source coverage labels, fixed memo sections, company/sponsor association fields, human review checklist, raw MCP traceability, and acceptance criteria before runtime implementation.
-- Preserve explicit non-goals: no runtime report generator, template renderer, MCP-side report helper, new source, scheduler, dashboard, alerts, persistence, HTTP/SSE transport, `.mcp.json`, company alias database, corporate-family mapping, product ownership inference, or literature/patent/finance/news integration.
-
-Validation:
-
-```text
-python -m pytest tests/test_readme_documentation_index.py -q
-6 passed in 0.03s
-
-python -m pytest -q
-208 passed in 12.82s
-```
-
-### PR #102 — State update after digest template contract
-
-Updated:
-
-```text
-.ai/PROJECT_STATE.md
-PROJECT_STATE_CONTINUATION.md
-```
-
-Purpose:
-
-- Record the PR #97–#101 digest/report docs-spec workstream.
-- Record Codespaces quota limitation through July 2026.
-- Preserve the recommendation to pause for direction calibration before runtime generator work.
-
-### PR #103 — Clean-source digest dry-run memo
-
-Added:
-
-```text
 docs/regulatory_clinical_digest_clean_source_dry_run.md
 ```
 
 Purpose:
 
-- Validate the digest report template contract under a clean requested-source scenario using TFDA and ClinicalTrials.gov.
-- Explicitly exclude FDA from the clean-source exercise so FDA unavailable-source behavior is not confused with zero-result behavior.
-- Preserve company/sponsor association caveats and working-intelligence labeling.
-
-Validation:
-
-```text
-python -m pytest tests/test_readme_documentation_index.py -q
-6 passed in 0.03s
-
-python -m pytest -q
-208 passed in 10.90s
-```
-
-Important caveat: the reported validation ran in a `work` checkout rather than a branch-name-confirmed `add-clean-source-digest-dry-run` checkout, but the working tree had no uncommitted changes.
+- Define how MVP tool outputs should be turned into PM/RA-facing regulatory-clinical intelligence memo drafts.
+- Preserve source coverage caveats and sponsor/company association caveats.
+- Keep reporting docs/spec-only and avoid runtime report generator work without explicit approval.
 
 ### PR #104 — CMC submission readiness mapping workflow
 
@@ -195,14 +76,74 @@ Purpose:
 - Cover Module 3 gap mapping, vendor dependencies, method/stability dependencies, critical path rules, PM follow-up actions, and human review checklist.
 - Preserve that the repository is not an official IND/eCTD submission system, eCTD publisher, GMP/QA record system, or EDMS.
 
-Validation:
+### PR #105 — Project state update after CMC readiness workflow
+
+Updated project-state handoff after PR #104.
+
+Purpose:
+
+- Preserve the post-PR #104 CMC readiness workflow checkpoint.
+- Keep the next step focused on a non-confidential CMC mock inventory dry-run.
+
+### PR #106 — CMC submission readiness mock inventory
+
+Added:
 
 ```text
-python -m pytest tests/test_readme_documentation_index.py -q
-7 passed
+docs/cmc_submission_readiness_mock_inventory.md
+```
 
-python -m pytest -q
-209 passed
+Purpose:
+
+- Provide a synthetic, non-confidential CMC readiness mock inventory.
+- Test whether the workflow can produce a PM-usable Module 3 gap matrix, vendor follow-up list, method/stability dependency map, and critical path summary.
+- Keep it documentation-only and avoid storing confidential/GMP/QA/submission records.
+
+Validation recorded for PR #106:
+
+```text
+python -m pytest tests/test_readme_documentation_index.py -q → passed
+python -m pytest -q → 210 passed
+```
+
+### PR #107 — CMC submission readiness input template and prompt pack
+
+Added:
+
+```text
+docs/cmc_submission_readiness_input_template.md
+```
+
+Also updated:
+
+```text
+README.md
+tests/test_readme_documentation_index.py
+```
+
+Purpose:
+
+- Define a reusable docs/spec-only input template and prompt pack for non-confidential CMC readiness information.
+- Support consistent generation of Module 3 gap matrix, vendor follow-up list, method/stability dependency map, decision log, PM next-action list, human review checklist, and management-ready readiness drafting.
+- Absorb duplicate README-index wording from PR #108 and PR #109.
+
+Validation recorded for PR #107:
+
+```text
+python -m pytest tests/test_readme_documentation_index.py -q → 10 passed in 0.03s
+python -m pytest -q → 212 passed in 3.47s
+git status --short → clean / no output
+```
+
+### PR #108 and PR #109 — Closed duplicate README-index wording PRs
+
+PR #108 and PR #109 only updated the README wording for `docs/cmc_submission_readiness_mock_inventory.md`. That wording was absorbed into PR #107.
+
+Status:
+
+```text
+PR #108: closed as superseded, not merged
+PR #109: closed as superseded, not merged
 ```
 
 ## Current overall product status
@@ -210,8 +151,9 @@ python -m pytest -q
 Estimated progress against the user's broader target system:
 
 ```text
-Overall CMC PM + regulatory-clinical intelligence system: about 55% complete.
+Overall CMC PM + regulatory-clinical intelligence system: about 60% complete.
 MVP regulatory-clinical intelligence prototype: about 70% complete.
+CMC readiness docs/spec workflow: usable for non-confidential dry-run and prompt-based assessment.
 ```
 
 What is now working:
@@ -219,9 +161,11 @@ What is now working:
 - MVP source scope and guardrails are defined.
 - FDA / TFDA / ClinicalTrials.gov MVP tools and safety interpretation rules exist.
 - Source failure and source limitation wording is controlled.
-- Regulatory-clinical digest memo workflow, prompt pack, validation exercise, template contract, and clean-source dry-run now exist.
-- CMC submission readiness mapping workflow now exists as docs/spec-only.
-- README documentation index tests continue to pass.
+- Regulatory-clinical digest memo workflow, prompt pack, validation exercise, template contract, and clean-source dry-run exist.
+- CMC submission readiness mapping workflow exists as docs/spec-only.
+- CMC submission readiness mock inventory exists as docs/spec-only.
+- CMC submission readiness input template and prompt pack exist as docs/spec-only.
+- README documentation index tests pass after PR #107.
 
 What remains intentionally not implemented:
 
@@ -232,6 +176,7 @@ What remains intentionally not implemented:
 - Dashboard, scheduler, alerting, external integration, or GitHub automation.
 - Additional source expansion.
 - Official eCTD publishing, EDMS, GMP/QA record, or submission record storage.
+- Management decision automation.
 
 ## Current guardrails
 
@@ -242,39 +187,38 @@ What remains intentionally not implemented:
 - Avoid accidental Japanese output.
 - After repeated related PRs, pause for direction calibration before continuing.
 - Repo is not a GMP, QA, EDMS, eCTD publishing, or official system of record.
-- Do not store confidential, signed, GMP raw, QA-approved, or official submission records in this repo.
+- Do not store confidential, signed, GMP raw, QA-approved, official submission, vendor confidential, or non-public company records in this repo.
 - Due to Codespaces quota limits until July 2026, prefer Claude Code Web and Codex Web for upcoming code/test work. Provide Codespaces commands only as optional fallback or when the user confirms availability.
 
 ## Recommended next step
 
-Do not immediately build runtime automation.
+Do not immediately build runtime automation or add another CMC template document.
 
 Recommended next action:
 
 ```text
-Create a non-confidential CMC mock inventory and Module 3 gap matrix dry-run.
+Refresh Claude Project knowledge with the updated project/core/CMC docs, then run the simulated CMC management weekly report stress test.
 ```
 
-Recommended document:
+Recommended Claude Project knowledge update order:
 
 ```text
+PROJECT_INSTRUCTION.md
+CLAUDE.md
+README.md
+.ai/PROJECT_STATE.md
+PROJECT_STATE_CONTINUATION.md
+docs/cmc_submission_readiness_mapping_workflow.md
 docs/cmc_submission_readiness_mock_inventory.md
+docs/cmc_submission_readiness_input_template.md
 ```
 
 Purpose:
 
-- Use fake/non-confidential sample CMC tasks to validate the PR #104 readiness workflow.
-- Test whether the workflow can produce a PM-usable Module 3 gap matrix, vendor follow-up list, method/stability dependency map, and critical path summary.
-- Keep it documentation-only and avoid storing confidential/GMP/QA/submission records.
-
-Suggested mock items:
-
-- DP potency assay qualification pending.
-- DP stability report pending.
-- DS specification needs CMC/RA review.
-- Reference standard qualification status unknown.
-- Vendor COA delayed.
-- Excipient change rationale decision pending.
+- Ensure Claude Project sees the completed PR #104–#107 CMC readiness workstream.
+- Avoid using stale state files that still recommend creating a mock inventory that already exists.
+- Test whether current CMC readiness prompts can generate a management-ready weekly report.
+- Add `docs/cmc_management_weekly_report_template.md` only if the stress test shows recurring weekly reporting needs a dedicated template.
 
 ## New-chat opening prompt
 
@@ -284,8 +228,8 @@ Suggested mock items:
 
 請先確認：
 
-1. `main` 是否已包含 PR #104；
-2. `PROJECT_STATE_CONTINUATION.md` 和 `.ai/PROJECT_STATE.md` 是否已記錄 PR #103、PR #104、CMC readiness workflow、以及 209 passed validation；
+1. `main` 是否已包含 PR #107；
+2. `PROJECT_STATE_CONTINUATION.md` 和 `.ai/PROJECT_STATE.md` 是否已記錄 PR #104–#107、CMC readiness workflow / mock inventory / input template，以及 212 passed validation；
 3. 是否有 open PR；
 4. 最新測試狀態；
 5. 後續 code/test 工作是否應優先使用 Claude Code Web / Codex Web，而不是 Codespaces。
@@ -293,7 +237,7 @@ Suggested mock items:
 目前建議下一步是：
 
 ```text
-Create a non-confidential CMC mock inventory and Module 3 gap matrix dry-run.
+Refresh Claude Project knowledge with the updated project/core/CMC docs, then run the simulated CMC management weekly report stress test.
 ```
 
 請維持 docs/spec-only，不要新增 runtime generator、MCP tool、source、scheduler、dashboard、alerts、persistence、HTTP/SSE、`.mcp.json`、company alias database、corporate-family mapping、product ownership inference、literature/patent/finance/news integration，除非我明確批准。
