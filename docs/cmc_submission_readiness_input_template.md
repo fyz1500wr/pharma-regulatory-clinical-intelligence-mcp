@@ -287,21 +287,91 @@ Each action must include:
 Keep actions concrete and follow-up oriented. Avoid generic statements such as "continue monitoring" unless paired with a specific owner and date.
 ```
 
-### Prompt 6 — Management Summary
+### Prompt 6 — Management Summary And Weekly Reporting Stress Test
 
 ```text
 Create a management-ready CMC readiness summary using the provided working-intelligence output.
 
-Required format:
-- Overall R/Y/G status.
-- Top 3 critical path risks.
-- Top vendor blockers.
-- Decisions needed this week.
-- Items on track.
-- Items requiring escalation.
-- Important limitations.
+Use this prompt for a single management summary or for a weekly management-readiness stress test. Keep the output concise and executive-ready, but preserve CMC/RA caveats and avoid overstating readiness.
 
-Keep the summary brief and avoid technical overstatement. State that it is a PM/RA working summary, not a final CMC, QA, regulatory, or management decision.
+Required format:
+1. Report context
+   - Review date.
+   - Reporting period, if provided.
+   - Submission phase.
+   - Target readiness date.
+   - Data boundary: non-confidential / de-identified / mock.
+
+2. One-sentence executive summary
+   - State the overall readiness status and the main reason in one sentence.
+
+3. Overall status
+   - Current R/Y/G status.
+   - Prior R/Y/G status, if provided.
+   - Status movement: improved / unchanged / worsened / unknown.
+   - Movement reason.
+
+4. Top management concerns
+   - List the top 3 management-level concerns only.
+   - For each concern, include why it matters for readiness.
+   - Do not include technical housekeeping items unless they affect readiness date, vendor escalation, or management decision.
+
+5. Critical path movement
+   - True critical-path blockers.
+   - Possible critical-path blockers.
+   - Unknown critical-path items requiring triage.
+   - Items that should not be treated as critical path, with rationale.
+
+6. Decisions needed this week
+   - Decision.
+   - Owner.
+   - Due date.
+   - Impact if unresolved.
+   - Whether management input is needed.
+
+7. Vendor escalations
+   - Vendor role.
+   - Related task.
+   - Required output.
+   - Due date.
+   - Escalation status.
+   - Exact follow-up question.
+   - State whether the request is for summary/status only and not for raw GMP, executed, signed, or vendor-confidential records.
+
+8. Completed this week
+   - List completed actions if provided.
+   - If not provided, state that completed-this-week data was not included in the input.
+   - Do not invent completed actions.
+
+9. Next-week priorities
+   - List concrete next-week priorities.
+   - Include owner and due date where available.
+   - Mark unknown owner or due date explicitly rather than inventing them.
+
+10. Items not suitable for management escalation
+   - List technical CMC/RA/QA review items that should remain at working-team level.
+   - Provide a short rationale for not escalating.
+
+11. Assumptions and caveats
+   - State input limitations.
+   - State that the output is PM/RA working intelligence only.
+   - State that it is not final CMC, QA, regulatory, or management decision-making output.
+   - State that missing evidence remains missing and requires human review.
+
+12. Template adequacy check
+   - Assess whether the current CMC readiness input package is sufficient for recurring weekly management reporting.
+   - Use PASS / PARTIAL / FAIL.
+   - If PARTIAL or FAIL, specify whether the first corrective action should be revising this existing prompt/template or creating a dedicated `docs/cmc_management_weekly_report_template.md`.
+   - Do not recommend creating a new repository document unless repeated stress tests or recurring use show a structural gap that cannot reasonably fit in this existing template.
+
+Rules:
+- Keep the summary brief and avoid technical overstatement.
+- Do not invent missing evidence, due dates, completed actions, vendor responses, or decisions.
+- Separate management-level escalation items from technical review items.
+- Separate true critical path from review-only housekeeping items.
+- Preserve confidentiality boundaries.
+- Do not request confidential raw records, signed reports, executed COAs, GMP raw data, batch records, QA-approved records, or vendor confidential records.
+- State that the output is a PM/RA working summary, not a final CMC, QA, regulatory, or management decision.
 ```
 
 ### Prompt 7 — Red Flag Review
