@@ -17,6 +17,7 @@ EXPECTED_INDEX_ENTRIES = [
     "docs/post_mvp_source_expansion_decision_matrix.md",
     "docs/original_requirements_traceability_matrix.md",
     "docs/open_source_claude_codex_tool_survey.md",
+    "docs/source_expansion_feasibility_matrix_ema_nmpa_pmda.md",
     "docs/claude_project_validation_workflow.md",
     "docs/claude_code_web_mcp_smoke_test_note.md",
     "docs/source_failure_diagnostic_runbook.md",
@@ -170,6 +171,18 @@ def test_open_source_tool_survey_is_indexed_with_expected_scope() -> None:
         "| `docs/open_source_claude_codex_tool_survey.md` | Surveys open-source "
         "and openly documented Claude/Codex/MCP tool candidates without "
         "approving installation or integration. |"
+    )
+
+    assert expected_row in section
+
+
+def test_source_expansion_feasibility_matrix_is_indexed_with_expected_scope() -> None:
+    section = _post_mvp_index_section(_readme_text())
+
+    expected_row = (
+        "| `docs/source_expansion_feasibility_matrix_ema_nmpa_pmda.md` | "
+        "Evaluates EMA, NMPA/CDE, and PMDA source expansion feasibility without "
+        "approving connector or runtime implementation. |"
     )
 
     assert expected_row in section
