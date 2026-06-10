@@ -5,21 +5,21 @@ Last updated: 2026-06-10
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
 Current completed release: `v0.2.15-fda-abuse-detection-source-failure-diagnostics`
-Latest post-release main checkpoint: PR #118 EMA/NMPA/PMDA/ICH source and guidance expansion feasibility matrix
+Latest post-release main checkpoint: PR #122 canonical dashboard data schema contract after PR #120 dashboard target architecture contract
 
 Latest confirmed main commit:
 
 ```text
-7d265a0c90f2d596690b2f9d66c3f2e90b1e7911
+d32099f16a2b9f0b91268b7e01c7ca227db74675
 ```
 
 ---
 
 ## 1. Current Status
 
-The repository remains at completed tagged release `v0.2.15-fda-abuse-detection-source-failure-diagnostics`. After that release, the `main` branch completed source-limitation/usability hardening, PM/RA regulatory-clinical digest/report docs-spec work, a clean-source digest dry-run, a CMC submission readiness docs/spec extension workstream, original-requirements calibration, an original requirements traceability matrix, an open-source Claude/Codex/MCP tool survey, and a source/guidance expansion feasibility matrix through PR #118.
+The repository remains at completed tagged release `v0.2.15-fda-abuse-detection-source-failure-diagnostics`. No new release tag has been created for the post-release docs/product workflow work after v0.2.15.
 
-No new release tag has been created for the post-release docs/product workflow work after v0.2.15.
+After the release baseline, the project completed PM/RA regulatory-clinical digest/report docs-spec work, a clean-source digest dry-run, CMC readiness extension docs, original-requirements calibration, requirements traceability, open-source Claude/Codex/MCP tool survey, EMA/NMPA/PMDA/ICH source and guidance expansion feasibility planning, and then re-anchored to a dashboard-first roadmap through PR #120 and PR #122.
 
 Latest confirmed release tag:
 
@@ -27,29 +27,38 @@ Latest confirmed release tag:
 v0.2.15-fda-abuse-detection-source-failure-diagnostics
 ```
 
-Latest completed feasibility checkpoint:
+Latest completed dashboard checkpoint:
 
 ```text
-PR #118 merge commit: 7d265a0c90f2d596690b2f9d66c3f2e90b1e7911
+PR #122 merge commit: d32099f16a2b9f0b91268b7e01c7ca227db74675
 ```
 
-Latest validation recorded for PR #118:
+Latest validation recorded for PR #122:
 
 ```bash
-python -m pytest tests/test_readme_documentation_index.py -q
-# 11 passed
+git fetch origin
+# fetched all remote branches and tags
+
+git checkout dashboard-data-schema-contract
+# on branch, already up to date
+
+git pull origin dashboard-data-schema-contract
+# already up to date
 
 python -m pip install -e .
-# editable package reinstalled successfully
+# installed successfully; mcp dependency installed in validation environment
+
+python -m pytest tests/test_readme_documentation_index.py tests/test_project_state_release_tag_consistency.py -q
+# 19 passed
 
 python -m pytest -q
-# 213 passed
+# 216 passed
 
 git status --short
 # clean; no output
 ```
 
-Validation environment note: PR #118 full-suite validation required installing the project editable package so that the existing `mcp` dependency was available. No repository files were modified by dependency installation or validation.
+Validation environment note: PR #122 full-suite validation required the existing `mcp` dependency to be installed in the validation environment. No repository files were modified by dependency installation or validation.
 
 ---
 
@@ -151,12 +160,6 @@ README.md
 tests/test_readme_documentation_index.py
 ```
 
-Purpose:
-
-- Address the original requirement to search or evaluate tools that can support Claude/Codex-based project work.
-- Survey MCP SDK/FastMCP, MCP Inspector, Codex CLI, Claude Code MCP/plugin workflows, pytest, GitHub CLI, markdownlint, pre-commit, Playwright, and OpenAI agent workflow tooling.
-- Define evaluation criteria, adoption gates, near-term recommendation, and explicit non-goals.
-
 Important interpretation:
 
 The survey is a governance/specification artifact. It does not approve tool installation, dependency changes, `.mcp.json`, runtime implementation, new MCP tools, scheduler, alerts, dashboard, persistence, HTTP/SSE transport, GitHub automation, source expansion, or CMC weekly report template work.
@@ -191,39 +194,113 @@ Purpose:
 - Classify EMA, NMPA/CDE, and PMDA as regulatory agency / regulator-linked source candidates.
 - Classify ICH as a global harmonisation guidance source, not a drug-review agency and not a clinical trial registry.
 - Define feasibility ratings, official source evidence, blockers, activation gates, and recommended sequencing.
-- Record that ICH may require a separate future guidance-source profile with guideline family, guideline stage/status, revision/adoption date, and implementation-topic fields.
-
-Validation:
-
-```bash
-python -m pytest tests/test_readme_documentation_index.py -q
-# 11 passed
-
-python -m pip install -e .
-# editable package reinstalled successfully
-
-python -m pytest -q
-# 213 passed
-
-git status --short
-# clean; no output
-```
 
 Important interpretation:
 
 PR #118 is a feasibility/planning artifact only. It does not approve or implement EMA, NMPA/CDE, PMDA, or ICH connectors. It does not add runtime source or guidance expansion, MCP tools, dependencies, `.mcp.json`, scheduler, alerts, dashboard, persistence, HTTP/SSE transport, GitHub automation, literature/patent/finance/news integration, company alias database, corporate-family mapping, product ownership inference, CMC weekly report template, runtime generator, or implementation code.
 
+### PR #119 — State sync after PR #118
+
+Updated:
+
+```text
+.ai/PROJECT_STATE.md
+PROJECT_STATE_CONTINUATION.md
+```
+
+Status:
+
+- Synchronized project state after PR #118.
+- Preserved source-expansion guardrails and recommended direction calibration.
+
+### PR #120 — Dashboard target architecture contract
+
+Added / updated:
+
+```text
+docs/dashboard_target_architecture.md
+README.md
+tests/test_readme_documentation_index.py
+.ai/PROJECT_STATE.md
+```
+
+Merge commit:
+
+```text
+b1ec886fa5fa4b9a8a0c7c6237334e0cc581e63b
+```
+
+Purpose:
+
+- Re-anchored the project from source-expansion-only planning to the original dashboard intelligence-system target.
+- Defined a dashboard-first, source-expansion-later architecture.
+- Defined intended dashboard tabs for regulatory/guidance updates, biologic or therapeutic modality view, clinical trial tracker, and source health/source-change monitor.
+- Clarified GitHub/Codex, GitHub Actions, MCP, Claude Project, and dashboard artifact roles without implementing any runtime dashboard work.
+
+Validation:
+
+```text
+tests/test_project_state_release_tag_consistency.py -> 5 passed
+tests/test_readme_documentation_index.py -> 13 passed
+python -m pytest -q -> 215 passed
+git status --short -> clean / no output
+```
+
+Important interpretation:
+
+PR #120 is an architecture contract only. It does not add dashboard renderer, GitHub Actions workflow, scheduler, alerts, GitHub Pages publication, persistence layer, runtime connector, MCP tool, `.mcp.json`, source expansion, literature/patent/finance/news integration, company alias database, corporate-family mapping, product ownership inference, clinical success scoring, approval probability scoring, or CMC weekly management report template.
+
+### PR #122 — Canonical dashboard data schema contract
+
+Added / updated:
+
+```text
+docs/dashboard_data_schema_contract.md
+README.md
+tests/test_readme_documentation_index.py
+```
+
+Merge commit:
+
+```text
+d32099f16a2b9f0b91268b7e01c7ca227db74675
+```
+
+Purpose:
+
+- Defined canonical dashboard schema families:
+  - `RegulatoryGuidanceUpdate`
+  - `ClinicalTrialUpdate`
+  - `SourceHealthEvent`
+  - `DashboardDigestSummary`
+- Defined shared base fields, date-window values, modality/topic/indication tag contracts, source-health interpretation rules, and storage/artifact boundaries.
+- Preserved ICH as a global harmonisation guidance source distinct from regulatory agency and clinical trial registry sources.
+- Preserved the MVP runtime source scope: FDA, TFDA, and ClinicalTrials.gov.
+
+Validation:
+
+```text
+tests/test_readme_documentation_index.py + tests/test_project_state_release_tag_consistency.py -> 19 passed
+python -m pytest -q -> 216 passed
+git status --short -> clean / no output
+```
+
+Important interpretation:
+
+PR #122 is a schema contract only. It does not add dashboard renderer, GitHub Actions workflow, scheduler, alerts, GitHub Pages publication, persistence layer, runtime connector, new MCP tool, `.mcp.json`, source expansion, literature/patent/finance/news integration, company alias database, corporate-family mapping, product ownership inference, clinical success scoring, approval probability scoring, or CMC weekly management report template.
+
 ---
 
 ## 4. Current Product Status
 
-Estimated progress against the user's broader target system after PR #118:
+Estimated progress against the user's broader target system after PR #122:
 
 ```text
-Original Regulatory / Clinical Intelligence MCP system: about 48–52% complete
-Project governance / GitHub + Claude/Codex workflow foundation: about 73–75% complete
+Original Regulatory / Clinical Intelligence MCP system: about 52–56% complete
+Project governance / GitHub + Claude/Codex workflow foundation: about 76–78% complete
+Dashboard target architecture / schema foundation: about 35–40% complete
 CMC readiness extension module: about 75% complete
-Overall build-stage system: about 58–62% complete
+Overall build-stage system: about 61–65% complete
 ```
 
 What is now working:
@@ -236,6 +313,8 @@ What is now working:
 - Original full-system requirements are recorded and mapped in `docs/original_requirements_traceability_matrix.md`.
 - Open-source Claude/Codex/MCP tool candidates are surveyed in `docs/open_source_claude_codex_tool_survey.md`.
 - EMA/NMPA/PMDA/ICH source and guidance expansion feasibility is documented in `docs/source_expansion_feasibility_matrix_ema_nmpa_pmda.md`.
+- Dashboard-first target architecture is documented in `docs/dashboard_target_architecture.md`.
+- Canonical dashboard data schema families are documented in `docs/dashboard_data_schema_contract.md`.
 
 What remains intentionally not implemented:
 
@@ -243,7 +322,9 @@ What remains intentionally not implemented:
 - Template renderer.
 - MCP-side report generation helper.
 - Persistent source-failure event store.
-- Dashboard, scheduler, alerting, external integration, or GitHub automation.
+- Runtime dashboard renderer.
+- Static dashboard artifact generator.
+- Scheduler, alerting, external integration, or GitHub automation.
 - Additional runtime source or guidance expansion.
 - Official eCTD publishing, EDMS, GMP/QA record, or submission record storage.
 - Management decision automation.
@@ -253,8 +334,7 @@ What remains missing or only partial relative to the original full-system target
 
 - Active EMA, NMPA/CDE, PMDA, or ICH runtime source/guidance coverage.
 - Runtime multi-agency source coverage across all original target agencies.
-- Guidance-source schema handling for ICH guideline families, stages/status, revision/adoption dates, and implementation-topic fields.
-- Multi-agency date-window validation across all original target agencies.
+- Dashboard artifact generation and rendering.
 - Persistent source-change tracking, scheduler, and notification design.
 - Multi-registry clinical trial tracking beyond the current ClinicalTrials.gov MVP boundary.
 
@@ -307,11 +387,7 @@ Codespaces quota is near limit until July 2026. For upcoming code/test work, def
 
 Do not assume Codespaces is available unless the user explicitly confirms availability.
 
-When suggesting validation, prefer:
-
-```text
-Claude Code Web or Codex Web validation on the PR branch
-```
+When suggesting validation, provide complete copy-paste commands. Do not say only "switch to the PR branch" without the full command block.
 
 If asking Codex or Claude Code only to validate, explicitly instruct:
 
@@ -351,35 +427,35 @@ After a sequence of similar PRs, pause for direction calibration before proposin
 
 The PR #104–#112 CMC readiness docs/spec set should be treated as a completed small extension workstream. Do not add a dedicated management weekly report template at this time because the updated Prompt 6 stress test returned PASS and recommended no repo change.
 
-The PR #113–#118 calibration/traceability/tool-survey/source-feasibility set should be treated as the current re-anchor point for the original full-system regulatory-clinical intelligence MCP roadmap.
+The PR #120–#122 dashboard architecture/schema set should be treated as the current re-anchor point for the original full-system regulatory-clinical intelligence roadmap.
 
 ---
 
 ## 8. Recommended Next Step
 
-Do not immediately build runtime automation, add another CMC template document, install a surveyed tool, create `docs/cmc_management_weekly_report_template.md`, or implement EMA/NMPA/PMDA/ICH connectors.
+Do not immediately build runtime automation, add another CMC template document, install a surveyed tool, create `docs/cmc_management_weekly_report_template.md`, implement EMA/NMPA/PMDA/ICH connectors, add GitHub Actions, or add a runtime dashboard renderer.
 
 Recommended next version:
 
 ```text
-v0.2.16 — Source and guidance expansion feasibility planning
+v0.2.16 — Dashboard dry-run artifact planning
 ```
 
-Recommended next action after PR #119 state sync:
+Recommended next action after this state sync:
 
 ```text
-Direction calibration before additional expansion planning.
+Add static dashboard dry-run design using mock data, still docs/spec-only.
 ```
 
-Recommended calibration questions:
+Recommended scope for the next docs/spec PR:
 
 ```text
-1. Should the next docs/spec step focus on ICH guidance-source schema review?
-2. Should EMA agency-source schema review come next instead?
-3. Should the project pause source-expansion planning and return to MVP runtime hardening?
-4. Should no further PR be created until the user explicitly selects one direction?
+1. Define a mock-data-only static dashboard dry-run design.
+2. Show how RegulatoryGuidanceUpdate, ClinicalTrialUpdate, SourceHealthEvent, and DashboardDigestSummary records flow into static dashboard artifacts.
+3. Define dashboard tab acceptance criteria.
+4. Explicitly avoid GitHub Actions, dashboard renderer, scheduler, alerts, persistence, runtime connector, source expansion, and new MCP tools.
 ```
 
 Preserve MVP runtime source scope: FDA, TFDA, ClinicalTrials.gov only.
 
-Do not add new agencies, sources, guidance connectors, tools, scheduler, alerts, dashboard, persistence, HTTP/SSE transport, `.mcp.json`, GitHub automation, company alias database, corporate-family mapping, product ownership inference, literature, patent, finance, or news integrations without explicit approval.
+Do not add new agencies, sources, guidance connectors, tools, scheduler, alerts, dashboard renderer, persistence, HTTP/SSE transport, `.mcp.json`, GitHub automation, company alias database, corporate-family mapping, product ownership inference, literature, patent, finance, or news integrations without explicit approval.
