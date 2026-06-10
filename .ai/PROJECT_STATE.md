@@ -5,19 +5,19 @@ Last updated: 2026-06-10
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
 Current completed release: `v0.2.15-fda-abuse-detection-source-failure-diagnostics`
-Latest post-release main checkpoint: PR #114 original requirements traceability matrix
+Latest post-release main checkpoint: PR #116 open-source Claude/Codex tool survey
 
 Latest confirmed main commit:
 
 ```text
-721edc72cac42d04d78afeafbb852d8c28eafc11
+0fe5ab259e2502e925cdf367d5c3f0cfb66d12ef
 ```
 
 ---
 
 ## 1. Current Status
 
-The repository remains at completed tagged release `v0.2.15-fda-abuse-detection-source-failure-diagnostics`. After that release, the `main` branch completed source-limitation/usability hardening, PM/RA regulatory-clinical digest/report docs-spec work, a clean-source digest dry-run, a CMC submission readiness docs/spec extension workstream, original-requirements calibration, and an original requirements traceability matrix through PR #114.
+The repository remains at completed tagged release `v0.2.15-fda-abuse-detection-source-failure-diagnostics`. After that release, the `main` branch completed source-limitation/usability hardening, PM/RA regulatory-clinical digest/report docs-spec work, a clean-source digest dry-run, a CMC submission readiness docs/spec extension workstream, original-requirements calibration, an original requirements traceability matrix, and an open-source Claude/Codex/MCP tool survey through PR #116.
 
 No new release tag has been created for the post-release docs/product workflow work after v0.2.15.
 
@@ -27,29 +27,26 @@ Latest confirmed release tag:
 v0.2.15-fda-abuse-detection-source-failure-diagnostics
 ```
 
-Latest completed traceability checkpoint:
+Latest completed survey checkpoint:
 
 ```text
-PR #114 merge commit: 721edc72cac42d04d78afeafbb852d8c28eafc11
+PR #116 merge commit: 0fe5ab259e2502e925cdf367d5c3f0cfb66d12ef
 ```
 
-Latest validation recorded for PR #114:
+Latest validation recorded for PR #116:
 
 ```bash
-python -m pytest tests/test_project_state_release_tag_consistency.py -q
-# 5 passed in 0.02s
-
 python -m pytest tests/test_readme_documentation_index.py -q
-# 10 passed in 0.01s
+# 10 passed
 
 python -m pytest -q
-# 212 passed in 2.49s
+# 212 passed
 
 git status --short
 # clean; no output
 ```
 
-Validation environment note: PR #114 was validated after installing the project with dev dependencies using `pip install -e ".[dev]"`. This pulled in `mcp[cli]>=1.0.0,<2.0.0`, `requests`, `PyYAML`, and `pytest` into the execution environment. No repository files were modified by validation, and no commits, branches, or pull requests were created during validation.
+Validation environment note: PR #116 was validated in a fresh container after installing missing `pytest` and `mcp` dependencies. No repository files were modified by dependency installation or validation.
 
 ---
 
@@ -75,11 +72,11 @@ FDA abuse-detection/apology responses are source-access limitations. They must n
 
 ---
 
-## 3. Post-Release PM/RA Digest/Report Docs-Spec Workstream
+## 3. Completed Post-Release Workstreams
 
-PR #97–#103 completed a controlled PM/RA regulatory-clinical digest/report docs-spec workstream.
+### PR #97–#103 — PM/RA regulatory-clinical digest/report docs-spec workstream
 
-Key outputs:
+Completed controlled PM/RA digest/report documentation artifacts:
 
 ```text
 docs/regulatory_clinical_digest_report_workflow.md
@@ -93,18 +90,12 @@ docs/regulatory_clinical_digest_clean_source_dry_run.md
 Status:
 
 - Regulatory-clinical digest memo workflow is usable for controlled PM/RA dry-run memo generation.
-- A docs/spec-only report template contract exists.
-- A clean-source dry-run scenario exists.
 - Digest outputs remain working intelligence and require human review.
 - No runtime report generator, template renderer, MCP-side report helper, new source, scheduler, dashboard, alert, persistence, HTTP/SSE transport, company alias database, corporate-family mapping, product ownership inference, or literature/patent/finance/news integration was added.
 
----
+### PR #104–#112 — CMC submission readiness docs-spec extension
 
-## 4. CMC Submission Readiness Docs-Spec Extension Workstream
-
-PR #104–#112 completed a controlled CMC readiness extension workstream.
-
-Key outputs:
+Completed controlled CMC readiness extension artifacts:
 
 ```text
 docs/cmc_submission_readiness_mapping_workflow.md
@@ -116,7 +107,6 @@ Status:
 
 - The CMC readiness workflow remains docs/spec-only.
 - It supports non-confidential Module 3 gap mapping, vendor follow-up, method/stability dependency review, critical path planning, PM next actions, and mock management summary stress testing.
-- Prompt 6 in `docs/cmc_submission_readiness_input_template.md` supports mock management weekly reporting stress-test output.
 - Second stress-test result after PR #111: `PASS`.
 - Repository action recommendation after the second stress test: `No repo change needed`.
 - Do not create `docs/cmc_management_weekly_report_template.md` at this time.
@@ -125,61 +115,60 @@ Interpretation:
 
 CMC readiness is a useful extension module, not the original regulatory-clinical intelligence core. It should not keep pulling the repository toward CMC weekly-report documents unless the user explicitly approves that separate workstream.
 
----
+### PR #113–#115 — Original requirements calibration, traceability, and state sync
 
-## 5. Original Requirements Calibration And Traceability
-
-### PR #113 — Original requirements calibration in continuation handoff
-
-Updated:
+Completed controlled re-anchoring artifacts:
 
 ```text
 PROJECT_STATE_CONTINUATION.md
+docs/original_requirements_traceability_matrix.md
+README.md
+.ai/PROJECT_STATE.md
 ```
 
-Purpose:
+Status:
 
-- Re-anchor new-chat continuation around the user's original full-system requirements.
-- Clarify that the original target is broader than the recent CMC readiness / weekly-reporting workstream.
-- Record that the current approved MVP v1 active sources remain FDA, TFDA, and ClinicalTrials.gov.
-- Warn that EMA, NMPA/CDE, PMDA, EU CTIS, WHO ICTRP, literature, patents, finance, news, company alias database, corporate-family mapping, product ownership inference, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, `.mcp.json`, and GitHub automation require explicit approval before implementation.
+- Re-anchored the project to the user's original full-system requirements.
+- Mapped original requirements to current MVP, extension, missing, and approval-required workstreams.
+- Clarified that PR #104–#112 CMC readiness work is extension work, not the original core system.
+- Synchronized state/handoff files after PR #114.
 
-### PR #114 — Original requirements traceability matrix
+### PR #116 — Open-source Claude/Codex tool survey
 
 Added:
 
 ```text
-docs/original_requirements_traceability_matrix.md
+docs/open_source_claude_codex_tool_survey.md
 ```
 
 Also updated:
 
 ```text
 README.md
+tests/test_readme_documentation_index.py
 ```
 
 Purpose:
 
-- Map the original full-system requirements to current MVP, extension, missing, and approval-required workstreams.
-- Separate completed current-scope work, MVP v1 subset work, partial work, missing original-system gaps, approval-required future work, and CMC readiness extension work.
-- Re-anchor the project to the original regulatory-clinical intelligence MCP mainline.
-- Clarify that PR #104–#112 CMC readiness work is useful extension work, not the original core system.
+- Address the original requirement to search or evaluate tools that can support Claude/Codex-based project work.
+- Survey MCP SDK/FastMCP, MCP Inspector, Codex CLI, Claude Code MCP/plugin workflows, pytest, GitHub CLI, markdownlint, pre-commit, Playwright, and OpenAI agent workflow tooling.
+- Define evaluation criteria, adoption gates, near-term recommendation, and explicit non-goals.
 
 Important interpretation:
 
-The traceability matrix is a governance/specification artifact. It does not approve source expansion, runtime implementation, new MCP tools, scheduler, alerts, dashboard, persistence, HTTP/SSE transport, `.mcp.json`, GitHub automation, literature/patent/finance/news integration, company alias database, corporate-family mapping, product ownership inference, or CMC weekly report template work.
+The survey is a governance/specification artifact. It does not approve tool installation, dependency changes, `.mcp.json`, runtime implementation, new MCP tools, scheduler, alerts, dashboard, persistence, HTTP/SSE transport, GitHub automation, source expansion, or CMC weekly report template work.
 
 ---
 
-## 6. Current Product Status
+## 4. Current Product Status
 
-Estimated progress against the user's broader target system after PR #114:
+Estimated progress against the user's broader target system after PR #116:
 
 ```text
 Original Regulatory / Clinical Intelligence MCP system: about 45–50% complete
-Project governance / GitHub + Claude/Codex workflow foundation: about 70% complete
+Project governance / GitHub + Claude/Codex workflow foundation: about 72% complete
 CMC readiness extension module: about 75% complete
-Overall build-stage system: about 55–60% complete
+Overall build-stage system: about 56–60% complete
 ```
 
 What is now working:
@@ -189,8 +178,8 @@ What is now working:
 - Source failure and source limitation wording is controlled.
 - Regulatory-clinical digest memo workflow, prompt pack, validation exercise, template contract, and clean-source dry-run exist.
 - CMC submission readiness mapping workflow, mock inventory, and input template exist as docs/spec-only extension artifacts.
-- Original full-system requirements are now recorded in continuation handoff and mapped in `docs/original_requirements_traceability_matrix.md`.
-- README documentation index includes the traceability matrix.
+- Original full-system requirements are recorded and mapped in `docs/original_requirements_traceability_matrix.md`.
+- Open-source Claude/Codex/MCP tool candidates are surveyed in `docs/open_source_claude_codex_tool_survey.md`.
 
 What remains intentionally not implemented:
 
@@ -207,14 +196,14 @@ What remains intentionally not implemented:
 What remains missing or only partial relative to the original full-system target:
 
 - Active EMA, NMPA/CDE, and PMDA runtime source coverage.
+- Multi-agency source feasibility comparison for EMA/NMPA/PMDA.
 - Multi-agency date-window validation across all original target agencies.
-- Formal open-source Claude/Codex skill/plugin/tool survey artifact.
 - Persistent source-change tracking, scheduler, and notification design.
 - Multi-registry clinical trial tracking beyond the current ClinicalTrials.gov MVP boundary.
 
 ---
 
-## 7. Current Guardrails
+## 5. Current Guardrails
 
 MVP source scope remains limited to:
 
@@ -244,6 +233,7 @@ Do not add the following unless explicitly approved:
 - Product ownership inference
 - CMC weekly management report template
 - Runtime report generator
+- Tool installation or new dependency adoption based only on the tool survey
 
 For uncertain work, keep the implementation smaller and document limitations clearly.
 
@@ -253,7 +243,7 @@ Do not store confidential, signed, GMP raw, QA-approved, official submission, ve
 
 ---
 
-## 8. Testing And Execution Environment Notes
+## 6. Testing And Execution Environment Notes
 
 Codespaces quota is near limit until July 2026. For upcoming code/test work, default to Claude Code Web and Codex Web workflows.
 
@@ -285,7 +275,7 @@ Do not commit generated or accidental dependency files such as `poetry.lock` unl
 
 ---
 
-## 9. Workflow Correction And Direction Calibration Rule
+## 7. Workflow Correction And Direction Calibration Rule
 
 Use this workflow for future PRs while Codespaces quota is limited:
 
@@ -301,45 +291,40 @@ After a sequence of similar PRs, pause for direction calibration before proposin
 
 The PR #104–#112 CMC readiness docs/spec set should be treated as a completed small extension workstream. Do not add a dedicated management weekly report template at this time because the updated Prompt 6 stress test returned PASS and recommended no repo change.
 
-The PR #113–#114 calibration/traceability set should be treated as the current re-anchor point for the original full-system regulatory-clinical intelligence MCP roadmap.
+The PR #113–#116 calibration/traceability/tool-survey set should be treated as the current re-anchor point for the original full-system regulatory-clinical intelligence MCP roadmap.
 
 ---
 
-## 10. Recommended Next Step
+## 8. Recommended Next Step
 
-Do not immediately build runtime automation, add another CMC template document, or create `docs/cmc_management_weekly_report_template.md`.
+Do not immediately build runtime automation, add another CMC template document, install a surveyed tool, or create `docs/cmc_management_weekly_report_template.md`.
 
 Recommended next version:
 
 ```text
-v0.2.16 — Original requirements traceability follow-up planning
+v0.2.16 — Source expansion feasibility planning
 ```
 
 Recommended next action:
 
 ```text
-Choose the next mainline workstream from docs/original_requirements_traceability_matrix.md before implementing anything else.
+Create a docs/spec-only source expansion feasibility matrix for EMA/NMPA/PMDA before implementing any connector or runtime source expansion.
 ```
 
-Recommended options:
+Recommended scope for the next document:
 
 ```text
-1. Source expansion feasibility for EMA/NMPA/PMDA.
-2. Open-source Claude/Codex skill/plugin/tool survey.
-3. MVP v1 validation and handoff cleanup.
-4. Narrow source-health diagnostics refinement.
-```
-
-Preferred next candidate:
-
-```text
-Create a docs/spec-only open-source Claude/Codex skill/plugin/tool survey matrix, unless the user explicitly prioritizes source expansion feasibility first.
+1. Compare EMA, NMPA/CDE, and PMDA official source options.
+2. Identify official API/RSS/open-data availability where applicable.
+3. Capture licensing/access/anti-scraping limitations.
+4. Define what evidence would be needed before activating each source.
+5. Preserve MVP runtime scope as FDA, TFDA, and ClinicalTrials.gov until explicit approval.
 ```
 
 Explicit non-goal:
 
 ```text
-Do not add a management weekly report template because the current stress-test evidence does not justify it.
+Do not implement EMA, NMPA/CDE, or PMDA connectors yet.
 ```
 
 Preserve MVP source scope: FDA, TFDA, ClinicalTrials.gov only.
