@@ -20,6 +20,7 @@ EXPECTED_INDEX_ENTRIES = [
     "docs/source_expansion_feasibility_matrix_ema_nmpa_pmda.md",
     "docs/dashboard_target_architecture.md",
     "docs/dashboard_data_schema_contract.md",
+    "docs/static_dashboard_dry_run_design.md",
     "docs/claude_project_validation_workflow.md",
     "docs/claude_code_web_mcp_smoke_test_note.md",
     "docs/source_failure_diagnostic_runbook.md",
@@ -211,6 +212,19 @@ def test_dashboard_data_schema_contract_is_indexed_with_expected_scope() -> None
         "data schema families for regulatory/guidance updates, clinical trial "
         "updates, source health events, and dashboard digest summaries without "
         "implementing runtime dashboard work. |"
+    )
+
+    assert expected_row in section
+
+
+def test_static_dashboard_dry_run_design_is_indexed_with_expected_scope() -> None:
+    section = _post_mvp_index_section(_readme_text())
+
+    expected_row = (
+        "| `docs/static_dashboard_dry_run_design.md` | Defines a mock-data-only "
+        "static dashboard dry-run design for validating dashboard tabs, schema flow, "
+        "source-health display, and human-review caveats without implementing runtime "
+        "dashboard work. |"
     )
 
     assert expected_row in section
