@@ -1,8 +1,8 @@
-# Source Expansion Feasibility Matrix — EMA / NMPA / PMDA
+# Source And Guidance Expansion Feasibility Matrix — EMA / NMPA / PMDA / ICH
 
 ## Purpose
 
-This document evaluates whether EMA, NMPA/CDE, and PMDA should be considered for future source expansion beyond the current MVP v1 scope.
+This document evaluates whether EMA, NMPA/CDE, PMDA, and ICH should be considered for future expansion beyond the current MVP v1 source scope.
 
 This is a docs/spec-only feasibility matrix. It does not approve or implement new connectors, runtime sources, MCP tools, scheduler, alerts, persistence, dashboard, HTTP/SSE transport, `.mcp.json`, GitHub automation, company alias database, corporate-family mapping, product ownership inference, literature/patent/finance/news integration, or CMC weekly report work.
 
@@ -16,7 +16,15 @@ TFDA
 ClinicalTrials.gov
 ```
 
-EMA, NMPA/CDE, and PMDA remain candidate post-MVP sources only.
+EMA, NMPA/CDE, PMDA, and ICH remain candidate post-MVP sources only.
+
+## Important Classification Distinction
+
+EMA, NMPA/CDE, and PMDA are regulatory agency / regulator-linked sources.
+
+ICH is different. ICH should be classified as a global harmonisation guidance source, not as a drug-review agency and not as a clinical trial registry.
+
+This distinction matters because ICH guidance should not be forced into the same source model as agency approval, review report, or trial registry sources. A future ICH integration would most likely use a dedicated guidance-source profile.
 
 ## Execution Discipline Guardrail
 
@@ -28,25 +36,29 @@ Survey date: 2026-06-10
 
 Primary evidence reviewed:
 
-| Agency | Official source evidence reviewed | Notes |
+| Source | Official source evidence reviewed | Notes |
 |---|---|---|
 | EMA | `https://www.ema.europa.eu/en/news-events/rss-feeds` | EMA provides RSS feeds for news, public consultations, regulatory/procedural guidelines, scientific guidelines, EPARs, inspections, and other categories. |
 | EMA | `https://www.ema.europa.eu/en/medicines/download-medicine-data` | EMA provides downloadable medicine data tables and states that website data is available in JSON format for automated use. |
-| NMPA / CDE | `https://english.nmpa.gov.cn/` | English NMPA site provides news, drugs, regulatory information, laws/regulations, policies interpretation, database, and links to affiliated institutions including CDE. |
+| NMPA / CDE | `https://english.nmpa.gov.cn/` | English NMPA site provides news, drugs, regulatory information, laws/regulations, policy interpretation, database, and links to affiliated institutions including CDE. |
 | NMPA / CDE | `https://www.cde.org.cn/` | CDE site provides policy/law/guideline sections, public information, accepted products, priority review, breakthrough therapy, implied clinical trial permission, marketed drug information, and rolling dated notices. |
 | PMDA | `https://www.pmda.go.jp/english/` | PMDA English site provides What's new, RSS icons/feeds, review-related services, safety information, approved product information, and regulatory information sections. |
 | PMDA | `https://www.pmda.go.jp/english/review-services/reviews/approved-information/drugs/0002.html` | PMDA provides list of approved products and links to review reports for drugs and other product categories. |
 | PMDA | `https://www.pmda.go.jp/english/review-services/regulatory-info/0002.html` | PMDA provides regulatory information and early consideration links grouped by topic, area, procedure, and approved product information. |
+| ICH | `https://www.ich.org/` | ICH is the official source for harmonised international technical requirements and guidelines. |
+| ICH | `https://www.ich.org/page/ich-guidelines` | ICH guidelines are grouped by topic families such as Quality, Safety, Efficacy, Multidisciplinary, and Implementation. |
+| ICH | `https://www.ich.org/page/quality-guidelines` | ICH Quality guidelines are highly relevant to CMC, analytical, stability, quality risk, pharmaceutical development, and lifecycle topics. |
 
 ## Feasibility Summary
 
-| Agency | Feasibility rating | Best initial source type | Primary value | Main blocker | Recommendation |
-|---|---:|---|---|---|---|
-| EMA | High | RSS + downloadable tables + JSON website data | Strong fit for regulatory updates, medicines data, EPARs, guidelines, consultations, and date-based monitoring. | Need controlled mapping between EMA categories and current internal normalized fields. | Best first candidate for a future source-expansion pilot, after explicit approval. |
-| NMPA / CDE | Medium | CDE official pages + NMPA English/Chinese pages | Important for China drug review updates, guidance principles, registration/public review information, and biologics-related policy signals. | No confirmed stable public API/RSS in this review; Chinese-language parsing and page-structure variability require extra source-health design. | Feasible as docs/planning next; runtime connector should wait for source-access and parser validation. |
-| PMDA | Medium to high | PMDA English What's new/RSS + approved products + review reports + regulatory information pages | Useful for Japan review reports, approved products, safety updates, regulatory information, and new modalities. | Some content is page/PDF/Excel-oriented; English pages may lag or be partial relative to Japanese pages. | Feasible after EMA or in parallel as a lower-complexity read-only metadata source. |
+| Source | Source class | Feasibility rating | Best initial source type | Primary value | Main blocker | Recommendation |
+|---|---|---:|---|---|---|---|
+| EMA | Regulatory agency | High | RSS + downloadable tables + JSON website data | Strong fit for regulatory updates, medicines data, EPARs, guidelines, consultations, and date-based monitoring. | Need controlled mapping between EMA categories and current internal normalized fields. | Best first candidate for a future agency-source pilot, after explicit approval. |
+| ICH | Global harmonisation guidance source | High | Guidelines pages + topic-family pages + news/update pages | Strong fit for guidance tracking, CMC/quality intelligence, and cross-agency harmonised requirements. | Needs a guidance-source profile distinct from agency approval/review sources. | Best first candidate for a future guidance-source pilot, after explicit approval. |
+| PMDA | Regulatory agency | Medium to high | PMDA English What's new/RSS + approved products + review reports + regulatory information pages | Useful for Japan review reports, approved products, safety updates, regulatory information, and new modalities. | Some content is page/PDF/Excel-oriented; English pages may lag or be partial relative to Japanese pages. | Feasible after EMA or in parallel as a lower-complexity read-only metadata source. |
+| NMPA / CDE | Regulatory agency / review center | Medium | CDE official pages + NMPA English/Chinese pages | Important for China drug review updates, guidance principles, registration/public review information, and biologics-related policy signals. | No confirmed stable public API/RSS in this review; Chinese-language parsing and page-structure variability require extra source-health design. | Feasible as docs/planning next; runtime connector should wait for source-access and parser validation. |
 
-## Agency-Level Feasibility Matrix
+## Source-Level Feasibility Matrix
 
 ### EMA
 
@@ -59,7 +71,21 @@ Primary evidence reviewed:
 | Modality coverage | Likely feasible through medicine metadata and guideline categories, but product modality mapping must be validated against current taxonomy. | Requires mapping test before connector approval. |
 | Date-window support | RSS and download tables contain update/publication signals; exact field-level handling must be validated. | Likely feasible. |
 | Access risk | Official RSS/JSON/table routes appear designed for automated access. | Lower access risk than scraping-only sites. |
-| Recommended status | Candidate 1 for source expansion feasibility follow-up. | Do not implement until explicit approval. |
+| Recommended status | Candidate 1 for agency-source expansion feasibility follow-up. | Do not implement until explicit approval. |
+
+### ICH
+
+| Dimension | Finding | Feasibility interpretation |
+|---|---|---|
+| Source class | ICH is a global harmonisation body for technical requirements and guidance, not a marketing-authorisation agency. | Requires a guidance-source profile, not an agency-review profile. |
+| Official guideline source | ICH provides official guideline pages and topic-family groupings including Quality, Safety, Efficacy, Multidisciplinary, and Implementation. | Strong fit for official guidance tracking. |
+| CMC relevance | Quality guidelines cover highly relevant CMC topics such as stability, analytical validation, pharmaceutical development, quality risk management, lifecycle, impurities, and related quality topics. | High value for PM/RA/CMC intelligence use. |
+| Update detection | ICH guideline pages and news/update content can support monitoring of new, revised, adopted, draft, and consultation-stage guidelines if fields are mapped carefully. | Feasible, but update-stage normalization must be designed. |
+| Date-window support | Guideline status, revision history, and news/update pages may provide date signals, but exact source-specific fields need source review. | Feasible after schema review. |
+| Structured data | This review did not confirm a stable public JSON/API/RSS route comparable to EMA. | Treat as official webpage/PDF metadata source until proven otherwise. |
+| Modality coverage | ICH is generally topic-based rather than product-modality-based; modality relevance must be inferred from guideline topic and scope. | Requires controlled guidance-topic mapping, not product ownership inference. |
+| Access risk | Official public pages are available, but automated use pattern and page stability should be confirmed before connector work. | Low to medium risk. |
+| Recommended status | Candidate 1 for guidance-source expansion feasibility follow-up. | Do not implement until explicit approval. |
 
 ### NMPA / CDE
 
@@ -89,38 +115,43 @@ Primary evidence reviewed:
 | Access risk | Official pages and RSS signals appear accessible, but content formats vary. | Medium risk. |
 | Recommended status | Candidate 2 or 3 after EMA; useful for read-only metadata and review-report tracking. | Do not implement until explicit approval. |
 
-## Proposed Source Expansion Decision Gate
+## Proposed Source And Guidance Expansion Decision Gate
 
-Before any EMA, NMPA/CDE, or PMDA runtime work is approved, require all of the following:
+Before any EMA, NMPA/CDE, PMDA, or ICH runtime work is approved, require all of the following:
 
 1. Confirm exact official source URLs and allowed use pattern.
 2. Confirm whether RSS, JSON, table download, or API-like data access exists.
 3. Confirm update-date and publication-date fields.
 4. Confirm source health behavior for empty results, unavailable pages, and parser changes.
 5. Define normalized fields that map into the current data dictionary.
-6. Define modality mapping and bilingual term handling where needed.
-7. Define expected date-window behavior from 1 month to 5 years.
-8. Confirm test strategy with mocked/offline examples before live-source tests.
-9. Confirm that any new connector is explicitly approved by the user.
-10. Confirm no `.mcp.json`, scheduler, alerts, dashboard, persistence, HTTP/SSE, or GitHub automation is introduced without separate approval.
+6. Define whether the source is an agency-review source, guidance-source, product/medicine-data source, or clinical-registry source.
+7. Define modality mapping and bilingual term handling where needed.
+8. Define expected date-window behavior from 1 month to 5 years.
+9. Confirm test strategy with mocked/offline examples before live-source tests.
+10. Confirm that any new connector is explicitly approved by the user.
+11. Confirm no `.mcp.json`, scheduler, alerts, dashboard, persistence, HTTP/SSE, or GitHub automation is introduced without separate approval.
 
 ## Recommended Expansion Order
 
 Recommended order if the user later approves expansion planning:
 
 ```text
-1. EMA feasibility deepening: RSS + JSON/table schema review.
-2. PMDA feasibility deepening: What's new/RSS + review reports + regulatory information mapping.
-3. NMPA/CDE feasibility deepening: source-access, Chinese-language parser, and bilingual taxonomy validation.
+1. ICH guidance-source schema review: guideline families, stages, revision dates, and official links.
+2. EMA agency-source schema review: RSS + JSON/table schema review.
+3. PMDA agency-source schema review: What's new/RSS + review reports + regulatory information mapping.
+4. NMPA/CDE agency-source schema review: source-access, Chinese-language parser, and bilingual taxonomy validation.
 ```
 
 Rationale:
 
-- EMA has the clearest automated-use signal because the official site exposes RSS categories, downloadable tables, and JSON website data.
+- ICH has high value and should be treated as guidance-source expansion rather than agency-source expansion.
+- EMA has the clearest automated-use signal for agency expansion because the official site exposes RSS categories, downloadable tables, and JSON website data.
 - PMDA has useful English update and review-report pages but may require mixed HTML/PDF/Excel handling.
 - NMPA/CDE is highly relevant but likely requires the most bilingual normalization and parser-stability work.
 
-## MVP Impact Assessment
+## Architecture Impact Assessment
+
+Adding ICH changes the future architecture classification more than it changes runtime scope.
 
 | Area | Impact if only this document is added |
 |---|---|
@@ -128,17 +159,20 @@ Rationale:
 | MCP tools | None |
 | Active sources | None |
 | Tests | README index only |
-| User workflow | Provides a decision basis for source expansion approval |
-| Risk | Low, because no source connector or automation is introduced |
+| Source taxonomy | Adds need to distinguish agency sources from global harmonisation guidance sources. |
+| Data model planning | Adds future need for guideline family, guideline stage/status, revision/adoption date, and implementation topic fields. |
+| User workflow | Provides a decision basis for source/guidance expansion approval. |
+| Risk | Low, because no source connector or automation is introduced. |
 
 ## Recommended Next Workstream After This Matrix
 
 If this PR is accepted, the next safe step should be one of:
 
 1. State sync after this feasibility matrix.
-2. EMA-only schema review document, still docs/spec-only.
-3. PMDA-only schema review document, still docs/spec-only.
-4. NMPA/CDE source-access feasibility note, still docs/spec-only.
+2. ICH-only guidance-source schema review document, still docs/spec-only.
+3. EMA-only agency-source schema review document, still docs/spec-only.
+4. PMDA-only agency-source schema review document, still docs/spec-only.
+5. NMPA/CDE source-access feasibility note, still docs/spec-only.
 
 Do not implement any connector until the user explicitly approves a specific source, source type, normalized fields, and validation plan.
 
@@ -149,7 +183,8 @@ This PR does not authorize:
 - EMA connector implementation.
 - NMPA/CDE connector implementation.
 - PMDA connector implementation.
-- Runtime source expansion.
+- ICH connector implementation.
+- Runtime source or guidance expansion.
 - New MCP tools.
 - New dependencies.
 - `.mcp.json` changes.
