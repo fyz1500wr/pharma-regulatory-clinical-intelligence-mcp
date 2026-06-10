@@ -5,19 +5,19 @@ Last updated: 2026-06-10
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
 Current completed release: `v0.2.15-fda-abuse-detection-source-failure-diagnostics`
-Latest post-release main checkpoint: PR #116 open-source Claude/Codex tool survey
+Latest post-release main checkpoint: PR #118 EMA/NMPA/PMDA/ICH source and guidance expansion feasibility matrix
 
 Latest confirmed main commit:
 
 ```text
-0fe5ab259e2502e925cdf367d5c3f0cfb66d12ef
+7d265a0c90f2d596690b2f9d66c3f2e90b1e7911
 ```
 
 ---
 
 ## 1. Current Status
 
-The repository remains at completed tagged release `v0.2.15-fda-abuse-detection-source-failure-diagnostics`. After that release, the `main` branch completed source-limitation/usability hardening, PM/RA regulatory-clinical digest/report docs-spec work, a clean-source digest dry-run, a CMC submission readiness docs/spec extension workstream, original-requirements calibration, an original requirements traceability matrix, and an open-source Claude/Codex/MCP tool survey through PR #116.
+The repository remains at completed tagged release `v0.2.15-fda-abuse-detection-source-failure-diagnostics`. After that release, the `main` branch completed source-limitation/usability hardening, PM/RA regulatory-clinical digest/report docs-spec work, a clean-source digest dry-run, a CMC submission readiness docs/spec extension workstream, original-requirements calibration, an original requirements traceability matrix, an open-source Claude/Codex/MCP tool survey, and a source/guidance expansion feasibility matrix through PR #118.
 
 No new release tag has been created for the post-release docs/product workflow work after v0.2.15.
 
@@ -27,26 +27,29 @@ Latest confirmed release tag:
 v0.2.15-fda-abuse-detection-source-failure-diagnostics
 ```
 
-Latest completed survey checkpoint:
+Latest completed feasibility checkpoint:
 
 ```text
-PR #116 merge commit: 0fe5ab259e2502e925cdf367d5c3f0cfb66d12ef
+PR #118 merge commit: 7d265a0c90f2d596690b2f9d66c3f2e90b1e7911
 ```
 
-Latest validation recorded for PR #116:
+Latest validation recorded for PR #118:
 
 ```bash
 python -m pytest tests/test_readme_documentation_index.py -q
-# 10 passed
+# 11 passed
+
+python -m pip install -e .
+# editable package reinstalled successfully
 
 python -m pytest -q
-# 212 passed
+# 213 passed
 
 git status --short
 # clean; no output
 ```
 
-Validation environment note: PR #116 was validated in a fresh container after installing missing `pytest` and `mcp` dependencies. No repository files were modified by dependency installation or validation.
+Validation environment note: PR #118 full-suite validation required installing the project editable package so that the existing `mcp` dependency was available. No repository files were modified by dependency installation or validation.
 
 ---
 
@@ -158,17 +161,69 @@ Important interpretation:
 
 The survey is a governance/specification artifact. It does not approve tool installation, dependency changes, `.mcp.json`, runtime implementation, new MCP tools, scheduler, alerts, dashboard, persistence, HTTP/SSE transport, GitHub automation, source expansion, or CMC weekly report template work.
 
+### PR #117 — State sync after tool survey
+
+Updated:
+
+```text
+.ai/PROJECT_STATE.md
+PROJECT_STATE_CONTINUATION.md
+```
+
+Status:
+
+- Synchronized project state after PR #116.
+- Preserved the post-v0.2.15 release baseline and guardrails.
+
+### PR #118 — EMA/NMPA/PMDA/ICH source and guidance expansion feasibility matrix
+
+Added / updated:
+
+```text
+docs/source_expansion_feasibility_matrix_ema_nmpa_pmda.md
+README.md
+tests/test_readme_documentation_index.py
+```
+
+Purpose:
+
+- Provide a docs/spec-only feasibility matrix for future EMA, NMPA/CDE, PMDA, and ICH expansion.
+- Classify EMA, NMPA/CDE, and PMDA as regulatory agency / regulator-linked source candidates.
+- Classify ICH as a global harmonisation guidance source, not a drug-review agency and not a clinical trial registry.
+- Define feasibility ratings, official source evidence, blockers, activation gates, and recommended sequencing.
+- Record that ICH may require a separate future guidance-source profile with guideline family, guideline stage/status, revision/adoption date, and implementation-topic fields.
+
+Validation:
+
+```bash
+python -m pytest tests/test_readme_documentation_index.py -q
+# 11 passed
+
+python -m pip install -e .
+# editable package reinstalled successfully
+
+python -m pytest -q
+# 213 passed
+
+git status --short
+# clean; no output
+```
+
+Important interpretation:
+
+PR #118 is a feasibility/planning artifact only. It does not approve or implement EMA, NMPA/CDE, PMDA, or ICH connectors. It does not add runtime source or guidance expansion, MCP tools, dependencies, `.mcp.json`, scheduler, alerts, dashboard, persistence, HTTP/SSE transport, GitHub automation, literature/patent/finance/news integration, company alias database, corporate-family mapping, product ownership inference, CMC weekly report template, runtime generator, or implementation code.
+
 ---
 
 ## 4. Current Product Status
 
-Estimated progress against the user's broader target system after PR #116:
+Estimated progress against the user's broader target system after PR #118:
 
 ```text
-Original Regulatory / Clinical Intelligence MCP system: about 45–50% complete
-Project governance / GitHub + Claude/Codex workflow foundation: about 72% complete
+Original Regulatory / Clinical Intelligence MCP system: about 48–52% complete
+Project governance / GitHub + Claude/Codex workflow foundation: about 73–75% complete
 CMC readiness extension module: about 75% complete
-Overall build-stage system: about 56–60% complete
+Overall build-stage system: about 58–62% complete
 ```
 
 What is now working:
@@ -180,6 +235,7 @@ What is now working:
 - CMC submission readiness mapping workflow, mock inventory, and input template exist as docs/spec-only extension artifacts.
 - Original full-system requirements are recorded and mapped in `docs/original_requirements_traceability_matrix.md`.
 - Open-source Claude/Codex/MCP tool candidates are surveyed in `docs/open_source_claude_codex_tool_survey.md`.
+- EMA/NMPA/PMDA/ICH source and guidance expansion feasibility is documented in `docs/source_expansion_feasibility_matrix_ema_nmpa_pmda.md`.
 
 What remains intentionally not implemented:
 
@@ -188,15 +244,16 @@ What remains intentionally not implemented:
 - MCP-side report generation helper.
 - Persistent source-failure event store.
 - Dashboard, scheduler, alerting, external integration, or GitHub automation.
-- Additional source expansion.
+- Additional runtime source or guidance expansion.
 - Official eCTD publishing, EDMS, GMP/QA record, or submission record storage.
 - Management decision automation.
 - Dedicated `docs/cmc_management_weekly_report_template.md`.
 
 What remains missing or only partial relative to the original full-system target:
 
-- Active EMA, NMPA/CDE, and PMDA runtime source coverage.
-- Multi-agency source feasibility comparison for EMA/NMPA/PMDA.
+- Active EMA, NMPA/CDE, PMDA, or ICH runtime source/guidance coverage.
+- Runtime multi-agency source coverage across all original target agencies.
+- Guidance-source schema handling for ICH guideline families, stages/status, revision/adoption dates, and implementation-topic fields.
 - Multi-agency date-window validation across all original target agencies.
 - Persistent source-change tracking, scheduler, and notification design.
 - Multi-registry clinical trial tracking beyond the current ClinicalTrials.gov MVP boundary.
@@ -205,7 +262,7 @@ What remains missing or only partial relative to the original full-system target
 
 ## 5. Current Guardrails
 
-MVP source scope remains limited to:
+MVP runtime source scope remains limited to:
 
 ```text
 FDA
@@ -215,7 +272,7 @@ ClinicalTrials.gov
 
 Do not add the following unless explicitly approved:
 
-- Additional agencies such as EMA, NMPA, PMDA, WHO ICTRP, EU CTIS
+- Runtime source or guidance expansion for EMA, NMPA/CDE, PMDA, ICH, WHO ICTRP, EU CTIS, or other sources
 - Literature integration
 - Patent integration
 - Finance integration
@@ -265,10 +322,10 @@ Do not create a pull request.
 Only run the requested commands and report results.
 ```
 
-If a Python environment is available and `pytest` or `mcp` is missing, install the project with dev dependencies first:
+If a Python environment is available and `pytest` or `mcp` is missing, install the project first:
 
 ```bash
-python -m pip install -e ".[dev]"
+python -m pip install -e .
 ```
 
 Do not commit generated or accidental dependency files such as `poetry.lock` unless dependency management is explicitly approved as part of the task.
@@ -287,46 +344,41 @@ When local or Codespaces validation is unavailable, clearly label validation as 
 
 Do not tag before confirming that the PR has actually been merged into `main`.
 
+When the user explicitly confirms that a PR is already merged or approves the next step, do not repeatedly block progress by asking for the same confirmation again. For repo-changing work, perform at most one verification pass when needed, then continue with the approved next step.
+
 After a sequence of similar PRs, pause for direction calibration before proposing or executing the next same-type PR. This rule is intended to prevent uncontrolled scope drift and over-narrowing around local documents.
 
 The PR #104–#112 CMC readiness docs/spec set should be treated as a completed small extension workstream. Do not add a dedicated management weekly report template at this time because the updated Prompt 6 stress test returned PASS and recommended no repo change.
 
-The PR #113–#116 calibration/traceability/tool-survey set should be treated as the current re-anchor point for the original full-system regulatory-clinical intelligence MCP roadmap.
+The PR #113–#118 calibration/traceability/tool-survey/source-feasibility set should be treated as the current re-anchor point for the original full-system regulatory-clinical intelligence MCP roadmap.
 
 ---
 
 ## 8. Recommended Next Step
 
-Do not immediately build runtime automation, add another CMC template document, install a surveyed tool, or create `docs/cmc_management_weekly_report_template.md`.
+Do not immediately build runtime automation, add another CMC template document, install a surveyed tool, create `docs/cmc_management_weekly_report_template.md`, or implement EMA/NMPA/PMDA/ICH connectors.
 
-Recommended next version:
-
-```text
-v0.2.16 — Source expansion feasibility planning
-```
-
-Recommended next action:
+Recommended next version remains:
 
 ```text
-Create a docs/spec-only source expansion feasibility matrix for EMA/NMPA/PMDA before implementing any connector or runtime source expansion.
+v0.2.16 — Source and guidance expansion feasibility planning
 ```
 
-Recommended scope for the next document:
+Recommended next action after PR #119 state sync:
 
 ```text
-1. Compare EMA, NMPA/CDE, and PMDA official source options.
-2. Identify official API/RSS/open-data availability where applicable.
-3. Capture licensing/access/anti-scraping limitations.
-4. Define what evidence would be needed before activating each source.
-5. Preserve MVP runtime scope as FDA, TFDA, and ClinicalTrials.gov until explicit approval.
+Direction calibration before additional expansion planning.
 ```
 
-Explicit non-goal:
+Recommended calibration questions:
 
 ```text
-Do not implement EMA, NMPA/CDE, or PMDA connectors yet.
+1. Should the next docs/spec step focus on ICH guidance-source schema review?
+2. Should EMA agency-source schema review come next instead?
+3. Should the project pause source-expansion planning and return to MVP runtime hardening?
+4. Should no further PR be created until the user explicitly selects one direction?
 ```
 
-Preserve MVP source scope: FDA, TFDA, ClinicalTrials.gov only.
+Preserve MVP runtime source scope: FDA, TFDA, ClinicalTrials.gov only.
 
-Do not add new agencies, sources, tools, scheduler, alerts, dashboard, persistence, HTTP/SSE transport, `.mcp.json`, GitHub automation, company alias database, corporate-family mapping, product ownership inference, literature, patent, finance, or news integrations without explicit approval.
+Do not add new agencies, sources, guidance connectors, tools, scheduler, alerts, dashboard, persistence, HTTP/SSE transport, `.mcp.json`, GitHub automation, company alias database, corporate-family mapping, product ownership inference, literature, patent, finance, or news integrations without explicit approval.
