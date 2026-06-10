@@ -15,6 +15,8 @@ EXPECTED_INDEX_ENTRIES = [
     "docs/tool_output_review_checklist.md",
     "docs/live_source_behavior_notes.md",
     "docs/post_mvp_source_expansion_decision_matrix.md",
+    "docs/original_requirements_traceability_matrix.md",
+    "docs/open_source_claude_codex_tool_survey.md",
     "docs/claude_project_validation_workflow.md",
     "docs/claude_code_web_mcp_smoke_test_note.md",
     "docs/source_failure_diagnostic_runbook.md",
@@ -156,6 +158,18 @@ def test_cmc_submission_readiness_input_template_is_indexed_with_expected_scope(
         "| `docs/cmc_submission_readiness_input_template.md` | "
         "Provides a reusable CMC readiness input template and prompt pack for "
         "consistent Module 3 gap, vendor follow-up, and critical path review. |"
+    )
+
+    assert expected_row in section
+
+
+def test_open_source_tool_survey_is_indexed_with_expected_scope() -> None:
+    section = _post_mvp_index_section(_readme_text())
+
+    expected_row = (
+        "| `docs/open_source_claude_codex_tool_survey.md` | Surveys open-source "
+        "and openly documented Claude/Codex/MCP tool candidates without "
+        "approving installation or integration. |"
     )
 
     assert expected_row in section
