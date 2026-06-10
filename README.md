@@ -213,6 +213,7 @@ These documents make MVP v1 easier to use, review, and govern. They are not sour
 | `docs/open_source_claude_codex_tool_survey.md` | Surveys open-source and openly documented Claude/Codex/MCP tool candidates without approving installation or integration. |
 | `docs/source_expansion_feasibility_matrix_ema_nmpa_pmda.md` | Evaluates EMA, NMPA/CDE, PMDA, and ICH source/guidance expansion feasibility without approving connector or runtime implementation. |
 | `docs/dashboard_target_architecture.md` | Defines the dashboard-first target architecture contract for future regulatory, guidance, clinical trial, and source-health dashboard artifacts without implementing runtime dashboard work. |
+| `docs/dashboard_data_schema_contract.md` | Defines canonical dashboard data schema families for regulatory/guidance updates, clinical trial updates, source health events, and dashboard digest summaries without implementing runtime dashboard work. |
 | `docs/claude_project_validation_workflow.md` | Defines the Claude Project setup and validation workflow for safe MVP v1 MCP output use. |
 | `docs/claude_code_web_mcp_smoke_test_note.md` | Records Claude Code Web MCP transport validation, tool invocation results, and egress allowlist limitation for live-source checks. |
 | `docs/source_failure_diagnostic_runbook.md` | Defines the purpose-first SOP for distinguishing source failure, runtime egress policy, parser/API changes, and true no-result cases. |
