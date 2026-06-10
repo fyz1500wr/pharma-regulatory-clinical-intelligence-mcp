@@ -262,7 +262,7 @@ What remains missing or only partial relative to the original full-system target
 
 ## 5. Current Guardrails
 
-MVP runtime source scope remains limited to:
+MVP source scope remains limited to:
 
 ```text
 FDA
@@ -272,6 +272,7 @@ ClinicalTrials.gov
 
 Do not add the following unless explicitly approved:
 
+- Additional agencies such as EMA, NMPA, PMDA, WHO ICTRP, EU CTIS
 - Runtime source or guidance expansion for EMA, NMPA/CDE, PMDA, ICH, WHO ICTRP, EU CTIS, or other sources
 - Literature integration
 - Patent integration
@@ -358,7 +359,7 @@ The PR #113–#118 calibration/traceability/tool-survey/source-feasibility set s
 
 Do not immediately build runtime automation, add another CMC template document, install a surveyed tool, create `docs/cmc_management_weekly_report_template.md`, or implement EMA/NMPA/PMDA/ICH connectors.
 
-Recommended next version remains:
+Recommended next version:
 
 ```text
 v0.2.16 — Source and guidance expansion feasibility planning
