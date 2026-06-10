@@ -18,6 +18,7 @@ EXPECTED_INDEX_ENTRIES = [
     "docs/original_requirements_traceability_matrix.md",
     "docs/open_source_claude_codex_tool_survey.md",
     "docs/source_expansion_feasibility_matrix_ema_nmpa_pmda.md",
+    "docs/dashboard_target_architecture.md",
     "docs/claude_project_validation_workflow.md",
     "docs/claude_code_web_mcp_smoke_test_note.md",
     "docs/source_failure_diagnostic_runbook.md",
@@ -181,8 +182,21 @@ def test_source_expansion_feasibility_matrix_is_indexed_with_expected_scope() ->
 
     expected_row = (
         "| `docs/source_expansion_feasibility_matrix_ema_nmpa_pmda.md` | "
-        "Evaluates EMA, NMPA/CDE, and PMDA source expansion feasibility without "
-        "approving connector or runtime implementation. |"
+        "Evaluates EMA, NMPA/CDE, PMDA, and ICH source/guidance expansion "
+        "feasibility without approving connector or runtime implementation. |"
+    )
+
+    assert expected_row in section
+
+
+def test_dashboard_target_architecture_is_indexed_with_expected_scope() -> None:
+    section = _post_mvp_index_section(_readme_text())
+
+    expected_row = (
+        "| `docs/dashboard_target_architecture.md` | Defines the dashboard-first "
+        "target architecture contract for future regulatory, guidance, clinical "
+        "trial, and source-health dashboard artifacts without implementing runtime "
+        "dashboard work. |"
     )
 
     assert expected_row in section
