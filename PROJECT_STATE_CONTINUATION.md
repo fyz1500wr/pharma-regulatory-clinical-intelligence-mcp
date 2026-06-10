@@ -1,7 +1,7 @@
 # Project State Continuation
 
 Created: 2026-06-04  
-Updated: 2026-06-09
+Updated: 2026-06-10
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 
@@ -10,22 +10,22 @@ This file is a compact continuation handoff for starting a new chat. Canonical d
 ## Current checkpoint
 
 - Stable branch: `main`
-- Latest confirmed merged PR: PR #112
-- PR #112 merge commit: `b0c406e11b2bfc4db371fde7aadb363a23f76d13`
-- Latest completed workstream: CMC submission readiness docs/spec workflow through mapping workflow, mock inventory, input template / prompt pack, management summary prompt revision, second mock management weekly reporting stress test, and state/handoff sync.
+- Latest confirmed merged PR: PR #114
+- PR #114 merge commit: `721edc72cac42d04d78afeafbb852d8c28eafc11`
+- Latest completed workstream: Original requirements calibration and traceability matrix after the CMC readiness extension workstream.
 - Latest validation status: `PASS`
-- Latest validation evidence from Claude Code on PR #112 branch `sync-project-state-after-management-summary-prompt` at HEAD `8126480` / `81264808b4a3fefb3506992a19930b5ccb0c6904`:
+- Latest validation evidence after installing project dev dependencies with `pip install -e ".[dev]"`:
   - `python -m pytest tests/test_project_state_release_tag_consistency.py -q` → `5 passed in 0.02s`
-  - `python -m pytest tests/test_readme_documentation_index.py -q` → `10 passed in 0.02s`
-  - `python -m pytest -q` → `212 passed in 2.79s`
+  - `python -m pytest tests/test_readme_documentation_index.py -q` → `10 passed in 0.01s`
+  - `python -m pytest -q` → `212 passed in 2.49s`
   - `git status --short` → clean / no output
-- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag was created for PR #97–#112 docs/product workflow work.
-- Open PRs at this checkpoint: none known after PR #112 merge.
+- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag was created for PR #97–#114 docs/product workflow work.
+- Open PRs after PR #114 merge: none known at checkpoint.
 - Execution environment note: Codespaces quota is near limit until July 2026. For upcoming code/test work, default to Claude Code Web and Codex Web workflows. Do not assume Codespaces is available unless the user explicitly says it is available again.
 
 ## Original user requirement baseline
 
-The project is in build-stage and must be evaluated against the user's original full-system requirements, not only the latest CMC workstream.
+The project is in build-stage and must be evaluated against the user's original full-system requirements, not only the recent CMC workstream.
 
 Original target system:
 
@@ -46,7 +46,7 @@ Original target system:
 
 ## Current alignment to original requirements
 
-Current rough alignment against the original target:
+Current rough alignment against the original target after PR #114:
 
 ```text
 Original Regulatory / Clinical Intelligence MCP system: about 45–50% complete
@@ -60,6 +60,7 @@ Interpretation:
 - The repo has a strong governance, guardrail, state/handoff, and docs/spec foundation.
 - The repo has a useful MVP regulatory-clinical intelligence subset using FDA, TFDA, and ClinicalTrials.gov.
 - The repo has a useful CMC readiness docs/spec extension.
+- The repo now has an original requirements traceability matrix.
 - The repo has not yet completed the original multi-agency regulatory tracking target because EMA, NMPA, and PMDA are not active MVP sources.
 - The repo has not yet implemented scheduler, alerting, persistence, dashboard, source-change notification, or multi-source runtime automation.
 - The repo has not yet captured the open-source skill/plugin survey as a formal project artifact.
@@ -126,6 +127,23 @@ Important decision:
 Do not create docs/cmc_management_weekly_report_template.md at this time.
 ```
 
+### PR #113–#114 — Original requirements calibration and traceability
+
+Completed a controlled re-anchoring sequence:
+
+```text
+PROJECT_STATE_CONTINUATION.md
+docs/original_requirements_traceability_matrix.md
+README.md
+```
+
+Purpose:
+
+- Re-anchor continuation around the user's original full-system requirements.
+- Map original requirements to current MVP, extension, partial, missing, and approval-required workstreams.
+- Distinguish the original regulatory-clinical intelligence MCP core from the CMC readiness extension.
+- Prevent further drift toward a narrow CMC weekly-report branch.
+
 ## Current guardrails
 
 - Keep MVP source scope limited to FDA, TFDA, and ClinicalTrials.gov unless source expansion is explicitly approved.
@@ -138,50 +156,30 @@ Do not create docs/cmc_management_weekly_report_template.md at this time.
 - If validation is requested, use Claude Code Web or Codex Web first due to Codespaces quota limits.
 - If asking Claude Code/Codex only to validate, explicitly instruct: do not modify files, do not commit, do not create branch, do not create PR.
 
-## Risk of scope drift / narrowing
-
-The recent PR #104–#112 sequence was useful but narrowed attention toward CMC readiness and weekly management reporting.
-
-This is acceptable as a completed extension module, but it is not the full original system.
-
-Do not continue adding CMC weekly-report documents, CMC dashboards, or CMC automation unless the user explicitly chooses that as the next workstream.
-
-The next step should re-anchor the project to the original multi-agency regulatory / clinical intelligence MCP architecture.
-
 ## Recommended immediate next step
 
 Recommended next action:
 
 ```text
-Create a docs/spec-only original requirements traceability matrix before implementing anything else.
+Choose the next mainline workstream from docs/original_requirements_traceability_matrix.md before implementing anything else.
 ```
 
-Suggested file:
+Recommended options:
 
 ```text
-docs/original_requirements_traceability_matrix.md
+1. Source expansion feasibility for EMA/NMPA/PMDA.
+2. Open-source Claude/Codex skill/plugin/tool survey.
+3. MVP v1 validation and handoff cleanup.
+4. Narrow source-health diagnostics refinement.
 ```
 
-Purpose:
+Preferred next candidate:
 
-- Map the user's original requirements to current repo capabilities.
-- Identify what is complete, partial, missing, out-of-scope, or intentionally deferred.
-- Distinguish original-system core requirements from CMC readiness extension work.
-- Prevent the project from drifting further into narrow CMC weekly-report work.
-- Define the next workstream deliberately.
+```text
+Create a docs/spec-only open-source Claude/Codex skill/plugin/tool survey matrix, unless the user explicitly prioritizes source expansion feasibility first.
+```
 
-The matrix should cover at least:
-
-| Original Requirement Area | Current Status | Rough Completion | Current Repo Evidence | Gap | Next Workstream Candidate |
-|---|---:|---:|---|---|---|
-| Multi-agency regulatory tracking: FDA/EMA/TFDA/NMPA/PMDA | Partial | 35–45% | FDA/TFDA MVP docs/tools/specs | EMA/NMPA/PMDA inactive | Source expansion feasibility matrix |
-| Date range 1 month to 5 years, dates and official links | Partial | 40–50% | Digest/report contract fields | Needs multi-source date-range validation | Date-range test plan |
-| Biologic modality search | Early | 30–40% | Product modality input fields | Needs taxonomy and validation | Biologic modality taxonomy |
-| Indication/company clinical trial tracking and results | Partial | 55–60% | ClinicalTrials.gov MVP / sponsor-name workflow | No persistence or change tracking | ClinicalTrials.gov indication/company tracking workflow |
-| Source/webpage/API change detection | Early | 25–35% | Source health/failure diagnostics | No scheduler/alerts/persistence | Source-change detection design |
-| MCP official/API-first source retrieval | Partial | 50–60% | MVP tool workflow | Multi-agency official API feasibility incomplete | Source API feasibility matrix |
-| Open-source skill/plugin survey for Claude/Codex | Mostly missing | 10–20% | Not formalized | Need catalog/survey | Open-source plugin/skill survey |
-| CMC readiness extension | Strong extension, not original core | 75% | PR #104–#112 | Needs real de-identified case later | Use current workflow without more CMC docs |
+Do not continue adding CMC weekly-report documents, CMC dashboards, or CMC automation unless the user explicitly chooses that as the next workstream.
 
 ## New-chat opening prompt
 
@@ -192,15 +190,15 @@ Use the following prompt to continue in a new chat.
 
 請用繁體中文回覆，不要輸出日文。
 
-目前對話已變長，請先不要新增程式、來源、MCP tool、scheduler、alerts、dashboard、persistence、HTTP/SSE、`.mcp.json`、GitHub automation、literature/patent/finance/news integration、company alias database、corporate-family mapping、product ownership inference，也不要新增 CMC weekly report template。
-
 請先確認：
 
-1. `main` 是否已包含 PR #112；
+1. `main` 是否已包含 PR #114；
 2. 是否有 open PR；
-3. `.ai/PROJECT_STATE.md` 與 `PROJECT_STATE_CONTINUATION.md` 是否已記錄 PR #104–#112、PR #111 Prompt 6 revision、第二次 Claude Project stress test PASS、以及目前不需新增 `docs/cmc_management_weekly_report_template.md`；
-4. 目前專案是否已被重新校準為 build-stage full-system planning，而不是只做 CMC weekly reporting；
+3. `.ai/PROJECT_STATE.md` 與 `PROJECT_STATE_CONTINUATION.md` 是否已記錄 PR #113–#114、original requirements calibration、traceability matrix、以及 validation 212 passed；
+4. 目前專案是否已重新校準回 original regulatory-clinical intelligence MCP 主線，而不是只做 CMC weekly reporting；
 5. 後續 code/test 工作是否應優先使用 Claude Code Web / Codex Web，而不是 Codespaces。
+
+目前不要新增程式、來源、MCP tool、scheduler、alerts、dashboard、persistence、HTTP/SSE、`.mcp.json`、GitHub automation、literature/patent/finance/news integration、company alias database、corporate-family mapping、product ownership inference，也不要新增 CMC weekly report template。
 
 請把我最一開始的原始需求全部納入考量：
 
@@ -212,13 +210,12 @@ Use the following prompt to continue in a new chat.
 - 優先官方 API，建立 MCP 抓取；
 - 搜尋或整理可支援 Claude/Codex 的開源 skill/plugin/tool，至少對上述任一功能有幫助。
 
+目前建議下一步是在 `docs/original_requirements_traceability_matrix.md` 的候選 workstream 中選一個：
+
+1. Source expansion feasibility for EMA/NMPA/PMDA；
+2. Open-source Claude/Codex skill/plugin/tool survey；
+3. MVP v1 validation and handoff cleanup；
+4. Narrow source-health diagnostics refinement。
+
 請先做 direction calibration，不要直接寫程式。
-
-目前建議下一步是新增一個 docs/spec-only 文件：
-
-`docs/original_requirements_traceability_matrix.md`
-
-此文件要把原始需求逐項對照目前 repo 已完成內容、缺口、完成度、對應 PR/文件、是否屬 MVP v1、是否需要 source expansion approval、以及下一步建議。目的不是新增功能，而是防止專案繼續偏向 CMC weekly report 支線。
-
-請先提出計畫與檔案內容大綱，等我確認後，再建立 branch / PR。
 ```
