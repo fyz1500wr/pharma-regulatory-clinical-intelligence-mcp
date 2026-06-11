@@ -10,22 +10,24 @@ This file is a compact continuation handoff for starting a new chat. Canonical d
 ## Current checkpoint
 
 - Stable branch: `main`
-- Latest confirmed merged PR: PR #122
+- Latest confirmed merged PR: PR #125
 - PR #120 merge commit: `b1ec886fa5fa4b9a8a0c7c6237334e0cc581e63b`
 - PR #122 merge commit: `d32099f16a2b9f0b91268b7e01c7ca227db74675`
-- Latest completed workstream: dashboard-first target architecture contract plus canonical dashboard data schema contract.
+- PR #124 merge commit: `116c648dfc195d60f9c05f375e205ebbf24d3b54`
+- PR #125 merge commit: `4aa607dcc577eb714aef237b01213cbff88cf4a9`
+- Latest completed workstream: dashboard-first target architecture, canonical dashboard schema contract, and mock-data-only static dashboard dry-run design.
 - Latest validation status: `PASS`
-- Latest validation evidence for PR #122:
-  - `python -m pytest tests/test_readme_documentation_index.py tests/test_project_state_release_tag_consistency.py -q` → `19 passed`
-  - `python -m pytest -q` → `216 passed`
+- Latest validation evidence for PR #125:
+  - `python -m pytest tests/test_readme_documentation_index.py -q` → `15 passed`
+  - `python -m pytest tests/test_project_state_release_tag_consistency.py -q` → `5 passed`
+  - `python -m pytest -q` → `217 passed`
   - `git status --short` → clean / no output
-- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag was created for PR #97–#122 docs/product workflow work.
-- Open PRs after PR #122 merge: none confirmed before this state-sync PR was opened.
+- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag was created for PR #97–#125 docs/product workflow work.
 - Execution environment note: Codespaces quota is near limit until July 2026. For upcoming code/test work, default to Claude Code Web and Codex Web workflows. Do not assume Codespaces is available unless the user explicitly says it is available again.
 
 ## Original user requirement baseline
 
-The project is in build-stage and must be evaluated against the user's original full-system requirements, not only the CMC workstream or source-expansion planning.
+The project is in build-stage and must be evaluated against the user's original full-system requirements, not only the CMC workstream, digest workstream, source-expansion planning, or dashboard documentation.
 
 Original target system:
 
@@ -40,14 +42,14 @@ Original target system:
 
 ## Current alignment to original requirements
 
-Current rough alignment after PR #122:
+Current rough alignment after PR #125:
 
 ```text
-Original Regulatory / Clinical Intelligence MCP system: about 52–56% complete
-Project governance / GitHub + Claude/Codex workflow foundation: about 76–78% complete
-Dashboard target architecture / schema foundation: about 35–40% complete
+Original Regulatory / Clinical Intelligence MCP system: about 54–58% complete
+Project governance / GitHub + Claude/Codex workflow foundation: about 77–79% complete
+Dashboard target architecture / schema / dry-run foundation: about 42–47% complete
 CMC readiness extension module: about 75% complete
-Overall build-stage system: about 61–65% complete
+Overall build-stage system: about 63–67% complete
 ```
 
 Interpretation:
@@ -57,10 +59,11 @@ Interpretation:
 - The repo has an original requirements traceability matrix.
 - The repo has a docs/spec-only open-source Claude/Codex/MCP tool survey.
 - The repo has a docs/spec-only EMA/NMPA/PMDA/ICH source and guidance expansion feasibility matrix.
-- The repo now has a dashboard-first target architecture contract.
-- The repo now has canonical dashboard data schema families.
+- The repo has a dashboard-first target architecture contract.
+- The repo has canonical dashboard data schema families.
+- The repo has a mock-data-only static dashboard dry-run design.
 - EMA, NMPA/CDE, PMDA, and ICH are not active MVP runtime sources.
-- Scheduler, alerts, persistence, runtime dashboard, GitHub Actions, and multi-source runtime automation are not implemented.
+- Scheduler, alerts, persistence, runtime dashboard, static artifact generator, GitHub Actions, and multi-source runtime automation are not implemented.
 
 ## Current MVP source scope and deliberate limitation
 
@@ -74,9 +77,9 @@ ClinicalTrials.gov
 
 This is a deliberate MVP subset, not the full original source/guidance scope.
 
-Do not add EMA, NMPA/CDE, PMDA, ICH, EU CTIS, WHO ICTRP, literature, patent, finance, news, company alias database, corporate-family mapping, product ownership inference, scheduler, alerts, persistence, dashboard renderer, HTTP/SSE transport, `.mcp.json`, GitHub automation, tool installation, or other integrations unless explicitly approved.
+Do not add EMA, NMPA/CDE, PMDA, ICH, EU CTIS, WHO ICTRP, literature, patent, finance, news, company alias database, corporate-family mapping, product ownership inference, scheduler, alerts, persistence, dashboard renderer, static artifact generator, HTTP/SSE transport, `.mcp.json`, GitHub automation, tool installation, or other integrations unless explicitly approved.
 
-If the next workstream involves dashboard work, keep it docs/spec-only unless runtime dashboard implementation is explicitly approved.
+If the next workstream involves dashboard work, keep it docs/spec-only unless runtime dashboard implementation or artifact generation is explicitly approved.
 
 ## Recent relevant PR sequence
 
@@ -211,6 +214,49 @@ python -m pytest -q -> 216 passed
 git status --short -> clean / no output
 ```
 
+### PR #124 — State sync after dashboard schema contract
+
+Updated project state/handoff files after PR #120 and PR #122.
+
+### PR #125 — Static dashboard dry-run design
+
+Completed a docs/spec-only mock-data-only static dashboard dry-run design:
+
+```text
+docs/static_dashboard_dry_run_design.md
+README.md
+tests/test_readme_documentation_index.py
+```
+
+Defined intended dashboard tabs:
+
+```text
+Overview
+Regulatory / Guidance Updates
+Clinical Trial Tracker
+Source Health
+Digest Summary
+```
+
+Important decisions:
+
+```text
+Defines static dashboard dry-run design only.
+No runtime dashboard renderer.
+No static artifact generator.
+No GitHub Actions workflow.
+No scheduler, alerts, persistence, runtime connector, MCP tool, source expansion, or .mcp.json changes.
+```
+
+Validation evidence:
+
+```text
+python -m pytest tests/test_readme_documentation_index.py -q -> 15 passed
+python -m pytest tests/test_project_state_release_tag_consistency.py -q -> 5 passed
+python -m pytest -q -> 217 passed
+git status --short -> clean / no output
+```
+
 ## Current guardrails
 
 - Keep MVP runtime source scope limited to FDA, TFDA, and ClinicalTrials.gov unless source/guidance expansion is explicitly approved.
@@ -231,16 +277,16 @@ git status --short -> clean / no output
 Recommended next action after this state sync:
 
 ```text
-Add static dashboard dry-run design using mock data, still docs/spec-only.
+Direction calibration before adding mock dashboard record examples or static artifact acceptance tests.
 ```
 
-Recommended scope:
+Recommended calibration options:
 
 ```text
-1. Define a mock-data-only static dashboard dry-run design.
-2. Show how RegulatoryGuidanceUpdate, ClinicalTrialUpdate, SourceHealthEvent, and DashboardDigestSummary records flow into static dashboard artifacts.
-3. Define dashboard tab acceptance criteria.
-4. Explicitly avoid GitHub Actions, dashboard renderer, scheduler, alerts, persistence, runtime connector, source expansion, and new MCP tools.
+1. Add mock dashboard record examples and static artifact acceptance tests, still docs/spec-only.
+2. Pause dashboard docs and return to MVP runtime hardening.
+3. Revisit source/guidance expansion feasibility sequencing without implementing connectors.
+4. Stop new PRs until the user explicitly selects one direction.
 ```
 
-Do not implement EMA/NMPA/PMDA/ICH connectors, GitHub Actions, dashboard renderer, scheduler, alerts, persistence, source expansion, new MCP tools, or `.mcp.json` changes unless the user explicitly approves those runtime changes.
+Do not implement EMA/NMPA/PMDA/ICH connectors, GitHub Actions, dashboard renderer, artifact generator, scheduler, alerts, persistence, source expansion, new MCP tools, or `.mcp.json` changes unless the user explicitly approves those runtime changes.
