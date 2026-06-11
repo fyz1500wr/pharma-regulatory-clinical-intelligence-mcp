@@ -5,27 +5,53 @@ Updated: 2026-06-11
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 
-This file is a compact continuation handoff for starting a new chat. Canonical detailed status remains in `.ai/PROJECT_STATE.md`.
+This file is the compact continuation handoff for starting a new chat. Canonical detailed status remains in `.ai/PROJECT_STATE.md`, while this file should be read first when resuming the project in a fresh conversation.
 
 ## Current checkpoint
 
 - Stable branch: `main`
-- Latest confirmed merged PR: PR #128
-- PR #120 merge commit: `b1ec886fa5fa4b9a8a0c7c6237334e0cc581e63b`
-- PR #122 merge commit: `d32099f16a2b9f0b91268b7e01c7ca227db74675`
-- PR #124 merge commit: `116c648dfc195d60f9c05f375e205ebbf24d3b54`
-- PR #125 merge commit: `4aa607dcc577eb714aef237b01213cbff88cf4a9`
-- PR #126 merge commit: `2988a59a90b540af6942aac67fe23613b0333827`
-- PR #128 merge commit: `80f9f6d97ae92ebdd4fc0d3e44566eb672c0abb2`
-- Latest completed workstream: dashboard-first target architecture, canonical dashboard schema contract, static dashboard dry-run design, and fictional mock dashboard record examples with static artifact acceptance criteria.
+- Latest confirmed merged PR: PR #130
+- Latest main merge commit: `f38fc53c9248925688a4f0e5986772c78aecef47`
+- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag has been created for PR #97–#130 docs/product workflow work.
 - Latest validation status: `PASS`
-- Latest validation evidence for PR #128:
-  - `python -m pytest tests/test_readme_documentation_index.py -q` → `16 passed`
-  - `python -m pytest tests/test_project_state_release_tag_consistency.py -q` → `5 passed`
-  - `python -m pytest -q` → `218 passed`
+- Latest validation evidence for PR #130:
+  - `python -m pytest tests/test_project_state_release_tag_consistency.py -q` → `5 passed in 0.03s`
+  - `python -m pytest -q` → `218 passed in 5.27s`
   - `git status --short` → clean / no output
-- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag was created for PR #97–#128 docs/product workflow work.
-- Execution environment note: Codespaces quota is near limit until July 2026. For upcoming code/test work, default to Claude Code Web and Codex Web workflows. Do not assume Codespaces is available unless the user explicitly says it is available again.
+- Execution environment note: Codespaces quota is near limit until July 2026. For upcoming validation or code/test work, default to Claude Code Web and Codex Web workflows unless the user explicitly says Codespaces is available again.
+
+## Major direction change to preserve
+
+This project has undergone a major direction adjustment. It should no longer be treated only as a narrow MVP source-ingestion repo, a CMC readiness extension, or a digest-memo workflow repo.
+
+The project is now in a **dashboard-first build-stage architecture phase**.
+
+The intended system should be considered across the whole repository architecture, including:
+
+```text
+PROJECT_INSTRUCTION.md
+CLAUDE.md
+AGENTS.md
+README.md
+.ai/PROJECT_STATE.md
+PROJECT_STATE_CONTINUATION.md
+docs/*.md
+workflows/*.md
+tests/*.py
+src/*
+```
+
+The current priority is to keep the project aligned with the original full-system goal:
+
+```text
+Regulatory / guidance / clinical-trial intelligence system
+→ source-aware normalization
+→ schema contracts
+→ dashboard-oriented intelligence outputs
+→ Claude Project / MCP-assisted analysis
+```
+
+Dashboard work must remain docs/spec-only until the user explicitly approves runtime implementation.
 
 ## Original user requirement baseline
 
@@ -44,7 +70,7 @@ Original target system:
 
 ## Current alignment to original requirements
 
-Current rough alignment after PR #128:
+Current rough alignment after PR #130:
 
 ```text
 Original Regulatory / Clinical Intelligence MCP system: about 55–59% complete
@@ -125,10 +151,6 @@ Important decision:
 The survey does not authorize installing, integrating, or configuring any tool.
 ```
 
-### PR #117 — State sync after tool survey
-
-Updated project state/handoff files after PR #116.
-
 ### PR #118 — EMA/NMPA/PMDA/ICH source and guidance expansion feasibility matrix
 
 Completed a docs/spec-only source/guidance feasibility matrix:
@@ -146,10 +168,6 @@ EMA, NMPA/CDE, and PMDA are regulatory agency / regulator-linked source candidat
 ICH is a global harmonisation guidance source, not a drug-review agency and not a clinical trial registry.
 PR #118 does not authorize implementing any connector or runtime source/guidance expansion.
 ```
-
-### PR #119 — State sync after PR #118
-
-Updated project state/handoff files after PR #118.
 
 ### PR #120 — Dashboard target architecture contract
 
@@ -217,10 +235,6 @@ python -m pytest -q -> 216 passed
 git status --short -> clean / no output
 ```
 
-### PR #124 — State sync after dashboard schema contract
-
-Updated project state/handoff files after PR #120 and PR #122.
-
 ### PR #125 — Static dashboard dry-run design
 
 Completed a docs/spec-only mock-data-only static dashboard dry-run design:
@@ -260,10 +274,6 @@ python -m pytest -q -> 217 passed
 git status --short -> clean / no output
 ```
 
-### PR #126 — State sync after static dashboard dry-run design
-
-Updated project state/handoff files after PR #125.
-
 ### PR #128 — Mock dashboard record examples and static artifact acceptance criteria
 
 Completed a docs/spec-only mock dashboard record examples and static artifact acceptance criteria contract:
@@ -302,12 +312,35 @@ python -m pytest -q -> 218 passed
 git status --short -> clean / no output
 ```
 
+### PR #130 — State sync after mock dashboard record examples
+
+Updated:
+
+```text
+.ai/PROJECT_STATE.md
+PROJECT_STATE_CONTINUATION.md
+```
+
+Merge commit:
+
+```text
+f38fc53c9248925688a4f0e5986772c78aecef47
+```
+
+Validation evidence:
+
+```text
+python -m pytest tests/test_project_state_release_tag_consistency.py -q -> 5 passed in 0.03s
+python -m pytest -q -> 218 passed in 5.27s
+git status --short -> clean / no output
+```
+
 ## Current guardrails
 
-- Keep MVP runtime source scope limited to FDA, TFDA, and ClinicalTrials.gov unless source/guidance expansion is explicitly approved.
-- Keep future work small and phase-controlled.
 - Use Traditional Chinese for user-facing discussion.
 - Avoid accidental Japanese output.
+- Keep MVP runtime source scope limited to FDA, TFDA, and ClinicalTrials.gov unless source/guidance expansion is explicitly approved.
+- Keep future work small and phase-controlled.
 - Give complete copy-paste validation command blocks; do not tell the user only to switch branches without exact commands.
 - If merge is blocked by system/tooling once, stop retrying and ask the user to merge manually with clear instructions.
 - After repeated related PRs, pause for direction calibration before continuing.
@@ -319,11 +352,7 @@ git status --short -> clean / no output
 
 ## Recommended immediate next step
 
-Recommended next action after this state sync:
-
-```text
-Direction calibration before adding more dashboard documents or moving toward runtime implementation.
-```
+Before opening more PRs, perform direction calibration.
 
 Recommended calibration options:
 
@@ -334,4 +363,62 @@ Recommended calibration options:
 4. Stop new PRs until the user explicitly selects one direction.
 ```
 
+Current recommendation:
+
+```text
+Option 2 — Pause dashboard docs and return to MVP runtime hardening.
+```
+
+Rationale:
+
+- Dashboard docs/spec now has a coherent foundation: target architecture, schema families, static dry-run design, and mock records/acceptance criteria.
+- The repo is still in build-stage and should be evaluated across the entire architecture, including `src/`, `tests/`, `docs/`, `workflows/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.ai/PROJECT_STATE.md`, and this continuation file.
+- MVP runtime hardening is likely more valuable than adding more dashboard documents immediately.
+
 Do not implement EMA/NMPA/PMDA/ICH connectors, GitHub Actions, dashboard renderer, artifact generator, scheduler, alerts, persistence, source expansion, new MCP tools, or `.mcp.json` changes unless the user explicitly approves those runtime changes.
+
+## New chat kickoff prompt
+
+Use the following prompt when starting a new conversation:
+
+```text
+請根據 GitHub repo `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`、`.ai/PROJECT_STATE.md`、以及 `PROJECT_STATE_CONTINUATION.md` 繼續。
+
+請用繁體中文回覆，不要輸出日文。
+
+請先確認：
+1. `main` 是否已包含 PR #130；
+2. `PROJECT_STATE_CONTINUATION.md` 是否已記錄 PR #120、#122、#125、#128、#130，以及本次重大方向調整：專案已轉向 dashboard-first architecture / dashboard-oriented intelligence outputs；
+3. 是否有 open PR，若有，先判斷是否為 stale duplicate，不要直接 merge；
+4. 最新測試狀態；
+5. 是否需要先做 direction calibration。
+
+目前專案是在建置階段，不要只看單一功能或單一 md 檔。請全盤考慮 repo 內所有架構與狀態檔案，包括但不限於：
+
+- `PROJECT_INSTRUCTION.md`
+- `CLAUDE.md`
+- `AGENTS.md`
+- `README.md`
+- `.ai/PROJECT_STATE.md`
+- `PROJECT_STATE_CONTINUATION.md`
+- `docs/*.md`
+- `workflows/*.md`
+- `tests/*.py`
+- `src/*`
+
+目前 dashboard-first 文件基礎已完成：
+
+- PR #120 — dashboard target architecture contract
+- PR #122 — dashboard data schema contract
+- PR #125 — static dashboard dry-run design
+- PR #128 — mock dashboard record examples and static artifact acceptance criteria
+- PR #130 — state sync after mock dashboard record examples
+
+目前建議下一步是先做 direction calibration，優先考慮：
+
+`Option 2 — Pause dashboard docs and return to MVP runtime hardening`
+
+除非我明確批准，不要新增 runtime dashboard renderer、static artifact generator、GitHub Actions workflow、scheduler、alerts、persistence、HTTP/SSE、`.mcp.json`、new MCP tool、EMA/NMPA/PMDA/ICH connectors、WHO ICTRP、EU CTIS、literature/patent/finance/news integration、company alias database、corporate-family mapping、product ownership inference、clinical success scoring、approval probability scoring、commercial strength scoring、CMC weekly management report template。
+
+如果要改 repo，請維持小 PR、明確 scope、先提供 validation 指令。若 merge 被工具或系統擋一次，請停止重試並請我手動 merge。
+```
