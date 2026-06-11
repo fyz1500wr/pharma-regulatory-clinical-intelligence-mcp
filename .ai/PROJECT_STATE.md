@@ -1,16 +1,16 @@
 # Project State — Pharma Regulatory Clinical Intelligence MCP
 
-Last updated: 2026-06-10
+Last updated: 2026-06-11
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 Current stable branch: `main`
 Current completed release: `v0.2.15-fda-abuse-detection-source-failure-diagnostics`
-Latest post-release main checkpoint: PR #125 static dashboard dry-run design after PR #120 dashboard architecture and PR #122 dashboard schema contracts
+Latest post-release main checkpoint: PR #128 mock dashboard record examples after PR #120 dashboard architecture, PR #122 dashboard schema contract, and PR #125 static dashboard dry-run design
 
 Latest confirmed main commit:
 
 ```text
-4aa607dcc577eb714aef237b01213cbff88cf4a9
+80f9f6d97ae92ebdd4fc0d3e44566eb672c0abb2
 ```
 
 ---
@@ -19,7 +19,7 @@ Latest confirmed main commit:
 
 The repository remains at completed tagged release `v0.2.15-fda-abuse-detection-source-failure-diagnostics`. No new release tag has been created for the post-release docs/product workflow work after v0.2.15.
 
-After the release baseline, the project completed PM/RA regulatory-clinical digest/report docs-spec work, a clean-source digest dry-run, CMC readiness extension docs, original-requirements calibration, requirements traceability, open-source Claude/Codex/MCP tool survey, EMA/NMPA/PMDA/ICH source and guidance expansion feasibility planning, and then re-anchored to a dashboard-first roadmap through PR #120, PR #122, and PR #125.
+After the release baseline, the project completed PM/RA regulatory-clinical digest/report docs-spec work, a clean-source digest dry-run, CMC readiness extension docs, original-requirements calibration, requirements traceability, open-source Claude/Codex/MCP tool survey, EMA/NMPA/PMDA/ICH source and guidance expansion feasibility planning, and then re-anchored to a dashboard-first roadmap through PR #120, PR #122, PR #125, and PR #128.
 
 Latest confirmed release tag:
 
@@ -30,31 +30,31 @@ v0.2.15-fda-abuse-detection-source-failure-diagnostics
 Latest completed dashboard checkpoint:
 
 ```text
-PR #125 merge commit: 4aa607dcc577eb714aef237b01213cbff88cf4a9
+PR #128 merge commit: 80f9f6d97ae92ebdd4fc0d3e44566eb672c0abb2
 ```
 
-Latest validation recorded for PR #125:
+Latest validation recorded for PR #128:
 
 ```bash
 git fetch origin
-git checkout static-dashboard-dry-run-design
-git pull origin static-dashboard-dry-run-design
+git checkout mock-dashboard-record-examples
+git pull origin mock-dashboard-record-examples
 python -m pip install -e .
 
 python -m pytest tests/test_readme_documentation_index.py -q
-# 15 passed
+# 16 passed
 
 python -m pytest tests/test_project_state_release_tag_consistency.py -q
 # 5 passed
 
 python -m pytest -q
-# 217 passed
+# 218 passed
 
 git status --short
 # clean; no output
 ```
 
-Validation environment note: PR #125 validation required normal editable installation in the validation environment. A system PyJWT conflict was reported as non-fatal. No repository files were modified by dependency installation or validation.
+Validation environment note: PR #128 validation required editable installation. The user reported using `--ignore-installed PyJWT` to work around Debian-installed PyJWT 2.7.0 with no RECORD file, and installed pytest in the validation environment. No repository files were modified by dependency installation or validation.
 
 ---
 
@@ -346,18 +346,77 @@ Important interpretation:
 
 PR #125 is a dry-run design contract only. It does not add dashboard renderer, static artifact generator, GitHub Actions workflow, scheduler, alerts, GitHub Pages publication, persistence layer, runtime connector, new MCP tool, `.mcp.json`, source expansion, literature/patent/finance/news integration, company alias database, corporate-family mapping, product ownership inference, clinical success scoring, approval probability scoring, commercial strength scoring, or CMC weekly management report template.
 
+### PR #126 — State sync after static dashboard dry-run design
+
+Updated:
+
+```text
+.ai/PROJECT_STATE.md
+PROJECT_STATE_CONTINUATION.md
+```
+
+Merge commit:
+
+```text
+2988a59a90b540af6942aac67fe23613b0333827
+```
+
+Status:
+
+- Synchronized project state after PR #125.
+- Preserved dashboard docs/spec-only guardrails.
+
+### PR #128 — Mock dashboard record examples and static artifact acceptance criteria
+
+Added / updated:
+
+```text
+docs/mock_dashboard_record_examples.md
+README.md
+tests/test_readme_documentation_index.py
+```
+
+Merge commit:
+
+```text
+80f9f6d97ae92ebdd4fc0d3e44566eb672c0abb2
+```
+
+Purpose:
+
+- Added fictional mock record examples for:
+  - `RegulatoryGuidanceUpdate`
+  - `ClinicalTrialUpdate`
+  - `SourceHealthEvent`
+  - `DashboardDigestSummary`
+- Defined expected dashboard behavior for complete metadata, partial metadata, source pass, source unavailable, registry sponsor fields, and global harmonisation guidance cases.
+- Defined static artifact acceptance criteria without implementing artifacts.
+
+Validation:
+
+```text
+tests/test_readme_documentation_index.py -> 16 passed
+tests/test_project_state_release_tag_consistency.py -> 5 passed
+python -m pytest -q -> 218 passed
+git status --short -> clean / no output
+```
+
+Important interpretation:
+
+PR #128 is a mock examples and acceptance criteria contract only. It does not add dashboard renderer, static artifact generator, GitHub Actions workflow, scheduler, alerts, GitHub Pages publication, persistence layer, runtime connector, new MCP tool, `.mcp.json`, source expansion, literature/patent/finance/news integration, company alias database, corporate-family mapping, product ownership inference, clinical success scoring, approval probability scoring, commercial strength scoring, or CMC weekly management report template.
+
 ---
 
 ## 4. Current Product Status
 
-Estimated progress against the user's broader target system after PR #125:
+Estimated progress against the user's broader target system after PR #128:
 
 ```text
-Original Regulatory / Clinical Intelligence MCP system: about 54–58% complete
-Project governance / GitHub + Claude/Codex workflow foundation: about 77–79% complete
-Dashboard target architecture / schema / dry-run foundation: about 42–47% complete
+Original Regulatory / Clinical Intelligence MCP system: about 55–59% complete
+Project governance / GitHub + Claude/Codex workflow foundation: about 78–80% complete
+Dashboard target architecture / schema / dry-run / mock examples foundation: about 48–52% complete
 CMC readiness extension module: about 75% complete
-Overall build-stage system: about 63–67% complete
+Overall build-stage system: about 64–68% complete
 ```
 
 What is now working:
@@ -373,6 +432,7 @@ What is now working:
 - Dashboard-first target architecture is documented in `docs/dashboard_target_architecture.md`.
 - Canonical dashboard data schema families are documented in `docs/dashboard_data_schema_contract.md`.
 - Mock-data-only static dashboard dry-run design is documented in `docs/static_dashboard_dry_run_design.md`.
+- Fictional dashboard record examples and static artifact acceptance criteria are documented in `docs/mock_dashboard_record_examples.md`.
 
 What remains intentionally not implemented:
 
@@ -486,7 +546,7 @@ After a sequence of similar PRs, pause for direction calibration before proposin
 
 The PR #104–#112 CMC readiness docs/spec set should be treated as a completed small extension workstream. Do not add a dedicated management weekly report template at this time because the updated Prompt 6 stress test returned PASS and recommended no repo change.
 
-The PR #120–#125 dashboard architecture/schema/dry-run design set should be treated as the current re-anchor point for the original full-system regulatory-clinical intelligence roadmap.
+The PR #120–#128 dashboard architecture/schema/dry-run/mock examples set should be treated as the current re-anchor point for the original full-system regulatory-clinical intelligence roadmap.
 
 ---
 
@@ -497,19 +557,19 @@ Do not immediately build runtime automation, add another CMC template document, 
 Recommended next version:
 
 ```text
-v0.2.16 — Dashboard mock artifact planning
+v0.2.16 — Dashboard artifact planning or MVP runtime hardening decision
 ```
 
 Recommended next action after this state sync:
 
 ```text
-Direction calibration before adding mock dashboard record examples or static artifact acceptance tests.
+Direction calibration before adding more dashboard documents or moving toward runtime implementation.
 ```
 
 Recommended calibration options:
 
 ```text
-1. Add mock dashboard record examples and static artifact acceptance tests, still docs/spec-only.
+1. Continue docs/spec-only dashboard artifact planning.
 2. Pause dashboard docs and return to MVP runtime hardening.
 3. Revisit source/guidance expansion feasibility sequencing without implementing connectors.
 4. Stop new PRs until the user explicitly selects one direction.
