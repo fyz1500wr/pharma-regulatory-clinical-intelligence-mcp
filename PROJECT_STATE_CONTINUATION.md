@@ -1,7 +1,7 @@
 # Project State Continuation
 
 Created: 2026-06-04  
-Updated: 2026-06-10
+Updated: 2026-06-11
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 
@@ -10,19 +10,21 @@ This file is a compact continuation handoff for starting a new chat. Canonical d
 ## Current checkpoint
 
 - Stable branch: `main`
-- Latest confirmed merged PR: PR #125
+- Latest confirmed merged PR: PR #128
 - PR #120 merge commit: `b1ec886fa5fa4b9a8a0c7c6237334e0cc581e63b`
 - PR #122 merge commit: `d32099f16a2b9f0b91268b7e01c7ca227db74675`
 - PR #124 merge commit: `116c648dfc195d60f9c05f375e205ebbf24d3b54`
 - PR #125 merge commit: `4aa607dcc577eb714aef237b01213cbff88cf4a9`
-- Latest completed workstream: dashboard-first target architecture, canonical dashboard schema contract, and mock-data-only static dashboard dry-run design.
+- PR #126 merge commit: `2988a59a90b540af6942aac67fe23613b0333827`
+- PR #128 merge commit: `80f9f6d97ae92ebdd4fc0d3e44566eb672c0abb2`
+- Latest completed workstream: dashboard-first target architecture, canonical dashboard schema contract, static dashboard dry-run design, and fictional mock dashboard record examples with static artifact acceptance criteria.
 - Latest validation status: `PASS`
-- Latest validation evidence for PR #125:
-  - `python -m pytest tests/test_readme_documentation_index.py -q` → `15 passed`
+- Latest validation evidence for PR #128:
+  - `python -m pytest tests/test_readme_documentation_index.py -q` → `16 passed`
   - `python -m pytest tests/test_project_state_release_tag_consistency.py -q` → `5 passed`
-  - `python -m pytest -q` → `217 passed`
+  - `python -m pytest -q` → `218 passed`
   - `git status --short` → clean / no output
-- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag was created for PR #97–#125 docs/product workflow work.
+- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag was created for PR #97–#128 docs/product workflow work.
 - Execution environment note: Codespaces quota is near limit until July 2026. For upcoming code/test work, default to Claude Code Web and Codex Web workflows. Do not assume Codespaces is available unless the user explicitly says it is available again.
 
 ## Original user requirement baseline
@@ -42,14 +44,14 @@ Original target system:
 
 ## Current alignment to original requirements
 
-Current rough alignment after PR #125:
+Current rough alignment after PR #128:
 
 ```text
-Original Regulatory / Clinical Intelligence MCP system: about 54–58% complete
-Project governance / GitHub + Claude/Codex workflow foundation: about 77–79% complete
-Dashboard target architecture / schema / dry-run foundation: about 42–47% complete
+Original Regulatory / Clinical Intelligence MCP system: about 55–59% complete
+Project governance / GitHub + Claude/Codex workflow foundation: about 78–80% complete
+Dashboard target architecture / schema / dry-run / mock examples foundation: about 48–52% complete
 CMC readiness extension module: about 75% complete
-Overall build-stage system: about 63–67% complete
+Overall build-stage system: about 64–68% complete
 ```
 
 Interpretation:
@@ -62,6 +64,7 @@ Interpretation:
 - The repo has a dashboard-first target architecture contract.
 - The repo has canonical dashboard data schema families.
 - The repo has a mock-data-only static dashboard dry-run design.
+- The repo has fictional mock dashboard record examples and static artifact acceptance criteria.
 - EMA, NMPA/CDE, PMDA, and ICH are not active MVP runtime sources.
 - Scheduler, alerts, persistence, runtime dashboard, static artifact generator, GitHub Actions, and multi-source runtime automation are not implemented.
 
@@ -257,6 +260,48 @@ python -m pytest -q -> 217 passed
 git status --short -> clean / no output
 ```
 
+### PR #126 — State sync after static dashboard dry-run design
+
+Updated project state/handoff files after PR #125.
+
+### PR #128 — Mock dashboard record examples and static artifact acceptance criteria
+
+Completed a docs/spec-only mock dashboard record examples and static artifact acceptance criteria contract:
+
+```text
+docs/mock_dashboard_record_examples.md
+README.md
+tests/test_readme_documentation_index.py
+```
+
+Defined fictional mock examples for:
+
+```text
+RegulatoryGuidanceUpdate
+ClinicalTrialUpdate
+SourceHealthEvent
+DashboardDigestSummary
+```
+
+Important decisions:
+
+```text
+Defines mock dashboard examples and acceptance criteria only.
+No runtime dashboard renderer.
+No static artifact generator.
+No GitHub Actions workflow.
+No scheduler, alerts, persistence, runtime connector, MCP tool, source expansion, or .mcp.json changes.
+```
+
+Validation evidence:
+
+```text
+python -m pytest tests/test_readme_documentation_index.py -q -> 16 passed
+python -m pytest tests/test_project_state_release_tag_consistency.py -q -> 5 passed
+python -m pytest -q -> 218 passed
+git status --short -> clean / no output
+```
+
 ## Current guardrails
 
 - Keep MVP runtime source scope limited to FDA, TFDA, and ClinicalTrials.gov unless source/guidance expansion is explicitly approved.
@@ -277,13 +322,13 @@ git status --short -> clean / no output
 Recommended next action after this state sync:
 
 ```text
-Direction calibration before adding mock dashboard record examples or static artifact acceptance tests.
+Direction calibration before adding more dashboard documents or moving toward runtime implementation.
 ```
 
 Recommended calibration options:
 
 ```text
-1. Add mock dashboard record examples and static artifact acceptance tests, still docs/spec-only.
+1. Continue docs/spec-only dashboard artifact planning.
 2. Pause dashboard docs and return to MVP runtime hardening.
 3. Revisit source/guidance expansion feasibility sequencing without implementing connectors.
 4. Stop new PRs until the user explicitly selects one direction.
