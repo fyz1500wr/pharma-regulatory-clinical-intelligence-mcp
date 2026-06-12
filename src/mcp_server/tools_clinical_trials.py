@@ -31,15 +31,27 @@ def search_clinical_trials_by_indication(indication: str, **kwargs):
     if not isinstance(indication, str) or not indication.strip():
         return build_error(ErrorCode.INVALID_PARAMETER, "indication must be a non-empty string")
 
+    page_size = _parse_page_size(kwargs.get("page_size"))
+    if isinstance(page_size, dict) and "error" in page_size:
+        return page_size
+
+    phase = _normalize_optional_string_filter(kwargs.get("phase"), "phase")
+    if isinstance(phase, dict) and "error" in phase:
+        return phase
+
+    status = _normalize_optional_string_filter(kwargs.get("status"), "status")
+    if isinstance(status, dict) and "error" in status:
+        return status
+
     clean_indication = indication.strip()
 
     client = ClinicalTrialsGovClient()
     result = client.search_studies(
         indication=clean_indication,
-        page_size=kwargs.get("page_size", 20),
+        page_size=page_size,
         sponsor=kwargs.get("sponsor"),
-        phase=kwargs.get("phase"),
-        status=kwargs.get("status"),
+        phase=phase,
+        status=status,
         page_token=kwargs.get("page_token"),
     )
 
@@ -80,6 +92,61 @@ def search_clinical_trials_by_indication(indication: str, **kwargs):
     }
 
 
+def _normalize_optional_string_filter(value: Any, name: str) -> list[str] | None | dict:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        cleaned = value.strip()
+        if not cleaned:
+            return build_error(
+                ErrorCode.INVALID_PARAMETER,
+                f"{name} must be a non-empty string or list of strings",
+            )
+        return [cleaned]
+    if isinstance(value, list):
+        if not value:
+            return build_error(
+                ErrorCode.INVALID_PARAMETER,
+                f"{name} must contain at least one value",
+            )
+        cleaned_values: list[str] = []
+        for item in value:
+            if not isinstance(item, str) or not item.strip():
+                return build_error(
+                    ErrorCode.INVALID_PARAMETER,
+                    f"{name} must contain only non-empty strings",
+                )
+            cleaned_values.append(item.strip())
+        return cleaned_values
+    return build_error(
+        ErrorCode.INVALID_PARAMETER,
+        f"{name} must be a string or list of strings",
+    )
+
+
+def _parse_page_size(value: Any) -> int | dict:
+    if value is None:
+        return 20
+    if isinstance(value, bool):
+        return build_error(
+            ErrorCode.INVALID_PARAMETER,
+            "page_size must be an integer between 1 and 100",
+        )
+    try:
+        page_size = int(value)
+    except (TypeError, ValueError):
+        return build_error(
+            ErrorCode.INVALID_PARAMETER,
+            "page_size must be an integer between 1 and 100",
+        )
+    if page_size < 1 or page_size > 100:
+        return build_error(
+            ErrorCode.INVALID_PARAMETER,
+            "page_size must be an integer between 1 and 100",
+        )
+    return page_size
+
+
 def _as_string_list(value: Any, name: str, *, required: bool = False) -> list[str] | dict:
     if value in (None, ""):
         if required:
@@ -91,7 +158,10 @@ def _as_string_list(value: Any, name: str, *, required: bool = False) -> list[st
     elif isinstance(value, list) and all(isinstance(item, str) for item in value):
         values = value
     else:
-        return build_error(ErrorCode.INVALID_PARAMETER, f"{name} must be a string or list of strings")
+        return build_error(
+        ErrorCode.INVALID_PARAMETER,
+        f"{name} must be a string or list of strings",
+    )
 
     cleaned = [item.strip() for item in values if item.strip()]
     if required and not cleaned:
