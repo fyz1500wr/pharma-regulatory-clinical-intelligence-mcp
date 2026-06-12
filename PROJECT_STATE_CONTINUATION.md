@@ -1,7 +1,7 @@
 # Project State Continuation
 
 Created: 2026-06-04  
-Updated: 2026-06-12 (post PR #139)
+Updated: 2026-06-12 (post PR #141)
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 
@@ -10,16 +10,17 @@ This file is the compact continuation handoff for starting a new chat. Canonical
 ## Current checkpoint
 
 - Stable branch: `main`
-- Latest confirmed merged PR: PR #139
-- Latest main merge commit: `317663d1cbea6cb26035e8e199f2125619d85bbd`
-- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag has been created for PR #97–#139 docs/product/test/runtime workflow work.
+- Latest confirmed merged PR: PR #141
+- Latest main merge commit: `930d3378f2d74821a193cdeabcfeb4dee8eced53`
+- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag has been created for PR #97–#141 docs/product/test/runtime workflow work.
 - Latest validation status: `PASS`
-- Latest validation evidence for PR #139 main validation baseline:
+- Latest validation evidence for PR #141 main validation baseline:
+  - `python -m pytest tests/test_mvp_dashboard_export_fixture.py -q` → `12 passed`
   - `python -m pytest tests/test_mvp_runtime_hardening.py -q` → `28 passed`
   - `python -m pytest tests/test_mvp_runtime_output_contract_semantics.py -q` → `11 passed`
-  - `python -m pytest -q` → `258 passed`
-  - `git diff --check` → passed
-  - `git status --short` → clean / no output
+  - `python -m pytest -q` → `270 passed`
+  - `git diff --check` → clean
+  - `git status --short` → clean / no output after commit
 - Execution environment note: Codespaces quota is near limit until July 2026. For upcoming validation or code/test work, default to Claude Code Web and Codex Web workflows unless the user explicitly says Codespaces is available again.
 
 ## Major direction change to preserve
@@ -53,7 +54,7 @@ Regulatory / guidance / clinical-trial intelligence system
 → Claude Project / MCP-assisted analysis
 ```
 
-Dashboard work must remain docs/spec-only until the user explicitly approves runtime implementation.
+Dashboard work remains phase-controlled. PR #141 added a fixture-only, manual dashboard export artifact prototype, but it does not authorize live-source ingestion, a runtime dashboard renderer, scheduling, persistence, GitHub Actions, HTTP/SSE, GitHub Pages, new MCP tools, new source connectors, or source expansion.
 
 ## Original user requirement baseline
 
@@ -72,16 +73,17 @@ Original target system:
 
 ## Current alignment to original requirements
 
-Current rough alignment after PR #139:
+Current rough alignment after PR #141:
 
 ```text
-Original Regulatory / Clinical Intelligence MCP system: about 57–61% complete
+Original Regulatory / Clinical Intelligence MCP system: about 58–62% complete
 Project governance / GitHub + Claude/Codex workflow foundation: about 78–80% complete
-Dashboard target architecture / schema / query-filter / dry-run / mock examples foundation: about 52–56% complete
+Dashboard target architecture / schema / query-filter / dry-run / mock examples foundation: about 60–65% complete
 MVP runtime output contract / source-state hardening: about 63–68% complete
 ClinicalTrials.gov query parameter validation hardening: complete for MVP phase/status/page_size inputs
+MVP dashboard export artifact prototype: fixture-only manual prototype complete
 CMC readiness extension module: about 75% complete
-Overall build-stage system: about 67–71% complete
+Overall build-stage system: about 68–72% complete
 ```
 
 Interpretation:
@@ -105,9 +107,21 @@ Interpretation:
 - `phase` / `status` strings are no longer passed as iterable character sequences to the ClinicalTrials.gov query builder.
 - `page_size` is now validated at the tool layer using the MVP policy `1 <= page_size <= 100`.
 - Invalid `phase`, `status`, or `page_size` inputs return structured `INVALID_PARAMETER` errors and do not call the client.
-- Candidate B, `compare_regulatory_updates(source_types=...)`, remains intentionally unresolved and should be handled later through characterization/spec clarification before runtime changes.
+- The repo now includes the first fixture-only MVP dashboard export artifact prototype.
+- The prototype can manually export five dashboard artifacts:
+  - `dashboard_snapshot.json`
+  - `dashboard_summary.md`
+  - `regulatory_updates.csv`
+  - `clinical_trials.csv`
+  - `source_health.json`
+- The exporter is fixture/mock-data-only and does not call live FDA, TFDA, or ClinicalTrials.gov sources.
+- The exporter preserves source-unavailable and partial-result caveats instead of collapsing them into no matching records.
+- The exporter strips forbidden non-MVP inference fields from output artifacts.
+- Clinical trial sponsor/company values remain registry-reported only; no alias, ownership, or corporate-family inference is applied.
+- This prototype does not authorize GitHub Actions, scheduler, persistence, HTTP/SSE, GitHub Pages, runtime dashboard renderer, new MCP tools, new source connectors, or source expansion.
+- Candidate B, `compare_regulatory_updates(source_types=...)`, remains unresolved and should be handled later through characterization/spec clarification.
 - EMA, NMPA/CDE, PMDA, and ICH are not active MVP runtime sources.
-- Scheduler, alerts, persistence, runtime dashboard, static artifact generator, GitHub Actions, and multi-source runtime automation are not implemented.
+- Scheduler, alerts, persistence, runtime dashboard renderer, GitHub Actions, GitHub Pages, HTTP/SSE, and multi-source runtime automation are not implemented.
 
 ## Current MVP source scope and deliberate limitation
 
@@ -121,9 +135,9 @@ ClinicalTrials.gov
 
 This is a deliberate MVP subset, not the full original source/guidance scope.
 
-Do not add EMA, NMPA/CDE, PMDA, ICH, EU CTIS, WHO ICTRP, literature, patent, finance, news, company alias database, corporate-family mapping, product ownership inference, scheduler, alerts, persistence, dashboard renderer, static artifact generator, HTTP/SSE transport, `.mcp.json`, GitHub automation, tool installation, or other integrations unless explicitly approved.
+Do not add EMA, NMPA/CDE, PMDA, ICH, EU CTIS, WHO ICTRP, literature, patent, finance, news, company alias database, corporate-family mapping, product ownership inference, scheduler, alerts, persistence, dashboard renderer, HTTP/SSE transport, GitHub Pages, `.mcp.json`, GitHub automation, tool installation, or other integrations unless explicitly approved.
 
-If the next workstream involves dashboard work, keep it docs/spec-only unless runtime dashboard implementation or artifact generation is explicitly approved.
+PR #141 approved only a fixture/mock-data-only, manual dashboard export artifact prototype. Do not connect it to live source ingestion, scheduled automation, persistence, HTTP/SSE, GitHub Pages, a runtime dashboard renderer, new MCP tools, new source connectors, or source expansion unless explicitly approved.
 
 ## Recent relevant PR sequence
 
@@ -472,6 +486,52 @@ Important decision:
 * This PR does not authorize new sources, new MCP tools, dashboard runtime implementation, static artifact generation, scheduling, alerts, persistence, HTTP/SSE, `.mcp.json`, GitHub Actions workflow, source expansion, company alias mapping, corporate-family mapping, product ownership inference, clinical success scoring, approval probability scoring, commercial strength scoring, or CMC weekly management report template.
 * `compare_regulatory_updates(source_types=...)` remains a separate candidate issue and was not changed in PR #139.
 
+### PR #141 — MVP dashboard export artifact prototype
+
+Summary:
+
+* Added `src/dashboard_export/__init__.py`.
+* Added `src/dashboard_export/mvp_fixture_export.py`.
+* Added `tests/fixtures/dashboard_mvp_fixture.json`.
+* Added `tests/test_mvp_dashboard_export_fixture.py`.
+* Adds the first fixture-only, manual-execution dashboard artifact prototype.
+* Exports:
+  * `dashboard_snapshot.json`
+  * `dashboard_summary.md`
+  * `regulatory_updates.csv`
+  * `clinical_trials.csv`
+  * `source_health.json`
+* Uses fictional/mock fixture records only.
+* Does not call live FDA, TFDA, or ClinicalTrials.gov sources.
+* Preserves source unavailable and partial-result caveats.
+* Strips forbidden inference fields including approval probability, clinical success score, commercial strength score, product ownership, company alias, and corporate-family fields.
+* Keeps ClinicalTrials.gov sponsor/company values registry-reported only.
+* Provides CLI usage:
+
+```bash
+python -m src.dashboard_export.mvp_fixture_export --out /tmp/dashboard_mvp
+```
+
+Merge commit:
+
+```text
+930d3378f2d74821a193cdeabcfeb4dee8eced53
+```
+
+Validation evidence:
+
+* `python -m pytest tests/test_mvp_dashboard_export_fixture.py -q` → `12 passed`
+* `python -m pytest tests/test_mvp_runtime_hardening.py -q` → `28 passed`
+* `python -m pytest tests/test_mvp_runtime_output_contract_semantics.py -q` → `11 passed`
+* `python -m pytest -q` → `270 passed`
+* `git diff --check` → clean
+* `git status --short` → clean after commit
+
+Important decision:
+
+* This PR provides a dashboard artifact prototype, not a runtime dashboard renderer.
+* This PR does not authorize live-source ingestion, GitHub Actions, scheduler, alerts, persistence, HTTP/SSE, GitHub Pages, `.mcp.json`, new MCP tools, new source connectors, source expansion, company alias mapping, corporate-family mapping, product ownership inference, clinical success scoring, approval probability scoring, commercial strength scoring, or CMC weekly management report template.
+
 ## Current guardrails
 
 - Use Traditional Chinese for user-facing discussion.
@@ -489,34 +549,27 @@ Important decision:
 
 ## Recommended immediate next step
 
-Before opening more PRs, perform direction calibration.
-
-Recommended calibration options:
-
-```text
-1. Continue docs/spec-only dashboard artifact planning.
-2. Pause dashboard docs and return to MVP runtime hardening.
-3. Revisit source/guidance expansion feasibility sequencing without implementing connectors.
-4. Stop new PRs until the user explicitly selects one direction.
-```
+Before adding live source ingestion or GitHub Actions, validate the fixture-only dashboard export artifacts and decide the next gate:
+1. add fixture artifact acceptance tests / snapshots,
+2. connect exporter to existing MVP runtime outputs manually,
+3. or perform focused characterization assessment for `compare_regulatory_updates(source_types=...)`.
 
 Current recommendation:
 
 ```text
-Option 2 — Pause dashboard docs and return to MVP runtime hardening.
+Option 1 — Validate fixture-only dashboard export artifacts before live-source or scheduler work.
 ```
 
 Rationale:
 
-- Dashboard docs/spec now has a coherent foundation: target architecture, schema families, query/filter contract, static dry-run design, and mock records/acceptance criteria.
+- Dashboard docs/spec now has a coherent foundation: target architecture, schema families, query/filter contract, static dry-run design, mock records/acceptance criteria, and a fixture-only manual artifact prototype.
 - The repo is still in build-stage and should be evaluated across the entire architecture, including `src/`, `tests/`, `docs/`, `workflows/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.ai/PROJECT_STATE.md`, and this continuation file.
-- The MVP runtime hardening test-only PR (#133), dashboard query/filter contract (#135), and MVP runtime output contract semantics tests (#137) are now complete without authorizing runtime dashboard implementation.
-- MVP runtime hardening is likely more valuable than adding more dashboard documents immediately.
+- The MVP runtime hardening test-only PR (#133), dashboard query/filter contract (#135), MVP runtime output contract semantics tests (#137), ClinicalTrials.gov validation hardening (#139), and fixture-only MVP dashboard export artifact prototype (#141) are now complete without authorizing live-source ingestion or runtime dashboard implementation.
+- Validating fixture-only artifacts is the safest next gate before any live-source, scheduler, or automation work.
 
-Before opening more runtime PRs, perform direction calibration or a focused characterization assessment for Candidate B:
-`compare_regulatory_updates(source_types=...)` forwarding behavior.
+Do not implement live source ingestion, GitHub Actions, dashboard renderer, scheduler, alerts, persistence, HTTP/SSE, GitHub Pages, new MCP tools, new source connectors, or source expansion unless the user explicitly approves those runtime changes.
 
-Do not implement Candidate B in this PR. Do not implement EMA/NMPA/PMDA/ICH connectors, GitHub Actions, dashboard renderer, artifact generator, scheduler, alerts, persistence, source expansion, new MCP tools, or `.mcp.json` changes unless the user explicitly approves those runtime changes.
+Candidate B, `compare_regulatory_updates(source_types=...)`, remains unresolved and should be handled later through characterization/spec clarification before runtime changes.
 
 ## New chat kickoff prompt
 
@@ -528,8 +581,8 @@ Use the following prompt when starting a new conversation:
 請用繁體中文回覆，不要輸出日文。
 
 請先確認：
-1. `main` 是否已包含 PR #139；
-2. `PROJECT_STATE_CONTINUATION.md` 是否已記錄 PR #139 和 258-passed validation baseline；
+1. `main` 是否已包含 PR #141；
+2. `PROJECT_STATE_CONTINUATION.md` 是否已記錄 PR #141 和 270-passed validation baseline；
 3. 是否有 open PR，若有，先判斷是否為 stale duplicate，不要直接 merge；
 4. 最新測試狀態；
 5. 是否需要先做 direction calibration。
@@ -558,13 +611,15 @@ Use the following prompt when starting a new conversation:
 - PR #135 — dashboard query/filter contract and 237-passed validation baseline
 - PR #137 — MVP runtime output contract semantics tests and 248-passed validation baseline
 - PR #139 — ClinicalTrials.gov query parameter validation and 258-passed validation baseline
+- PR #141 — MVP dashboard export artifact prototype and 270-passed validation baseline
 
-目前建議下一步是先做 direction calibration，優先考慮：
+目前建議下一步是先 validate fixture-only dashboard export artifacts，或決定下一個受控 gate：
 
-- direction calibration
+- validate fixture-only dashboard export artifacts
+- or decide whether to connect exporter to existing MVP runtime outputs manually
 - or focused characterization assessment for `compare_regulatory_updates(source_types=...)`
 
-除非我明確批准，不要新增 runtime dashboard renderer、static artifact generator、GitHub Actions workflow、scheduler、alerts、persistence、HTTP/SSE、`.mcp.json`、new MCP tool、new source connector、EMA/NMPA/PMDA/ICH connectors、WHO ICTRP、EU CTIS、literature/patent/finance/news integration、company alias database、corporate-family mapping、product ownership inference、clinical success scoring、approval probability scoring、commercial strength scoring、CMC weekly management report template。
+除非我明確批准，不要新增 runtime dashboard renderer、GitHub Actions workflow、scheduler、alerts、persistence、HTTP/SSE、`.mcp.json`、new MCP tool、new source connector、EMA/NMPA/PMDA/ICH connectors、WHO ICTRP、EU CTIS、literature/patent/finance/news integration、company alias database、corporate-family mapping、product ownership inference、clinical success scoring、approval probability scoring、commercial strength scoring、CMC weekly management report template。
 
-如果要改 repo，請維持小 PR、明確 scope、先提供 validation 指令。若 merge 被工具或系統擋一次，請停止重試並請我手動 merge。
+如果要改 repo，請維持小 PR、明確 scope、先提供 validation 指令。若 merge 或 fetch GitHub main 被工具、網路或系統擋一次，請停止重試並請我手動處理。
 ```
