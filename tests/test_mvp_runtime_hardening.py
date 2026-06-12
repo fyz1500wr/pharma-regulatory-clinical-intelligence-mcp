@@ -152,7 +152,98 @@ def test_compare_companies_marks_source_unavailable_distinct_from_zero_records(m
 
 
 # ---------------------------------------------------------------------------
-# 2. Invalid / non-MVP source parameters return INVALID_PARAMETER
+# 2. ClinicalTrials.gov query parameters are normalized before client calls
+# ---------------------------------------------------------------------------
+
+
+def _run_clinical_search_with_capture(monkeypatch, **kwargs):
+    seen = {}
+
+    class CapturingClient:
+        def search_studies(self, **client_kwargs):
+            seen.update(client_kwargs)
+            return {"studies": []}
+
+    monkeypatch.setattr(
+        "src.mcp_server.tools_clinical_trials.ClinicalTrialsGovClient",
+        lambda: CapturingClient(),
+    )
+
+    result = TOOL_REGISTRY["search_clinical_trials_by_indication"]("NSCLC", **kwargs)
+    return result, seen
+
+
+def _assert_invalid_clinical_search_parameter(monkeypatch, **kwargs):
+    class UnexpectedClient:
+        def search_studies(self, **client_kwargs):
+            raise AssertionError(
+                "ClinicalTrials.gov client should not be called for invalid parameters"
+            )
+
+    monkeypatch.setattr(
+        "src.mcp_server.tools_clinical_trials.ClinicalTrialsGovClient",
+        lambda: UnexpectedClient(),
+    )
+
+    result = TOOL_REGISTRY["search_clinical_trials_by_indication"]("NSCLC", **kwargs)
+    assert "error" in result
+    assert result["error"]["code"] == ErrorCode.INVALID_PARAMETER.value
+
+
+def test_search_clinical_trials_normalizes_phase_string_to_single_item_list(monkeypatch):
+    result, seen = _run_clinical_search_with_capture(monkeypatch, phase="PHASE2")
+
+    assert "error" not in result
+    assert seen["phase"] == ["PHASE2"]
+
+
+def test_search_clinical_trials_normalizes_status_string_to_single_item_list(monkeypatch):
+    result, seen = _run_clinical_search_with_capture(monkeypatch, status="RECRUITING")
+
+    assert "error" not in result
+    assert seen["status"] == ["RECRUITING"]
+
+
+def test_search_clinical_trials_preserves_phase_list(monkeypatch):
+    result, seen = _run_clinical_search_with_capture(monkeypatch, phase=["PHASE2", "PHASE3"])
+
+    assert "error" not in result
+    assert seen["phase"] == ["PHASE2", "PHASE3"]
+
+
+def test_search_clinical_trials_preserves_status_list(monkeypatch):
+    result, seen = _run_clinical_search_with_capture(monkeypatch, status=["RECRUITING", "COMPLETED"])
+
+    assert "error" not in result
+    assert seen["status"] == ["RECRUITING", "COMPLETED"]
+
+
+def test_search_clinical_trials_rejects_zero_page_size(monkeypatch):
+    _assert_invalid_clinical_search_parameter(monkeypatch, page_size=0)
+
+
+def test_search_clinical_trials_rejects_boolean_page_size(monkeypatch):
+    _assert_invalid_clinical_search_parameter(monkeypatch, page_size=True)
+
+
+def test_search_clinical_trials_rejects_non_numeric_page_size_string(monkeypatch):
+    _assert_invalid_clinical_search_parameter(monkeypatch, page_size="abc")
+
+
+def test_search_clinical_trials_rejects_page_size_above_mvp_limit(monkeypatch):
+    _assert_invalid_clinical_search_parameter(monkeypatch, page_size=101)
+
+
+def test_search_clinical_trials_rejects_non_string_phase(monkeypatch):
+    _assert_invalid_clinical_search_parameter(monkeypatch, phase=123)
+
+
+def test_search_clinical_trials_rejects_non_string_status_mapping(monkeypatch):
+    _assert_invalid_clinical_search_parameter(monkeypatch, status={"status": "RECRUITING"})
+
+
+# ---------------------------------------------------------------------------
+# 3. Invalid / non-MVP source parameters return INVALID_PARAMETER
 # ---------------------------------------------------------------------------
 
 
