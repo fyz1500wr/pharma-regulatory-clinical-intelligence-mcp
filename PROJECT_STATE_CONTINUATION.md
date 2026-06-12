@@ -1,7 +1,7 @@
 # Project State Continuation
 
 Created: 2026-06-04  
-Updated: 2026-06-12
+Updated: 2026-06-12 (post PR #139)
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 
@@ -10,15 +10,15 @@ This file is the compact continuation handoff for starting a new chat. Canonical
 ## Current checkpoint
 
 - Stable branch: `main`
-- Latest confirmed merged PR: PR #137
-- Latest main merge commit: `65d276de8dbf55618954887306055a418091c76e`
-- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag has been created for PR #97–#137 docs/product/test workflow work.
+- Latest confirmed merged PR: PR #139
+- Latest main merge commit: `317663d1cbea6cb26035e8e199f2125619d85bbd`
+- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag has been created for PR #97–#139 docs/product/test/runtime workflow work.
 - Latest validation status: `PASS`
-- Latest validation evidence for PR #137 main validation baseline:
+- Latest validation evidence for PR #139 main validation baseline:
+  - `python -m pytest tests/test_mvp_runtime_hardening.py -q` → `28 passed`
   - `python -m pytest tests/test_mvp_runtime_output_contract_semantics.py -q` → `11 passed`
-  - `python -m pytest tests/test_mvp_runtime_hardening.py -q` → `18 passed`
-  - `python -m pytest tests/test_project_state_release_tag_consistency.py -q` → `5 passed`
-  - `python -m pytest -q` → `248 passed`
+  - `python -m pytest -q` → `258 passed`
+  - `git diff --check` → passed
   - `git status --short` → clean / no output
 - Execution environment note: Codespaces quota is near limit until July 2026. For upcoming validation or code/test work, default to Claude Code Web and Codex Web workflows unless the user explicitly says Codespaces is available again.
 
@@ -72,15 +72,16 @@ Original target system:
 
 ## Current alignment to original requirements
 
-Current rough alignment after PR #137:
+Current rough alignment after PR #139:
 
 ```text
-Original Regulatory / Clinical Intelligence MCP system: about 56–60% complete
+Original Regulatory / Clinical Intelligence MCP system: about 57–61% complete
 Project governance / GitHub + Claude/Codex workflow foundation: about 78–80% complete
 Dashboard target architecture / schema / query-filter / dry-run / mock examples foundation: about 52–56% complete
-MVP runtime output contract / source-state hardening: about 60–65% complete
+MVP runtime output contract / source-state hardening: about 63–68% complete
+ClinicalTrials.gov query parameter validation hardening: complete for MVP phase/status/page_size inputs
 CMC readiness extension module: about 75% complete
-Overall build-stage system: about 66–70% complete
+Overall build-stage system: about 67–71% complete
 ```
 
 Interpretation:
@@ -99,6 +100,12 @@ Interpretation:
 - The repo now locks no-result vs source-unavailable distinction for regulatory and clinical search outputs.
 - The repo now locks partial-failure metadata for regulatory comparison and document detail.
 - The repo now locks digest source-error preservation and non-inference guardrails for clinical/company/digest outputs.
+- The repo now includes a small runtime fix for ClinicalTrials.gov query parameter validation.
+- `search_clinical_trials_by_indication()` now normalizes `phase` and `status` string inputs into single-item lists before calling the client.
+- `phase` / `status` strings are no longer passed as iterable character sequences to the ClinicalTrials.gov query builder.
+- `page_size` is now validated at the tool layer using the MVP policy `1 <= page_size <= 100`.
+- Invalid `phase`, `status`, or `page_size` inputs return structured `INVALID_PARAMETER` errors and do not call the client.
+- Candidate B, `compare_regulatory_updates(source_types=...)`, remains intentionally unresolved and should be handled later through characterization/spec clarification before runtime changes.
 - EMA, NMPA/CDE, PMDA, and ICH are not active MVP runtime sources.
 - Scheduler, alerts, persistence, runtime dashboard, static artifact generator, GitHub Actions, and multi-source runtime automation are not implemented.
 
@@ -433,6 +440,38 @@ Important decision:
 
 * This PR does not authorize runtime dashboard rendering, static artifact generation, GitHub Actions workflow, scheduler, alerts, persistence, HTTP/SSE, `.mcp.json`, new MCP tools, source connectors, or source expansion.
 
+### PR #139 — ClinicalTrials.gov query parameter validation
+
+Summary:
+
+* Updated `src/mcp_server/tools_clinical_trials.py`.
+* Updated `tests/test_mvp_runtime_hardening.py`.
+* Small runtime fix for existing MVP ClinicalTrials.gov tool behavior.
+* Adds tool-layer validation for `page_size`.
+* Normalizes `phase` and `status` inputs before calling `ClinicalTrialsGovClient.search_studies`.
+* Prevents `phase="PHASE2"` and `status="RECRUITING"` from being treated as iterable character sequences.
+* Returns structured `INVALID_PARAMETER` errors for invalid `page_size`, `phase`, or `status`.
+* Adds regression tests using a fake client to verify normalized parameters and invalid-input behavior.
+
+Merge commit:
+
+```text
+317663d1cbea6cb26035e8e199f2125619d85bbd
+```
+
+Validation evidence:
+
+* `python -m pytest tests/test_mvp_runtime_hardening.py -q` → `28 passed`
+* `python -m pytest tests/test_mvp_runtime_output_contract_semantics.py -q` → `11 passed`
+* `python -m pytest -q` → `258 passed`
+* `git diff --check` → passed
+* `git status --short` → clean / no output
+
+Important decision:
+
+* This PR does not authorize new sources, new MCP tools, dashboard runtime implementation, static artifact generation, scheduling, alerts, persistence, HTTP/SSE, `.mcp.json`, GitHub Actions workflow, source expansion, company alias mapping, corporate-family mapping, product ownership inference, clinical success scoring, approval probability scoring, commercial strength scoring, or CMC weekly management report template.
+* `compare_regulatory_updates(source_types=...)` remains a separate candidate issue and was not changed in PR #139.
+
 ## Current guardrails
 
 - Use Traditional Chinese for user-facing discussion.
@@ -474,7 +513,10 @@ Rationale:
 - The MVP runtime hardening test-only PR (#133), dashboard query/filter contract (#135), and MVP runtime output contract semantics tests (#137) are now complete without authorizing runtime dashboard implementation.
 - MVP runtime hardening is likely more valuable than adding more dashboard documents immediately.
 
-Do not implement the next candidate runtime fixes in this state-only PR. Candidate directions for later calibration include small runtime fix assessment for clinical trial query parameter validation and `compare_regulatory_updates` source_types behavior clarification. Do not implement EMA/NMPA/PMDA/ICH connectors, GitHub Actions, dashboard renderer, artifact generator, scheduler, alerts, persistence, source expansion, new MCP tools, or `.mcp.json` changes unless the user explicitly approves those runtime changes.
+Before opening more runtime PRs, perform direction calibration or a focused characterization assessment for Candidate B:
+`compare_regulatory_updates(source_types=...)` forwarding behavior.
+
+Do not implement Candidate B in this PR. Do not implement EMA/NMPA/PMDA/ICH connectors, GitHub Actions, dashboard renderer, artifact generator, scheduler, alerts, persistence, source expansion, new MCP tools, or `.mcp.json` changes unless the user explicitly approves those runtime changes.
 
 ## New chat kickoff prompt
 
@@ -486,8 +528,8 @@ Use the following prompt when starting a new conversation:
 請用繁體中文回覆，不要輸出日文。
 
 請先確認：
-1. `main` 是否已包含 PR #137；
-2. `PROJECT_STATE_CONTINUATION.md` 是否已記錄 PR #137 和 248-passed validation baseline；
+1. `main` 是否已包含 PR #139；
+2. `PROJECT_STATE_CONTINUATION.md` 是否已記錄 PR #139 和 258-passed validation baseline；
 3. 是否有 open PR，若有，先判斷是否為 stale duplicate，不要直接 merge；
 4. 最新測試狀態；
 5. 是否需要先做 direction calibration。
@@ -515,12 +557,14 @@ Use the following prompt when starting a new conversation:
 - PR #133 — MVP runtime hardening contract tests and 236-passed validation baseline
 - PR #135 — dashboard query/filter contract and 237-passed validation baseline
 - PR #137 — MVP runtime output contract semantics tests and 248-passed validation baseline
+- PR #139 — ClinicalTrials.gov query parameter validation and 258-passed validation baseline
 
 目前建議下一步是先做 direction calibration，優先考慮：
 
-`Option 2 — Pause dashboard docs and return to MVP runtime hardening`
+- direction calibration
+- or focused characterization assessment for `compare_regulatory_updates(source_types=...)`
 
-除非我明確批准，不要新增 runtime dashboard renderer、static artifact generator、GitHub Actions workflow、scheduler、alerts、persistence、HTTP/SSE、`.mcp.json`、new MCP tool、EMA/NMPA/PMDA/ICH connectors、WHO ICTRP、EU CTIS、literature/patent/finance/news integration、company alias database、corporate-family mapping、product ownership inference、clinical success scoring、approval probability scoring、commercial strength scoring、CMC weekly management report template。
+除非我明確批准，不要新增 runtime dashboard renderer、static artifact generator、GitHub Actions workflow、scheduler、alerts、persistence、HTTP/SSE、`.mcp.json`、new MCP tool、new source connector、EMA/NMPA/PMDA/ICH connectors、WHO ICTRP、EU CTIS、literature/patent/finance/news integration、company alias database、corporate-family mapping、product ownership inference、clinical success scoring、approval probability scoring、commercial strength scoring、CMC weekly management report template。
 
 如果要改 repo，請維持小 PR、明確 scope、先提供 validation 指令。若 merge 被工具或系統擋一次，請停止重試並請我手動 merge。
 ```
