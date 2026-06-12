@@ -10,15 +10,13 @@ This file is the compact continuation handoff for starting a new chat. Canonical
 ## Current checkpoint
 
 - Stable branch: `main`
-- Latest confirmed merged PR: PR #133
-- Latest main merge commit: `98ef655a768f54f37369c20f4eb505c5bae4c32d`
-- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag has been created for PR #97–#133 docs/product workflow work.
+- Latest confirmed merged PR: PR #135
+- Latest main merge commit: `1b9cca67e46f71cab9a5a333f40984756d257676`
+- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag has been created for PR #97–#135 docs/product workflow work.
 - Latest validation status: `PASS`
-- Latest validation evidence for PR #133 main validation:
-  - `python -m pytest tests/test_mvp_runtime_hardening.py -q` → `18 passed in 0.10s`
-  - `python -m pytest -q` → `236 passed in 3.85s`
-  - `python -m pytest tests/test_project_state_release_tag_consistency.py -q` → `5 passed in 0.02s`
-  - `python -m pytest tests/test_readme_documentation_index.py -q` → `16 passed in 0.02s`
+- Latest validation evidence for PR #135 main validation:
+  - `python -m pytest tests/test_readme_documentation_index.py tests/test_project_state_release_tag_consistency.py -q` → `22 passed`
+  - `python -m pytest -q` → `237 passed`
   - `git status --short` → clean / no output
 - Execution environment note: Codespaces quota is near limit until July 2026. For upcoming validation or code/test work, default to Claude Code Web and Codex Web workflows unless the user explicitly says Codespaces is available again.
 
@@ -72,14 +70,14 @@ Original target system:
 
 ## Current alignment to original requirements
 
-Current rough alignment after PR #133:
+Current rough alignment after PR #135:
 
 ```text
 Original Regulatory / Clinical Intelligence MCP system: about 55–59% complete
 Project governance / GitHub + Claude/Codex workflow foundation: about 78–80% complete
-Dashboard target architecture / schema / dry-run / mock examples foundation: about 48–52% complete
+Dashboard target architecture / schema / query-filter / dry-run / mock examples foundation: about 52–56% complete
 CMC readiness extension module: about 75% complete
-Overall build-stage system: about 64–68% complete
+Overall build-stage system: about 65–69% complete
 ```
 
 Interpretation:
@@ -91,6 +89,7 @@ Interpretation:
 - The repo has a docs/spec-only EMA/NMPA/PMDA/ICH source and guidance expansion feasibility matrix.
 - The repo has a dashboard-first target architecture contract.
 - The repo has canonical dashboard data schema families.
+- The repo has a docs/spec-only dashboard query/filter contract mapping MVP runtime outputs to future dashboard filters and row fields.
 - The repo has a mock-data-only static dashboard dry-run design.
 - The repo has fictional mock dashboard record examples and static artifact acceptance criteria.
 - EMA, NMPA/CDE, PMDA, and ICH are not active MVP runtime sources.
@@ -368,6 +367,33 @@ Important decision:
 
 * This PR does not authorize new sources, new MCP tools, dashboard runtime implementation, static artifact generation, scheduling, alerts, persistence, HTTP/SSE, `.mcp.json`, or source expansion.
 
+### PR #135 — Dashboard query/filter contract
+
+Summary:
+
+* Added `docs/dashboard_query_filter_contract.md`.
+* Updated `README.md` Post-MVP Documentation Index.
+* Updated `tests/test_readme_documentation_index.py` with the new expected entry and row-specific assertion.
+* Defines docs/spec-only mapping from existing MVP runtime MCP outputs to future dashboard query/filter behavior.
+* Establishes MVP active filter boundary for FDA, TFDA, and ClinicalTrials.gov only.
+* Defines display rules for source unavailable versus no matching records, missing metadata, sponsor/company caveats, and no inference of clinical success, approval probability, commercial strength, product ownership, alias, or corporate-family relationships.
+
+Merge commit:
+
+```text
+1b9cca67e46f71cab9a5a333f40984756d257676
+```
+
+Validation evidence:
+
+* `python -m pytest tests/test_readme_documentation_index.py tests/test_project_state_release_tag_consistency.py -q` → `22 passed`
+* `python -m pytest -q` → `237 passed`
+* `git status --short` → clean / no output
+
+Important decision:
+
+* This PR does not authorize runtime dashboard rendering, static artifact generation, GitHub Actions workflow, scheduler, alerts, persistence, HTTP/SSE, `.mcp.json`, new MCP tools, source connectors, or source expansion.
+
 ## Current guardrails
 
 - Use Traditional Chinese for user-facing discussion.
@@ -404,9 +430,9 @@ Option 2 — Pause dashboard docs and return to MVP runtime hardening.
 
 Rationale:
 
-- Dashboard docs/spec now has a coherent foundation: target architecture, schema families, static dry-run design, and mock records/acceptance criteria.
+- Dashboard docs/spec now has a coherent foundation: target architecture, schema families, query/filter contract, static dry-run design, and mock records/acceptance criteria.
 - The repo is still in build-stage and should be evaluated across the entire architecture, including `src/`, `tests/`, `docs/`, `workflows/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.ai/PROJECT_STATE.md`, and this continuation file.
-- The first MVP runtime hardening test-only PR (#133) is now complete, and any next runtime work should still remain small and contract-driven.
+- The first MVP runtime hardening test-only PR (#133) is complete, and the dashboard query/filter contract (#135) is now documented without authorizing runtime implementation.
 - MVP runtime hardening is likely more valuable than adding more dashboard documents immediately.
 
 Do not implement EMA/NMPA/PMDA/ICH connectors, GitHub Actions, dashboard renderer, artifact generator, scheduler, alerts, persistence, source expansion, new MCP tools, or `.mcp.json` changes unless the user explicitly approves those runtime changes.
@@ -421,8 +447,8 @@ Use the following prompt when starting a new conversation:
 請用繁體中文回覆，不要輸出日文。
 
 請先確認：
-1. `main` 是否已包含 PR #133；
-2. `PROJECT_STATE_CONTINUATION.md` 是否已記錄 PR #120、#122、#125、#128、#130、#133，以及 PR #133 的 236-passed validation baseline；
+1. `main` 是否已包含 PR #135；
+2. `PROJECT_STATE_CONTINUATION.md` 是否已記錄 PR #120、#122、#125、#128、#130、#133、#135，以及 PR #135 的 237-passed validation baseline；
 3. 是否有 open PR，若有，先判斷是否為 stale duplicate，不要直接 merge；
 4. 最新測試狀態；
 5. 是否需要先做 direction calibration。
@@ -448,6 +474,7 @@ Use the following prompt when starting a new conversation:
 - PR #128 — mock dashboard record examples and static artifact acceptance criteria
 - PR #130 — state sync after mock dashboard record examples
 - PR #133 — MVP runtime hardening contract tests and 236-passed validation baseline
+- PR #135 — dashboard query/filter contract and 237-passed validation baseline
 
 目前建議下一步是先做 direction calibration，優先考慮：
 
