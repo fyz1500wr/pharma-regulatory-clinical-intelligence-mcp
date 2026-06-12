@@ -1,0 +1,161 @@
+{
+  "fixture_id": "dashboard_mvp_fixture_v1",
+  "fixture_kind": "mock_dashboard_records",
+  "fixture_notes": [
+    "Fictional non-confidential mock data used only for MVP dashboard export prototype tests.",
+    "Records are not real FDA, TFDA, or ClinicalTrials.gov outputs.",
+    "All sponsor names are illustrative and not corporate-family or alias mappings."
+  ],
+  "mvp_active_sources": ["FDA", "TFDA", "ClinicalTrials.gov"],
+  "regulatory_updates": [
+    {
+      "record_id": "REG-FDA-MOCK-001",
+      "source": "FDA",
+      "agency": "FDA",
+      "title": "Mock FDA draft guidance on oligonucleotide product CMC considerations",
+      "document_type": "draft_guidance",
+      "publication_date": "2026-05-12",
+      "last_update_date": "2026-05-20",
+      "official_url": "https://example.invalid/fda/mock-draft-guidance-001",
+      "product_modality": "oligonucleotide",
+      "topic": "CMC",
+      "source_health_status": "pass",
+      "result_state": "record_returned",
+      "human_review_required": true,
+      "display_caveats": [
+        "Mock record only; not an official FDA guidance document.",
+        "Draft guidance status must not be interpreted as final regulatory requirement."
+      ]
+    },
+    {
+      "record_id": "REG-TFDA-MOCK-002",
+      "source": "TFDA",
+      "agency": "TFDA",
+      "title": "Mock TFDA announcement on recombinant protein labeling update",
+      "document_type": "announcement",
+      "publication_date": "2026-04-28",
+      "last_update_date": null,
+      "official_url": "https://example.invalid/tfda/mock-announcement-002",
+      "product_modality": "recombinant_protein",
+      "topic": "labeling",
+      "source_health_status": "warning",
+      "result_state": "record_returned_with_partial_metadata",
+      "human_review_required": true,
+      "display_caveats": [
+        "Mock record only; not an official TFDA announcement.",
+        "Last update date missing; treat as partial metadata."
+      ]
+    }
+  ],
+  "clinical_trials": [
+    {
+      "record_id": "CT-MOCK-NCT90000001",
+      "registry": "ClinicalTrials.gov",
+      "registry_id": "NCT90000001",
+      "brief_title": "Mock Phase 2 study of investigational antibody in mock indication",
+      "condition_or_indication": ["Mock indication A"],
+      "sponsor_or_collaborator": "Mock Sponsor Alpha",
+      "intervention_name": ["Mock antibody MAB-0001"],
+      "trial_phase": "Phase 2",
+      "trial_status": "recruiting",
+      "start_date": "2026-02-01",
+      "primary_completion_date": "2027-06-30",
+      "completion_date": "2027-12-31",
+      "last_update_posted": "2026-05-15",
+      "results_available": false,
+      "registry_url": "https://example.invalid/ct-gov/study/NCT90000001",
+      "source_health_status": "pass",
+      "result_state": "record_returned",
+      "human_review_required": true,
+      "display_caveats": [
+        "Mock trial only; not a real ClinicalTrials.gov record.",
+        "Sponsor name is registry-reported only; no alias or corporate-family inference applied."
+      ]
+    },
+    {
+      "record_id": "CT-MOCK-NCT90000002",
+      "registry": "ClinicalTrials.gov",
+      "registry_id": "NCT90000002",
+      "brief_title": "Mock early-phase cell therapy study with partial metadata",
+      "condition_or_indication": ["Mock indication B"],
+      "sponsor_or_collaborator": "Mock Sponsor Beta",
+      "intervention_name": ["Mock cell therapy CT-0002"],
+      "trial_phase": "Phase 1",
+      "trial_status": "active_not_recruiting",
+      "start_date": null,
+      "primary_completion_date": null,
+      "completion_date": null,
+      "last_update_posted": "2026-03-22",
+      "results_available": false,
+      "registry_url": "https://example.invalid/ct-gov/study/NCT90000002",
+      "source_health_status": "warning",
+      "result_state": "record_returned_with_partial_metadata",
+      "human_review_required": true,
+      "display_caveats": [
+        "Mock trial only; not a real ClinicalTrials.gov record.",
+        "Start and completion dates missing; treat as partial metadata.",
+        "Sponsor name is registry-reported only; no alias or corporate-family inference applied."
+      ]
+    }
+  ],
+  "source_health": [
+    {
+      "record_id": "SH-FDA-MOCK-001",
+      "source": "FDA",
+      "source_type": "agency",
+      "status": "pass",
+      "failure_type": null,
+      "failure_message": null,
+      "first_observed_at": "2026-06-01T00:00:00Z",
+      "last_observed_at": "2026-06-11T00:00:00Z",
+      "last_success_at": "2026-06-11T00:00:00Z",
+      "http_status": 200,
+      "schema_drift_detected": false,
+      "empty_result_anomaly": false,
+      "record_count_anomaly": false,
+      "recommended_action": "No action required; continue scheduled checks.",
+      "human_review_required": true
+    },
+    {
+      "record_id": "SH-TFDA-MOCK-002",
+      "source": "TFDA",
+      "source_type": "agency",
+      "status": "source_unavailable",
+      "failure_type": "parser_error",
+      "failure_message": "Mock parser failure: announcement table selector returned no rows.",
+      "first_observed_at": "2026-06-10T00:00:00Z",
+      "last_observed_at": "2026-06-11T00:00:00Z",
+      "last_success_at": "2026-06-09T00:00:00Z",
+      "http_status": 200,
+      "schema_drift_detected": true,
+      "empty_result_anomaly": true,
+      "record_count_anomaly": false,
+      "recommended_action": "Review TFDA announcement page structure; do not interpret as zero records.",
+      "human_review_required": true
+    }
+  ],
+  "digest_summaries": [
+    {
+      "digest_id": "DIGEST-MOCK-001",
+      "date_window": "2026-04-01_to_2026-06-11",
+      "included_sources": ["FDA", "TFDA", "ClinicalTrials.gov"],
+      "excluded_or_unavailable_sources": ["TFDA (parser failure during window)"],
+      "regulatory_update_count": 2,
+      "clinical_trial_count": 2,
+      "source_failure_count": 1,
+      "key_topics": ["CMC", "labeling"],
+      "product_modalities": ["oligonucleotide", "recombinant_protein", "antibody", "cell_therapy"],
+      "indications": ["Mock indication A", "Mock indication B"],
+      "source_coverage_summary": "FDA pass; TFDA partial due to parser failure; ClinicalTrials.gov pass with one record carrying partial metadata.",
+      "partial_result_warnings": [
+        "TFDA source_unavailable during window; results are partial and must not be treated as zero records.",
+        "One clinical trial record has missing start and completion dates."
+      ],
+      "human_review_required": true,
+      "display_caveats": [
+        "Mock digest only; not generated from live FDA, TFDA, or ClinicalTrials.gov sources.",
+        "MVP active sources only (FDA, TFDA, ClinicalTrials.gov). EMA, NMPA, CDE, PMDA, WHO ICTRP, EU CTIS are out of phase."
+      ]
+    }
+  ]
+}
