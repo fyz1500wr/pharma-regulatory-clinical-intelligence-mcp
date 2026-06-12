@@ -1,7 +1,7 @@
 # Project State Continuation
 
 Created: 2026-06-04  
-Updated: 2026-06-11
+Updated: 2026-06-12
 
 Repository: `fyz1500wr/pharma-regulatory-clinical-intelligence-mcp`
 
@@ -10,13 +10,15 @@ This file is the compact continuation handoff for starting a new chat. Canonical
 ## Current checkpoint
 
 - Stable branch: `main`
-- Latest confirmed merged PR: PR #135
-- Latest main merge commit: `1b9cca67e46f71cab9a5a333f40984756d257676`
-- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag has been created for PR #97–#135 docs/product workflow work.
+- Latest confirmed merged PR: PR #137
+- Latest main merge commit: `65d276de8dbf55618954887306055a418091c76e`
+- Current tagged release: remains `v0.2.15-fda-abuse-detection-source-failure-diagnostics`; no new release tag has been created for PR #97–#137 docs/product/test workflow work.
 - Latest validation status: `PASS`
-- Latest validation evidence for PR #135 main validation:
-  - `python -m pytest tests/test_readme_documentation_index.py tests/test_project_state_release_tag_consistency.py -q` → `22 passed`
-  - `python -m pytest -q` → `237 passed`
+- Latest validation evidence for PR #137 main validation baseline:
+  - `python -m pytest tests/test_mvp_runtime_output_contract_semantics.py -q` → `11 passed`
+  - `python -m pytest tests/test_mvp_runtime_hardening.py -q` → `18 passed`
+  - `python -m pytest tests/test_project_state_release_tag_consistency.py -q` → `5 passed`
+  - `python -m pytest -q` → `248 passed`
   - `git status --short` → clean / no output
 - Execution environment note: Codespaces quota is near limit until July 2026. For upcoming validation or code/test work, default to Claude Code Web and Codex Web workflows unless the user explicitly says Codespaces is available again.
 
@@ -70,14 +72,15 @@ Original target system:
 
 ## Current alignment to original requirements
 
-Current rough alignment after PR #135:
+Current rough alignment after PR #137:
 
 ```text
-Original Regulatory / Clinical Intelligence MCP system: about 55–59% complete
+Original Regulatory / Clinical Intelligence MCP system: about 56–60% complete
 Project governance / GitHub + Claude/Codex workflow foundation: about 78–80% complete
 Dashboard target architecture / schema / query-filter / dry-run / mock examples foundation: about 52–56% complete
+MVP runtime output contract / source-state hardening: about 60–65% complete
 CMC readiness extension module: about 75% complete
-Overall build-stage system: about 65–69% complete
+Overall build-stage system: about 66–70% complete
 ```
 
 Interpretation:
@@ -92,6 +95,10 @@ Interpretation:
 - The repo has a docs/spec-only dashboard query/filter contract mapping MVP runtime outputs to future dashboard filters and row fields.
 - The repo has a mock-data-only static dashboard dry-run design.
 - The repo has fictional mock dashboard record examples and static artifact acceptance criteria.
+- The repo now has test-only MVP runtime output contract semantics coverage.
+- The repo now locks no-result vs source-unavailable distinction for regulatory and clinical search outputs.
+- The repo now locks partial-failure metadata for regulatory comparison and document detail.
+- The repo now locks digest source-error preservation and non-inference guardrails for clinical/company/digest outputs.
 - EMA, NMPA/CDE, PMDA, and ICH are not active MVP runtime sources.
 - Scheduler, alerts, persistence, runtime dashboard, static artifact generator, GitHub Actions, and multi-source runtime automation are not implemented.
 
@@ -394,6 +401,38 @@ Important decision:
 
 * This PR does not authorize runtime dashboard rendering, static artifact generation, GitHub Actions workflow, scheduler, alerts, persistence, HTTP/SSE, `.mcp.json`, new MCP tools, source connectors, or source expansion.
 
+### PR #137 — MVP runtime output contract semantics tests
+
+Summary:
+
+* Added `tests/test_mvp_runtime_output_contract_semantics.py`.
+* Test-only runtime output contract semantics PR.
+* No production code changes.
+* Locks the exact approved 8-tool MVP registry.
+* Verifies `NO_MATCHING_RECORDS` is not conflated with `SOURCE_UNAVAILABLE`.
+* Verifies partial-failure metadata is preserved for regulatory comparison and document detail.
+* Verifies company comparison treats unavailable sources as not evaluable rather than zero activity.
+* Verifies digest output preserves `query_metadata.source_errors` and conservative zero-update limitations.
+* Recursively verifies clinical search, company comparison, and digest outputs do not expose non-MVP inference fields such as approval probability, clinical success, commercial strength, product ownership, company alias, corporate-family relationship, or ownership inference.
+
+Merge commit:
+
+```text
+65d276de8dbf55618954887306055a418091c76e
+```
+
+Validation evidence:
+
+* `python -m pytest tests/test_mvp_runtime_output_contract_semantics.py -q` → `11 passed`
+* `python -m pytest tests/test_mvp_runtime_hardening.py -q` → `18 passed`
+* `python -m pytest tests/test_project_state_release_tag_consistency.py -q` → `5 passed`
+* `python -m pytest -q` → `248 passed`
+* `git status --short` → clean / no output
+
+Important decision:
+
+* This PR does not authorize runtime dashboard rendering, static artifact generation, GitHub Actions workflow, scheduler, alerts, persistence, HTTP/SSE, `.mcp.json`, new MCP tools, source connectors, or source expansion.
+
 ## Current guardrails
 
 - Use Traditional Chinese for user-facing discussion.
@@ -432,10 +471,10 @@ Rationale:
 
 - Dashboard docs/spec now has a coherent foundation: target architecture, schema families, query/filter contract, static dry-run design, and mock records/acceptance criteria.
 - The repo is still in build-stage and should be evaluated across the entire architecture, including `src/`, `tests/`, `docs/`, `workflows/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.ai/PROJECT_STATE.md`, and this continuation file.
-- The first MVP runtime hardening test-only PR (#133) is complete, and the dashboard query/filter contract (#135) is now documented without authorizing runtime implementation.
+- The MVP runtime hardening test-only PR (#133), dashboard query/filter contract (#135), and MVP runtime output contract semantics tests (#137) are now complete without authorizing runtime dashboard implementation.
 - MVP runtime hardening is likely more valuable than adding more dashboard documents immediately.
 
-Do not implement EMA/NMPA/PMDA/ICH connectors, GitHub Actions, dashboard renderer, artifact generator, scheduler, alerts, persistence, source expansion, new MCP tools, or `.mcp.json` changes unless the user explicitly approves those runtime changes.
+Do not implement the next candidate runtime fixes in this state-only PR. Candidate directions for later calibration include small runtime fix assessment for clinical trial query parameter validation and `compare_regulatory_updates` source_types behavior clarification. Do not implement EMA/NMPA/PMDA/ICH connectors, GitHub Actions, dashboard renderer, artifact generator, scheduler, alerts, persistence, source expansion, new MCP tools, or `.mcp.json` changes unless the user explicitly approves those runtime changes.
 
 ## New chat kickoff prompt
 
@@ -447,8 +486,8 @@ Use the following prompt when starting a new conversation:
 請用繁體中文回覆，不要輸出日文。
 
 請先確認：
-1. `main` 是否已包含 PR #135；
-2. `PROJECT_STATE_CONTINUATION.md` 是否已記錄 PR #120、#122、#125、#128、#130、#133、#135，以及 PR #135 的 237-passed validation baseline；
+1. `main` 是否已包含 PR #137；
+2. `PROJECT_STATE_CONTINUATION.md` 是否已記錄 PR #137 和 248-passed validation baseline；
 3. 是否有 open PR，若有，先判斷是否為 stale duplicate，不要直接 merge；
 4. 最新測試狀態；
 5. 是否需要先做 direction calibration。
@@ -475,6 +514,7 @@ Use the following prompt when starting a new conversation:
 - PR #130 — state sync after mock dashboard record examples
 - PR #133 — MVP runtime hardening contract tests and 236-passed validation baseline
 - PR #135 — dashboard query/filter contract and 237-passed validation baseline
+- PR #137 — MVP runtime output contract semantics tests and 248-passed validation baseline
 
 目前建議下一步是先做 direction calibration，優先考慮：
 
